@@ -1,15 +1,14 @@
 
-package example.processors;
+package app.processors;
 
 import org.neochess.core.Board;
 import org.neochess.core.evaluators.DefaultEvaluator;
 import org.neochess.core.evaluators.Evaluator;
 import org.neogroup.sparks.console.Command;
 import org.neogroup.sparks.console.Console;
+import org.neogroup.sparks.console.ConsoleCommand;
 import org.neogroup.sparks.console.processors.ConsoleProcessor;
-import org.neogroup.sparks.console.processors.ProcessCommands;
 
-@ProcessCommands({"print", "init", "flip", "move", "list", "evaluate"})
 public class BoardProcessor extends ConsoleProcessor {
 
     public static final String ANSI_RESET = "\u001B[0m";
@@ -33,33 +32,40 @@ public class BoardProcessor extends ConsoleProcessor {
         board.setInitialPosition();
     }
 
-    @Override
-    protected void processCommand(Console console, Command command) {
+    @ConsoleCommand("init")
+    public void initBoard (Console console, Command command) {
+        board.setInitialPosition();
+        console.println("Board initialized !!");
+    }
 
-        switch (command.getName()) {
-            case "init":
-                board.setInitialPosition();
-                break;
-            case "print":
-                printBoard (console);
-                break;
-            case "flip":
-                flipped = !flipped;
-                break;
-            case "move":
-                String moveString = command.getParameters().get(0);
-                int fromSquare = getSquareFromString(moveString.substring(0,2));
-                int toSquare = getSquareFromString(moveString.substring(2));
-                board.makeMove(Board.createMove(fromSquare, toSquare));
-                printBoard(console);
-                break;
-            case "list":
-                printLegalMoves(console);
-                break;
-            case "evaluate":
-                console.println ("Score: " + evaluator.evaluate(board));
-                break;
-        }
+    @ConsoleCommand("print")
+    public void printBoard (Console console, Command command) {
+        printBoard(console);
+    }
+
+    @ConsoleCommand("flip")
+    public void flipBoard (Console console, Command command) {
+        flipped = !flipped;
+        console.println("Board flipped !!");
+    }
+
+    @ConsoleCommand("move")
+    public void makeMove (Console console, Command command) {
+        String moveString = command.getParameters().get(0);
+        int fromSquare = getSquareFromString(moveString.substring(0,2));
+        int toSquare = getSquareFromString(moveString.substring(2));
+        board.makeMove(Board.createMove(fromSquare, toSquare));
+        printBoard(console);
+    }
+
+    @ConsoleCommand("list")
+    public void listMoves (Console console, Command command) {
+        printLegalMoves(console);
+    }
+
+    @ConsoleCommand("evaluate")
+    public void evaluateBoard (Console console, Command command) {
+        console.println ("Score: " + evaluator.evaluate(board));
     }
 
     private String getSquareString (int square) {
