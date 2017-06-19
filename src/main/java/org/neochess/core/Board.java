@@ -118,19 +118,21 @@ public class Board {
     public static final int BLACK_CASTLE_SHORT = 4;
     public static final int BLACK_CASTLE_LONG = 8;
 
-    private static final int MOVE_FROM_SQUARE_OFFSET = 0;
-    private static final int MOVE_TO_SQUARE_OFFSET = 6;
-    private static final int MOVE_PROMOTION_PIECE_OFFSET = 12;
-    private static final int MOVE_CAPTURED_PIECE_OFFSET = 16;
-    private static final int MOVE_CASTLE_STATE_OFFSET = 20;
-    private static final int MOVE_EP_SQUARE_OFFSET = 24;
+    private static final long MOVE_FROM_SQUARE_MASK = 0xFF;
+    private static final long MOVE_TO_SQUARE_MASK = 0xFF00;
+    private static final long MOVE_PROMOTION_PIECE_MASK = 0xFF0000;
+    private static final long MOVE_CAPTURED_PIECE_MASK = 0xFF000000;
+    private static final long MOVE_CASTLE_STATE_MASK = 0xFF00000000L;
+    private static final long MOVE_EP_SQUARE_MASK = 0xFF0000000000L;
+    private static final long MOVE_SCORE_MASK = 0xFF000000000000L;
 
-    private static final int MOVE_FROM_SQUARE_MASK = 63;
-    private static final int MOVE_TO_SQUARE_MASK = 63;
-    private static final int MOVE_PROMOTION_PIECE_MASK = 15;
-    private static final int MOVE_CAPTURED_PIECE_MASK = 15;
-    private static final int MOVE_CASTLE_STATE_MASK = 15;
-    private static final int MOVE_EP_SQUARE_MASK = 127;
+    private static final int MOVE_FROM_SQUARE_OFFSET = Long.numberOfTrailingZeros(MOVE_FROM_SQUARE_MASK);
+    private static final int MOVE_TO_SQUARE_OFFSET = Long.numberOfTrailingZeros(MOVE_TO_SQUARE_MASK);
+    private static final int MOVE_PROMOTION_PIECE_OFFSET = Long.numberOfTrailingZeros(MOVE_PROMOTION_PIECE_MASK);
+    private static final int MOVE_CAPTURED_PIECE_OFFSET = Long.numberOfTrailingZeros(MOVE_CAPTURED_PIECE_MASK);
+    private static final int MOVE_CASTLE_STATE_OFFSET = Long.numberOfTrailingZeros(MOVE_CASTLE_STATE_MASK);
+    private static final int MOVE_EP_SQUARE_OFFSET = Long.numberOfTrailingZeros(MOVE_EP_SQUARE_MASK);
+    private static final int MOVE_SCORE_OFFSET = Long.numberOfTrailingZeros(MOVE_SCORE_MASK);
 
     private static int[] mailbox = {
         INVALIDSQUARE, INVALIDSQUARE, INVALIDSQUARE, INVALIDSQUARE, INVALIDSQUARE, INVALIDSQUARE, INVALIDSQUARE, INVALIDSQUARE, INVALIDSQUARE, INVALIDSQUARE,
@@ -225,6 +227,30 @@ public class Board {
 
     public void setSideToMove(int sideToMove) {
         this.sideToMove = sideToMove;
+    }
+
+    public static int getSquare (int file, int rank) {
+        return (rank * 8) + file;
+    }
+
+    public static int getSquareFile (int square) {
+        return square & 7;
+    }
+
+    public static int getSquareRank (int square) {
+        return square >> 3;
+    }
+
+    public static int getPieceSide (int piece) {
+        return pieceSide[piece];
+    }
+
+    public static int getPieceFigure (int piece) {
+        return pieceFigure[piece];
+    }
+
+    public static int getOppositeSide (int side) {
+        return side == WHITE? BLACK : WHITE;
     }
 
     public void clear () {
@@ -339,14 +365,14 @@ public class Board {
         return inCheck;
     }
 
-    public int makeMove (int move) {
+    public long makeMove (long move) {
 
-        int fromSquare = (move >> MOVE_FROM_SQUARE_OFFSET) & MOVE_FROM_SQUARE_MASK;
-        int toSquare = (move >> MOVE_TO_SQUARE_OFFSET) & MOVE_TO_SQUARE_MASK;
+        int fromSquare = (int)((move & MOVE_FROM_SQUARE_MASK) >>> MOVE_FROM_SQUARE_OFFSET);
+        int toSquare = (int)((move & MOVE_TO_SQUARE_MASK) >>> MOVE_TO_SQUARE_OFFSET);
         int movingPiece = squares[fromSquare];
         int capturedPiece = squares[toSquare];
 
-        int appliedMove = move;
+        long appliedMove = move;
         appliedMove |= (capturedPiece << MOVE_CAPTURED_PIECE_OFFSET);
         appliedMove |= (castleState << MOVE_CASTLE_STATE_OFFSET);
         appliedMove |= (epSquare << MOVE_EP_SQUARE_OFFSET);
@@ -359,7 +385,7 @@ public class Board {
                     removePiece(toSquare - 8);
                 }
                 else if (getSquareRank(toSquare) == RANK_8) {
-                    int promotionPiece = (move >> MOVE_PROMOTION_PIECE_OFFSET) & MOVE_PROMOTION_PIECE_MASK;
+                    int promotionPiece = (int)((move & MOVE_PROMOTION_PIECE_MASK) >>> MOVE_PROMOTION_PIECE_OFFSET);
                     movingPiece = promotionPiece != EMPTY ? promotionPiece : WHITE_QUEEN;
                 }
             }
@@ -368,7 +394,7 @@ public class Board {
                     removePiece(toSquare + 8);
                 }
                 else if (getSquareRank(toSquare) == RANK_1) {
-                    int promotionPiece = (move >> MOVE_PROMOTION_PIECE_OFFSET) & MOVE_PROMOTION_PIECE_MASK;
+                    int promotionPiece = (int)((move & MOVE_PROMOTION_PIECE_MASK) >>> MOVE_PROMOTION_PIECE_OFFSET);
                     movingPiece = promotionPiece != EMPTY ? promotionPiece : BLACK_QUEEN;
                 }
             }
@@ -412,13 +438,13 @@ public class Board {
         return appliedMove;
     }
 
-    public void unmakeMove (int move) {
+    public void unmakeMove (long move) {
 
-        int fromSquare = (move >> MOVE_FROM_SQUARE_OFFSET) & MOVE_FROM_SQUARE_MASK;
-        int toSquare = (move >> MOVE_TO_SQUARE_OFFSET) & MOVE_TO_SQUARE_MASK;
-        int capturedPiece = (move >> MOVE_CAPTURED_PIECE_OFFSET) & MOVE_CAPTURED_PIECE_MASK;
-        int lastCastleState = (move >> MOVE_CASTLE_STATE_OFFSET) & MOVE_CASTLE_STATE_MASK;
-        int lastEpSquare = (move >> MOVE_EP_SQUARE_OFFSET) & MOVE_EP_SQUARE_MASK;
+        int fromSquare = (int)(move & MOVE_FROM_SQUARE_MASK) >>> MOVE_FROM_SQUARE_OFFSET;
+        int toSquare = (int)(move & MOVE_TO_SQUARE_MASK) >>> MOVE_TO_SQUARE_OFFSET;
+        int capturedPiece = (int)(move & MOVE_CAPTURED_PIECE_MASK) >>> MOVE_CAPTURED_PIECE_OFFSET;
+        int lastCastleState = (int)(move & MOVE_CASTLE_STATE_MASK) >>> MOVE_CASTLE_STATE_OFFSET;
+        int lastEpSquare = (int)(move & MOVE_EP_SQUARE_MASK) >>> MOVE_EP_SQUARE_OFFSET;
         int movingPiece = squares[toSquare];
         int movingFigure = getPieceFigure(movingPiece);
         int movingSide = getPieceSide(movingPiece);
@@ -471,18 +497,18 @@ public class Board {
         sideToMove = getOppositeSide(sideToMove);
     }
 
-    public void generateLegalMoves (int[] moves) {
+    public void generateLegalMoves (long[] moves) {
         int currentSideToMove = sideToMove;
         generatePseudoLegalMoves(moves);
         int moveIndex = 0;
         for (int currentMoveIndex = 0; currentMoveIndex < moves.length; currentMoveIndex++) {
 
-            int move = moves[currentMoveIndex];
+            long move = moves[currentMoveIndex];
             if (move == 0) {
                 break;
             }
 
-            int appliedMove = makeMove(move);
+            long appliedMove = makeMove(move);
             if (!isKingSquareAttacked(currentSideToMove)) {
                 if (moveIndex != currentMoveIndex) {
                     moves[moveIndex] = move;
@@ -494,7 +520,7 @@ public class Board {
         moves[moveIndex] = 0;
     }
 
-    public void generatePseudoLegalMoves (int[] moves) {
+    public void generatePseudoLegalMoves (long[] moves) {
 
         int moveIndex = 0;
         int oppositeSide = getOppositeSide(sideToMove);
@@ -605,50 +631,27 @@ public class Board {
         moves[moveIndex++] = 0;
     }
 
-    public static int getSquare (int file, int rank) {
-        return (rank * 8) + file;
+    public static long createMove (int fromSquare, int toSquare) {
+        return (fromSquare << MOVE_FROM_SQUARE_OFFSET) | (toSquare << MOVE_TO_SQUARE_OFFSET);
     }
 
-    public static int getSquareFile (int square) {
-        return square & 7;
+    public static long createMove (int fromSquare, int toSquare, int promotionPiece) {
+        return (fromSquare << MOVE_FROM_SQUARE_OFFSET) | (toSquare << MOVE_TO_SQUARE_OFFSET) | (promotionPiece << MOVE_PROMOTION_PIECE_OFFSET);
     }
 
-    public static int getSquareRank (int square) {
-        return square >> 3;
+    public static int getMoveFromSquare (long move) {
+        return (int)(move & MOVE_FROM_SQUARE_MASK) >>> MOVE_FROM_SQUARE_OFFSET;
     }
 
-    public static int getPieceSide (int piece) {
-        return pieceSide[piece];
+    public static int getMoveToSquare (long move) {
+        return (int)((move & MOVE_TO_SQUARE_MASK) >>> MOVE_TO_SQUARE_OFFSET);
     }
 
-    public static int getPieceFigure (int piece) {
-        return pieceFigure[piece];
+    public static int getMoveScore (long move) {
+        return (int)(move & MOVE_SCORE_MASK) >>> MOVE_SCORE_OFFSET;
     }
 
-    public static int getOppositeSide (int side) {
-        return side == WHITE? BLACK : WHITE;
-    }
-
-    public static int createMove (int fromSquare, int toSquare) {
-        int move = 0;
-        move |= (fromSquare << MOVE_FROM_SQUARE_OFFSET);
-        move |= (toSquare << MOVE_TO_SQUARE_OFFSET);
-        return move;
-    }
-
-    public static int createMove (int fromSquare, int toSquare, int promotionPiece) {
-        int move = 0;
-        move |= (fromSquare << MOVE_FROM_SQUARE_OFFSET);
-        move |= (toSquare << MOVE_TO_SQUARE_OFFSET);
-        move |= (promotionPiece << MOVE_PROMOTION_PIECE_OFFSET);
-        return move;
-    }
-
-    public static int getMoveFromSquare (int move) {
-        return (move >> MOVE_FROM_SQUARE_OFFSET) & MOVE_FROM_SQUARE_MASK;
-    }
-
-    public static int getMoveToSquare (int move) {
-        return (move >> MOVE_TO_SQUARE_OFFSET) & MOVE_TO_SQUARE_MASK;
+    public static int setMoveScore (long move, int score) {
+        return (int)((move & ~MOVE_SCORE_MASK) | ((score << MOVE_SCORE_OFFSET) & MOVE_SCORE_MASK));
     }
 }

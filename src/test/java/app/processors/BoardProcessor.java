@@ -126,9 +126,9 @@ public class BoardProcessor extends ConsoleProcessor {
     }
 
     private void printLegalMoves (Console console) {
-        int[] moves = new int[200];
+        long[] moves = new long[200];
         board.generateLegalMoves(moves);
-        for (int move : moves) {
+        for (long move : moves) {
             if (move == 0) {
                 break;
             }
