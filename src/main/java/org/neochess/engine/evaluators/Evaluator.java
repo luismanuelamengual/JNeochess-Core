@@ -1,7 +1,7 @@
 
-package org.neochess.core.evaluators;
+package org.neochess.engine.evaluators;
 
-import org.neochess.core.Board;
+import org.neochess.engine.Board;
 
 public abstract class Evaluator {
     public abstract int evaluate (Board board);
