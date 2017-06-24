@@ -18,6 +18,8 @@ public class Board {
     private EnumMap<Side,CastleRights> castleRights;
 
     public Board() {
+        squares = new EnumMap<Square, Piece>(Square.class);
+        castleRights = new EnumMap<Side, CastleRights>(Side.class);
         castleRights.put(WHITE, new CastleRights());
         castleRights.put(BLACK, new CastleRights());
     }
