@@ -3,14 +3,23 @@ package org.neochess.core;
 
 import java.util.EnumMap;
 
+import static org.neochess.core.Square.*;
+import static org.neochess.core.Side.*;
+import static org.neochess.core.Figure.*;
+import static org.neochess.core.Piece.*;
+import static org.neochess.core.Rank.*;
+import static org.neochess.core.File.*;
+
 public class Board {
 
     private EnumMap<Square,Piece> squares;
     private Side sideToMove;
     private Square epSquare;
-    private EnumMap<Side,CastleRight> castleRight;
+    private EnumMap<Side,CastleRights> castleRights;
 
     public Board() {
+        castleRights.put(WHITE, new CastleRights());
+        castleRights.put(BLACK, new CastleRights());
     }
 
     public Piece getPiece (Square square) {
@@ -41,12 +50,8 @@ public class Board {
         this.sideToMove = sideToMove;
     }
 
-    public CastleRight getCastleRight(Side side) {
-        return castleRight.get(side);
-    }
-
-    public void setCastleRight(Side side, CastleRight castleRight) {
-        this.castleRight.put(side, castleRight);
+    public CastleRights getCastleRights(Side side) {
+        return castleRights.get(side);
     }
 
     public void clear () {
@@ -54,48 +59,50 @@ public class Board {
             removePiece(square);
         }
         setEpSquare(null);
-        setCastleRight(Side.WHITE, null);
-        setCastleRight(Side.BLACK, null);
-        setSideToMove(Side.WHITE);
+        getCastleRights(WHITE).clear();
+        getCastleRights(BLACK).clear();
+        setSideToMove(WHITE);
     }
 
     public void setInitialPosition () {
         clear();
-        putPiece(Square.A1, Piece.WHITE_ROOK);
-        putPiece(Square.H1, Piece.WHITE_ROOK);
-        putPiece(Square.B1, Piece.WHITE_KNIGHT);
-        putPiece(Square.G1, Piece.WHITE_KNIGHT);
-        putPiece(Square.C1, Piece.WHITE_BISHOP);
-        putPiece(Square.F1, Piece.WHITE_BISHOP);
-        putPiece(Square.D1, Piece.WHITE_QUEEN);
-        putPiece(Square.E1, Piece.WHITE_KING);
-        putPiece(Square.A2, Piece.WHITE_PAWN);
-        putPiece(Square.B2, Piece.WHITE_PAWN);
-        putPiece(Square.C2, Piece.WHITE_PAWN);
-        putPiece(Square.D2, Piece.WHITE_PAWN);
-        putPiece(Square.E2, Piece.WHITE_PAWN);
-        putPiece(Square.F2, Piece.WHITE_PAWN);
-        putPiece(Square.G2, Piece.WHITE_PAWN);
-        putPiece(Square.H2, Piece.WHITE_PAWN);
-        putPiece(Square.A8, Piece.BLACK_ROOK);
-        putPiece(Square.H8, Piece.BLACK_ROOK);
-        putPiece(Square.B8, Piece.BLACK_KNIGHT);
-        putPiece(Square.G8, Piece.BLACK_KNIGHT);
-        putPiece(Square.C8, Piece.BLACK_BISHOP);
-        putPiece(Square.F8, Piece.BLACK_BISHOP);
-        putPiece(Square.D8, Piece.BLACK_QUEEN);
-        putPiece(Square.E8, Piece.BLACK_KING);
-        putPiece(Square.A7, Piece.BLACK_PAWN);
-        putPiece(Square.B7, Piece.BLACK_PAWN);
-        putPiece(Square.C7, Piece.BLACK_PAWN);
-        putPiece(Square.D7, Piece.BLACK_PAWN);
-        putPiece(Square.E7, Piece.BLACK_PAWN);
-        putPiece(Square.F7, Piece.BLACK_PAWN);
-        putPiece(Square.G7, Piece.BLACK_PAWN);
-        putPiece(Square.H7, Piece.BLACK_PAWN);
-        setCastleRight(Side.WHITE, CastleRight.KING_AND_QUEEN_SIDE);
-        setCastleRight(Side.BLACK, CastleRight.KING_AND_QUEEN_SIDE);
-        setSideToMove(Side.WHITE);
+        putPiece(A1, WHITE_ROOK);
+        putPiece(H1, WHITE_ROOK);
+        putPiece(B1, WHITE_KNIGHT);
+        putPiece(G1, WHITE_KNIGHT);
+        putPiece(C1, WHITE_BISHOP);
+        putPiece(F1, WHITE_BISHOP);
+        putPiece(D1, WHITE_QUEEN);
+        putPiece(E1, WHITE_KING);
+        putPiece(A2, WHITE_PAWN);
+        putPiece(B2, WHITE_PAWN);
+        putPiece(C2, WHITE_PAWN);
+        putPiece(D2, WHITE_PAWN);
+        putPiece(E2, WHITE_PAWN);
+        putPiece(F2, WHITE_PAWN);
+        putPiece(G2, WHITE_PAWN);
+        putPiece(H2, WHITE_PAWN);
+        putPiece(A8, BLACK_ROOK);
+        putPiece(H8, BLACK_ROOK);
+        putPiece(B8, BLACK_KNIGHT);
+        putPiece(G8, BLACK_KNIGHT);
+        putPiece(C8, BLACK_BISHOP);
+        putPiece(F8, BLACK_BISHOP);
+        putPiece(D8, BLACK_QUEEN);
+        putPiece(E8, BLACK_KING);
+        putPiece(A7, BLACK_PAWN);
+        putPiece(B7, BLACK_PAWN);
+        putPiece(C7, BLACK_PAWN);
+        putPiece(D7, BLACK_PAWN);
+        putPiece(E7, BLACK_PAWN);
+        putPiece(F7, BLACK_PAWN);
+        putPiece(G7, BLACK_PAWN);
+        putPiece(H7, BLACK_PAWN);
+        getCastleRights(WHITE).setCastleKingSide(true);
+        getCastleRights(WHITE).setCastleQueenSide(true);
+        getCastleRights(BLACK).setCastleKingSide(true);
+        getCastleRights(BLACK).setCastleQueenSide(true);
+        setSideToMove(WHITE);
     }
 
     public void setFenPosition (String fen) {
@@ -120,18 +127,18 @@ public class Board {
                 case '6': s+=6;  break;
                 case '7': s+=7;  break;
                 case '8': s+=8;  break;
-                case 'p': putPiece (squares[s], Piece.BLACK_PAWN); s++; break;
-                case 'n': putPiece (squares[s], Piece.BLACK_KNIGHT); s++; break;
-                case 'b': putPiece (squares[s], Piece.BLACK_BISHOP); s++; break;
-                case 'r': putPiece (squares[s], Piece.BLACK_ROOK); s++; break;
-                case 'q': putPiece (squares[s], Piece.BLACK_QUEEN); s++; break;
-                case 'k': putPiece (squares[s], Piece.BLACK_KING); s++; break;
-                case 'P': putPiece (squares[s], Piece.WHITE_PAWN); s++; break;
-                case 'N': putPiece (squares[s], Piece.WHITE_KNIGHT); s++; break;
-                case 'B': putPiece (squares[s], Piece.WHITE_BISHOP); s++; break;
-                case 'R': putPiece (squares[s], Piece.WHITE_ROOK); s++; break;
-                case 'Q': putPiece (squares[s], Piece.WHITE_QUEEN); s++; break;
-                case 'K': putPiece (squares[s], Piece.WHITE_KING); s++; break;
+                case 'p': putPiece (squares[s], BLACK_PAWN); s++; break;
+                case 'n': putPiece (squares[s], BLACK_KNIGHT); s++; break;
+                case 'b': putPiece (squares[s], BLACK_BISHOP); s++; break;
+                case 'r': putPiece (squares[s], BLACK_ROOK); s++; break;
+                case 'q': putPiece (squares[s], BLACK_QUEEN); s++; break;
+                case 'k': putPiece (squares[s], BLACK_KING); s++; break;
+                case 'P': putPiece (squares[s], WHITE_PAWN); s++; break;
+                case 'N': putPiece (squares[s], WHITE_KNIGHT); s++; break;
+                case 'B': putPiece (squares[s], WHITE_BISHOP); s++; break;
+                case 'R': putPiece (squares[s], WHITE_ROOK); s++; break;
+                case 'Q': putPiece (squares[s], WHITE_QUEEN); s++; break;
+                case 'K': putPiece (squares[s], WHITE_KING); s++; break;
             }
             c = fen.charAt(++i);
         }
@@ -139,40 +146,16 @@ public class Board {
         if (c == 'w') sideToMove = Side.WHITE;
         else if (c == 'b') sideToMove = Side.BLACK;
         i+=2;
-        setCastleRight(Side.WHITE, null);
-        setCastleRight(Side.BLACK, null);
+        getCastleRights(WHITE).clear();
+        getCastleRights(BLACK).clear();
         if (i < fen.length()) {
             c = fen.charAt(i);
-            boolean whiteKingCastle = false;
-            boolean whiteQueenCastle = false;
-            boolean blackKingCastle = false;
-            boolean blackQueenCastle = false;
             while(c!=' ') {
-                if ( c == 'K') whiteKingCastle = true;
-                else if ( c == 'Q') whiteQueenCastle = true;
-                else if ( c == 'k') blackKingCastle = true;
-                else if ( c == 'q') blackQueenCastle = true;
+                if ( c == 'K') getCastleRights(WHITE).setCastleKingSide(true);
+                else if ( c == 'Q') getCastleRights(WHITE).setCastleQueenSide(true);
+                else if ( c == 'k') getCastleRights(BLACK).setCastleKingSide(true);
+                else if ( c == 'q') getCastleRights(BLACK).setCastleQueenSide(true);
                 c = fen.charAt(++i);
-            }
-
-            if (whiteKingCastle && whiteQueenCastle) {
-                setCastleRight(Side.WHITE, CastleRight.KING_AND_QUEEN_SIDE);
-            }
-            else if (whiteKingCastle) {
-                setCastleRight(Side.WHITE, CastleRight.KING_SIDE);
-            }
-            else if (whiteQueenCastle) {
-                setCastleRight(Side.WHITE, CastleRight.QUEEN_SIDE);
-            }
-
-            if (blackKingCastle && blackQueenCastle) {
-                setCastleRight(Side.BLACK, CastleRight.KING_AND_QUEEN_SIDE);
-            }
-            else if (blackKingCastle) {
-                setCastleRight(Side.BLACK, CastleRight.KING_SIDE);
-            }
-            else if (blackQueenCastle) {
-                setCastleRight(Side.BLACK, CastleRight.QUEEN_SIDE);
             }
         }
 
@@ -188,55 +171,55 @@ public class Board {
         Piece capturedPiece = getPiece(toSquare);
 
         Figure movingFigure = movingPiece.getFigure();
-        if (movingFigure == Figure.PAWN) {
+        if (movingFigure == PAWN) {
 
-            if (sideToMove == Side.WHITE) {
+            if (sideToMove == WHITE) {
                 if (toSquare == epSquare) {
                     removePiece(toSquare.getOffsetSquare(0,-1));
                 }
-                else if (toSquare.getRank() == Rank.EIGHT) {
-                    movingPiece = move.getPromotionPiece() != null? move.getPromotionPiece() : Piece.WHITE_QUEEN;
+                else if (toSquare.getRank() == EIGHT) {
+                    movingPiece = move.getPromotionPiece() != null? move.getPromotionPiece() : WHITE_QUEEN;
                 }
-                else if (fromSquare.getRank() == Rank.TWO && toSquare.getRank() == Rank.FOUR) {
-                    setEpSquare(Square.getSquare(fromSquare.getFile(), Rank.THREE));
+                else if (fromSquare.getRank() == TWO && toSquare.getRank() == FOUR) {
+                    setEpSquare(Square.getSquare(fromSquare.getFile(), THREE));
                 }
             }
             else {
                 if (toSquare == epSquare) {
                     removePiece(toSquare.getOffsetSquare(0,1));
                 }
-                else if (toSquare.getRank() == Rank.ONE) {
-                    movingPiece = move.getPromotionPiece() != null? move.getPromotionPiece() : Piece.BLACK_QUEEN;
+                else if (toSquare.getRank() == ONE) {
+                    movingPiece = move.getPromotionPiece() != null? move.getPromotionPiece() : BLACK_QUEEN;
                 }
-                else if (fromSquare.getRank() == Rank.SEVEN && toSquare.getRank() == Rank.FIVE) {
-                    setEpSquare(Square.getSquare(fromSquare.getFile(), Rank.SIX));
+                else if (fromSquare.getRank() == SEVEN && toSquare.getRank() == FIVE) {
+                    setEpSquare(Square.getSquare(fromSquare.getFile(), SIX));
                 }
             }
         }
         else {
 
-            if (movingFigure == Figure.KING) {
-                if (fromSquare == Square.E1) {
+            if (movingFigure == KING) {
+                if (fromSquare == E1) {
                     switch (toSquare) {
                         case G1:
-                            removePiece(Square.H1);
-                            putPiece(Square.F1, Piece.WHITE_ROOK);
+                            removePiece(H1);
+                            putPiece(F1, WHITE_ROOK);
                             break;
                         case C1:
-                            removePiece(Square.A1);
-                            putPiece(Square.D1, Piece.WHITE_ROOK);
+                            removePiece(A1);
+                            putPiece(D1, WHITE_ROOK);
                             break;
                     }
                 }
-                else if (fromSquare == Square.E8) {
+                else if (fromSquare == E8) {
                     switch (toSquare) {
                         case G8:
-                            removePiece(Square.H8);
-                            putPiece(Square.F8, Piece.BLACK_ROOK);
+                            removePiece(H8);
+                            putPiece(F8, BLACK_ROOK);
                             break;
                         case C8:
-                            removePiece(Square.A8);
-                            putPiece(Square.D8, Piece.BLACK_ROOK);
+                            removePiece(A8);
+                            putPiece(D8, BLACK_ROOK);
                             break;
                     }
                 }
@@ -246,7 +229,7 @@ public class Board {
 
         removePiece(fromSquare);
         putPiece(toSquare, movingPiece);
-        //castleRight &= self::$castleMask[$fromSquare] & self::$castleMask[$toSquare];
+        //castleRights &= self::$castleMask[$fromSquare] & self::$castleMask[$toSquare];
         sideToMove = sideToMove.getOppositeSide();
     }
 }
