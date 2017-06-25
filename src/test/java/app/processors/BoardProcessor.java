@@ -1,9 +1,7 @@
 
 package app.processors;
 
-import org.neochess.engine.Board;
-import org.neochess.engine.evaluators.DefaultEvaluator;
-import org.neochess.engine.evaluators.Evaluator;
+import org.neochess.core.searchengine.SearchBoard;
 import org.neogroup.sparks.console.Command;
 import org.neogroup.sparks.console.Console;
 import org.neogroup.sparks.console.ConsoleCommand;
@@ -22,13 +20,11 @@ public class BoardProcessor extends ConsoleProcessor {
     public static final String ANSI_WHITE = "\u001B[37m";
 
     private boolean flipped;
-    private Board board;
-    private Evaluator evaluator;
+    private SearchBoard board;
 
     public BoardProcessor() {
         flipped = false;
-        evaluator = new DefaultEvaluator();
-        board = new Board();
+        board = new SearchBoard();
         board.setInitialPosition();
     }
 
@@ -54,7 +50,7 @@ public class BoardProcessor extends ConsoleProcessor {
         String moveString = command.getParameters().get(0);
         int fromSquare = getSquareFromString(moveString.substring(0,2));
         int toSquare = getSquareFromString(moveString.substring(2));
-        board.makeMove(Board.createMove(fromSquare, toSquare));
+        board.makeMove(SearchBoard.createMove(fromSquare, toSquare));
         printBoard(console);
     }
 
@@ -63,35 +59,30 @@ public class BoardProcessor extends ConsoleProcessor {
         printLegalMoves(console);
     }
 
-    @ConsoleCommand("evaluate")
-    public void evaluateBoard (Console console, Command command) {
-        console.println ("Score: " + evaluator.evaluate(board));
-    }
-
     private String getSquareString (int square) {
 
-        int file = Board.getSquareFile(square);
-        int rank = Board.getSquareRank(square);
+        int file = SearchBoard.getSquareFile(square);
+        int rank = SearchBoard.getSquareRank(square);
         StringBuilder squareString = new StringBuilder();
         switch (file) {
-            case Board.FILE_A: squareString.append("a"); break;
-            case Board.FILE_B: squareString.append("b"); break;
-            case Board.FILE_C: squareString.append("c"); break;
-            case Board.FILE_D: squareString.append("d"); break;
-            case Board.FILE_E: squareString.append("e"); break;
-            case Board.FILE_F: squareString.append("f"); break;
-            case Board.FILE_G: squareString.append("g"); break;
-            case Board.FILE_H: squareString.append("h"); break;
+            case SearchBoard.FILE_A: squareString.append("a"); break;
+            case SearchBoard.FILE_B: squareString.append("b"); break;
+            case SearchBoard.FILE_C: squareString.append("c"); break;
+            case SearchBoard.FILE_D: squareString.append("d"); break;
+            case SearchBoard.FILE_E: squareString.append("e"); break;
+            case SearchBoard.FILE_F: squareString.append("f"); break;
+            case SearchBoard.FILE_G: squareString.append("g"); break;
+            case SearchBoard.FILE_H: squareString.append("h"); break;
         }
         switch (rank) {
-            case Board.RANK_1: squareString.append("1"); break;
-            case Board.RANK_2: squareString.append("2"); break;
-            case Board.RANK_3: squareString.append("3"); break;
-            case Board.RANK_4: squareString.append("4"); break;
-            case Board.RANK_5: squareString.append("5"); break;
-            case Board.RANK_6: squareString.append("6"); break;
-            case Board.RANK_7: squareString.append("7"); break;
-            case Board.RANK_8: squareString.append("8"); break;
+            case SearchBoard.RANK_1: squareString.append("1"); break;
+            case SearchBoard.RANK_2: squareString.append("2"); break;
+            case SearchBoard.RANK_3: squareString.append("3"); break;
+            case SearchBoard.RANK_4: squareString.append("4"); break;
+            case SearchBoard.RANK_5: squareString.append("5"); break;
+            case SearchBoard.RANK_6: squareString.append("6"); break;
+            case SearchBoard.RANK_7: squareString.append("7"); break;
+            case SearchBoard.RANK_8: squareString.append("8"); break;
         }
         return squareString.toString();
     }
@@ -102,27 +93,27 @@ public class BoardProcessor extends ConsoleProcessor {
         char rankChar = squareString.charAt(1);
         int file = -1;
         switch (fileChar) {
-            case 'a': file = Board.FILE_A; break;
-            case 'b': file = Board.FILE_B; break;
-            case 'c': file = Board.FILE_C; break;
-            case 'd': file = Board.FILE_D; break;
-            case 'e': file = Board.FILE_E; break;
-            case 'f': file = Board.FILE_F; break;
-            case 'g': file = Board.FILE_G; break;
-            case 'h': file = Board.FILE_H; break;
+            case 'a': file = SearchBoard.FILE_A; break;
+            case 'b': file = SearchBoard.FILE_B; break;
+            case 'c': file = SearchBoard.FILE_C; break;
+            case 'd': file = SearchBoard.FILE_D; break;
+            case 'e': file = SearchBoard.FILE_E; break;
+            case 'f': file = SearchBoard.FILE_F; break;
+            case 'g': file = SearchBoard.FILE_G; break;
+            case 'h': file = SearchBoard.FILE_H; break;
         }
         int rank = -1;
         switch (rankChar) {
-            case '1': rank = Board.RANK_1; break;
-            case '2': rank = Board.RANK_2; break;
-            case '3': rank = Board.RANK_3; break;
-            case '4': rank = Board.RANK_4; break;
-            case '5': rank = Board.RANK_5; break;
-            case '6': rank = Board.RANK_6; break;
-            case '7': rank = Board.RANK_7; break;
-            case '8': rank = Board.RANK_8; break;
+            case '1': rank = SearchBoard.RANK_1; break;
+            case '2': rank = SearchBoard.RANK_2; break;
+            case '3': rank = SearchBoard.RANK_3; break;
+            case '4': rank = SearchBoard.RANK_4; break;
+            case '5': rank = SearchBoard.RANK_5; break;
+            case '6': rank = SearchBoard.RANK_6; break;
+            case '7': rank = SearchBoard.RANK_7; break;
+            case '8': rank = SearchBoard.RANK_8; break;
         }
-        return Board.getSquare(file, rank);
+        return SearchBoard.getSquare(file, rank);
     }
 
     private void printLegalMoves (Console console) {
@@ -132,8 +123,8 @@ public class BoardProcessor extends ConsoleProcessor {
             if (move == 0) {
                 break;
             }
-            console.print(getSquareString(Board.getMoveFromSquare(move)));
-            console.print(getSquareString(Board.getMoveToSquare(move)));
+            console.print(getSquareString(SearchBoard.getMoveFromSquare(move)));
+            console.print(getSquareString(SearchBoard.getMoveToSquare(move)));
             console.print(" ");
         }
         console.println();
@@ -142,7 +133,7 @@ public class BoardProcessor extends ConsoleProcessor {
     private void printBoard (Console console) {
         console.print("   ");
         console.println("╔═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╗");
-        for (int rank = Board.RANK_8; rank >= Board.RANK_1; rank--) {
+        for (int rank = SearchBoard.RANK_8; rank >= SearchBoard.RANK_1; rank--) {
             int currentRank = rank;
             if (flipped) {
                 currentRank = 7 - currentRank;
@@ -151,21 +142,21 @@ public class BoardProcessor extends ConsoleProcessor {
             console.print(getRankString(currentRank));
             console.print(" ");
             console.print("║");
-            for (int file = Board.FILE_A; file <= Board.FILE_H; file++) {
+            for (int file = SearchBoard.FILE_A; file <= SearchBoard.FILE_H; file++) {
                 int currentFile = file;
                 if (flipped) {
                     currentFile = 7 - currentFile;
                 }
-                int square = Board.getSquare(currentFile,currentRank);
+                int square = SearchBoard.getSquare(currentFile,currentRank);
                 int piece = board.getPiece(square);
-                int pieceSide = Board.getPieceSide(piece);
+                int pieceSide = SearchBoard.getPieceSide(piece);
                 console.print(" ");
-                if (pieceSide == Board.WHITE) {
+                if (pieceSide == SearchBoard.WHITE) {
                     console.print(ANSI_YELLOW);
                     console.print(getPieceString(piece));
                     console.print(ANSI_RESET);
                 }
-                else if (pieceSide == Board.BLACK) {
+                else if (pieceSide == SearchBoard.BLACK) {
                     console.print(ANSI_PURPLE);
                     console.print(getPieceString(piece));
                     console.print(ANSI_RESET);
@@ -177,7 +168,7 @@ public class BoardProcessor extends ConsoleProcessor {
             }
             console.println();
 
-            if (rank == Board.RANK_1) {
+            if (rank == SearchBoard.RANK_1) {
                 console.print("   ");
                 console.println("╚═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╝");
             }
@@ -188,7 +179,7 @@ public class BoardProcessor extends ConsoleProcessor {
         }
 
         console.print("   ");
-        for (int file = Board.FILE_A; file <= Board.FILE_H; file++) {
+        for (int file = SearchBoard.FILE_A; file <= SearchBoard.FILE_H; file++) {
             int currentFile = file;
             if (flipped) {
                 currentFile = 7 - currentFile;
@@ -202,32 +193,32 @@ public class BoardProcessor extends ConsoleProcessor {
 
     private String getPieceString (int piece) {
         switch (piece) {
-            case Board.WHITE_PAWN: return "P";
-            case Board.WHITE_KNIGHT: return "N";
-            case Board.WHITE_BISHOP: return "B";
-            case Board.WHITE_ROOK: return "R";
-            case Board.WHITE_QUEEN: return "Q";
-            case Board.WHITE_KING: return "K";
-            case Board.BLACK_PAWN: return "p";
-            case Board.BLACK_KNIGHT: return "n";
-            case Board.BLACK_BISHOP: return "b";
-            case Board.BLACK_ROOK: return "r";
-            case Board.BLACK_QUEEN: return "q";
-            case Board.BLACK_KING: return "k";
+            case SearchBoard.WHITE_PAWN: return "P";
+            case SearchBoard.WHITE_KNIGHT: return "N";
+            case SearchBoard.WHITE_BISHOP: return "B";
+            case SearchBoard.WHITE_ROOK: return "R";
+            case SearchBoard.WHITE_QUEEN: return "Q";
+            case SearchBoard.WHITE_KING: return "K";
+            case SearchBoard.BLACK_PAWN: return "p";
+            case SearchBoard.BLACK_KNIGHT: return "n";
+            case SearchBoard.BLACK_BISHOP: return "b";
+            case SearchBoard.BLACK_ROOK: return "r";
+            case SearchBoard.BLACK_QUEEN: return "q";
+            case SearchBoard.BLACK_KING: return "k";
             default: return " ";
         }
     }
 
     private String getFileString (int file) {
         switch (file) {
-            case Board.FILE_A: return "A";
-            case Board.FILE_B: return "B";
-            case Board.FILE_C: return "C";
-            case Board.FILE_D: return "D";
-            case Board.FILE_E: return "E";
-            case Board.FILE_F: return "F";
-            case Board.FILE_G: return "G";
-            case Board.FILE_H: return "H";
+            case SearchBoard.FILE_A: return "A";
+            case SearchBoard.FILE_B: return "B";
+            case SearchBoard.FILE_C: return "C";
+            case SearchBoard.FILE_D: return "D";
+            case SearchBoard.FILE_E: return "E";
+            case SearchBoard.FILE_F: return "F";
+            case SearchBoard.FILE_G: return "G";
+            case SearchBoard.FILE_H: return "H";
             default: return "";
         }
     }

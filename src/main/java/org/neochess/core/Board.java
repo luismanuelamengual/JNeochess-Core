@@ -231,7 +231,31 @@ public class Board {
 
         removePiece(fromSquare);
         putPiece(toSquare, movingPiece);
-        //castleRights &= self::$castleMask[$fromSquare] & self::$castleMask[$toSquare];
+
+        CastleRights whiteCastleRights = getCastleRights(WHITE);
+        if (whiteCastleRights.canCastleKingSide()) {
+            if (fromSquare == H1 || toSquare == H1 || fromSquare == E1) {
+                whiteCastleRights.setCastleKingSide(false);
+            }
+        }
+        if (whiteCastleRights.canCastleQueenSide()) {
+            if (fromSquare == A1 || toSquare == A1 || fromSquare == E1) {
+                whiteCastleRights.setCastleQueenSide(false);
+            }
+        }
+
+        CastleRights blackCastleRights = getCastleRights(BLACK);
+        if (blackCastleRights.canCastleKingSide()) {
+            if (fromSquare == H8 || toSquare == H8 || fromSquare == E8) {
+                blackCastleRights.setCastleKingSide(false);
+            }
+        }
+        if (blackCastleRights.canCastleQueenSide()) {
+            if (fromSquare == A8 || toSquare == A8 || fromSquare == E8) {
+                blackCastleRights.setCastleQueenSide(false);
+            }
+        }
+
         sideToMove = sideToMove.getOppositeSide();
     }
 }

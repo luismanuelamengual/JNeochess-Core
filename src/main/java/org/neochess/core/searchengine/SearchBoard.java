@@ -1,7 +1,7 @@
 
-package org.neochess.engine;
+package org.neochess.core.searchengine;
 
-public class Board {
+public class SearchBoard {
 
     public static final int INVALIDSIDE = 2;
     public static final int WHITE = 0;
@@ -189,7 +189,7 @@ public class Board {
     private int castleState;
     private int sideToMove;
 
-    public Board() {
+    public SearchBoard() {
         squares = new int[64];
     }
 
