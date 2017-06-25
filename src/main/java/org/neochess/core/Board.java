@@ -171,6 +171,9 @@ public class Board {
         Square toSquare = move.getToSquare();
         Piece movingPiece = getPiece(fromSquare);
         Piece capturedPiece = getPiece(toSquare);
+        move.setCapturedPiece(capturedPiece);
+        move.setEpSquare(epSquare);
+        move.setCastleRights(castleRights.clone());
 
         Figure movingFigure = movingPiece.getFigure();
         if (movingFigure == PAWN) {
@@ -257,5 +260,65 @@ public class Board {
         }
 
         sideToMove = sideToMove.getOppositeSide();
+    }
+
+    public void unmakeMove (Move move) {
+
+        Square fromSquare = move.getFromSquare();
+        Square toSquare = move.getToSquare();
+        Piece capturedPiece = move.getCapturedPiece();
+        EnumMap<Side,CastleRights> castleRights = move.getCastleRights();
+        Square epSquare = move.getEpSquare();
+        Piece movingPiece = getPiece(toSquare);
+        Figure movingFigure = movingPiece.getFigure();
+        Side movingSide = movingPiece.getSide();
+
+        if (movingFigure == PAWN) {
+            if (toSquare == epSquare) {
+                if (movingSide == WHITE) {
+                    putPiece(toSquare.getOffsetSquare(0,-1), BLACK_PAWN);
+                }
+                else {
+                    putPiece(toSquare.getOffsetSquare(0,1), WHITE_PAWN);
+                }
+            }
+        }
+        else if (movingFigure == KING) {
+            if (fromSquare == E1) {
+                switch (toSquare) {
+                    case G1:
+                        removePiece(F1);
+                        putPiece(H1, WHITE_ROOK);
+                        break;
+                    case C1:
+                        removePiece(D1);
+                        putPiece(A1, WHITE_ROOK);
+                        break;
+                }
+            }
+            else if (fromSquare == E8) {
+                switch (toSquare) {
+                    case G8:
+                        removePiece(F8);
+                        putPiece(H8, BLACK_ROOK);
+                        break;
+                    case C8:
+                        removePiece(D8);
+                        putPiece(A8, BLACK_ROOK);
+                        break;
+                }
+            }
+        }
+        if (capturedPiece != null) {
+            putPiece(toSquare, capturedPiece);
+        }
+        else {
+            removePiece(toSquare);
+        }
+        putPiece(fromSquare, movingPiece);
+        this.epSquare = epSquare;
+        this.castleRights.put(WHITE, castleRights.get(WHITE));
+        this.castleRights.put(BLACK, castleRights.get(BLACK));
+        sideToMove = getOppositeSide(sideToMove);
     }
 }
