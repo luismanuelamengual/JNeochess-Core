@@ -1,7 +1,9 @@
 
 package org.neochess.core;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 
 import static org.neochess.core.Square.*;
 import static org.neochess.core.Side.*;
@@ -320,5 +322,136 @@ public class Board {
         this.castleRights.put(WHITE, castleRights.get(WHITE));
         this.castleRights.put(BLACK, castleRights.get(BLACK));
         sideToMove = getOppositeSide(sideToMove);
+    }
+
+    public List<Move> getLegalMoves () {
+
+        EnumMap<Figure, int[][]> figureOffsets = new EnumMap<>(Figure.class);
+        figureOffsets.put(KNIGHT, new int[][]{{1,2},{1,-2},{2,1},{2,-1},{-1,2},{-1,-2},{-2,1},{-2,-1}});
+        figureOffsets.put(BISHOP, new int[][]{{1,1},{1,-1},{-1,1},{-1,-1}});
+        figureOffsets.put(ROOK, new int[][]{{1,0},{-1,0},{0,1},{0,-1}});
+        figureOffsets.put(QUEEN, new int[][]{{1,0},{-1,0},{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1}});
+        figureOffsets.put(KING, new int[][]{{1,0},{-1,0},{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1}});
+
+        List<Move> moves = new ArrayList<>();
+        Side oppositeSide = sideToMove.getOppositeSide();
+        for (Square testSquare : Square.values()) {
+            Piece piece = getPiece(testSquare);
+            Side pieceSide = piece.getSide();
+            if (sideToMove == pieceSide) {
+                Figure pieceFigure = piece.getFigure();
+                if (pieceFigure == PAWN) {
+                    File pieceFile = testSquare.getFile();
+                    if (sideToMove == WHITE) {
+
+                        Square leftCaptureSquare = testSquare.getOffsetSquare(-1, 1);
+                        if (pieceFile != A && getPiece(leftCaptureSquare) != null && getPiece(leftCaptureSquare).getSide().equals(BLACK)) {
+                            moves.add(new Move(testSquare, leftCaptureSquare));
+                        }
+                        Square rightCaptureSquare = testSquare.getOffsetSquare(1,1);
+                        if (pieceFile != H && getPiece(rightCaptureSquare) != null && getPiece(rightCaptureSquare).getSide().equals(BLACK)) {
+                            moves.add(new Move(testSquare, rightCaptureSquare));
+                        }
+                        Square nextSquare = testSquare.getOffsetSquare(0, 1);
+                        if (getPiece(nextSquare) == null) {
+                            moves.add(new Move(testSquare, nextSquare));
+                            if (testSquare.getRank().equals(TWO)) {
+                                Square nextTwoSquare = testSquare.getOffsetSquare(0, 2);
+                                if (getPiece(nextTwoSquare) == null) {
+                                    moves.add(new Move(testSquare, nextTwoSquare));
+                                }
+                            }
+                        }
+                    }
+                    else {
+
+                        Square leftCaptureSquare = testSquare.getOffsetSquare(-1, -1);
+                        if (pieceFile != A && getPiece(leftCaptureSquare) != null && getPiece(leftCaptureSquare).getSide().equals(WHITE)) {
+                            moves.add(new Move(testSquare, leftCaptureSquare));
+                        }
+                        Square rightCaptureSquare = testSquare.getOffsetSquare(1,-1);
+                        if (pieceFile != H && getPiece(rightCaptureSquare) != null && getPiece(rightCaptureSquare).getSide().equals(WHITE)) {
+                            moves.add(new Move(testSquare, rightCaptureSquare));
+                        }
+                        Square nextSquare = testSquare.getOffsetSquare(0, -1);
+                        if (getPiece(nextSquare) == null) {
+                            moves.add(new Move(testSquare, nextSquare));
+                            if (testSquare.getRank().equals(TWO)) {
+                                Square nextTwoSquare = testSquare.getOffsetSquare(0, -2);
+                                if (getPiece(nextTwoSquare) == null) {
+                                    moves.add(new Move(testSquare, nextTwoSquare));
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (int[] offset : figureOffsets.get(pieceFigure)) {
+
+                        Square currentOffsetSquare = testSquare;
+                        while (true) {
+
+                            currentOffsetSquare = currentOffsetSquare.getOffsetSquare(offset[0], offset[1]);
+                            if (currentOffsetSquare == null) {
+                                break;
+                            }
+                            Piece pieceAtCurrentSquare = getPiece(currentOffsetSquare);
+                            if (pieceAtCurrentSquare != null) {
+                                if (pieceAtCurrentSquare.getSide().equals(oppositeSide)) {
+                                    moves.add(new Move(testSquare, currentOffsetSquare));
+                                }
+                                break;
+                            }
+                            moves.add(new Move(testSquare, currentOffsetSquare));
+                            if (pieceFigure.equals(KNIGHT)) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //TODO: checks attacked squares in castles
+        if (sideToMove == WHITE) {
+
+            CastleRights sideCastleRights = this.castleRights.get(WHITE);
+            if (sideCastleRights.canCastleKingSide() && getPiece(F1) == null && getPiece(G1) == null) {
+                moves.add(new Move(E1, G1));
+            }
+            if (sideCastleRights.canCastleQueenSide() && getPiece(D1) == null && getPiece(C1) == null && getPiece(B1) == null) {
+                moves.add(new Move(E1, C1));
+            }
+            if (epSquare != null) {
+                File epSquareFile = epSquare.getFile();
+                if (!epSquareFile.equals(A) && getPiece(epSquare.getOffsetSquare(-1,-1)) == WHITE_PAWN) {
+                    moves.add(new Move(epSquare.getOffsetSquare(-1,-1), epSquare));
+                }
+                if (!epSquareFile.equals(H) && getPiece(epSquare.getOffsetSquare(1,-1)) == WHITE_PAWN) {
+                    moves.add(new Move(epSquare.getOffsetSquare(1,-1), epSquare));
+                }
+            }
+        }
+        else {
+
+            CastleRights sideCastleRights = this.castleRights.get(BLACK);
+            if (sideCastleRights.canCastleKingSide() && getPiece(F8) == null && getPiece(G8) == null) {
+                moves.add(new Move(E8, G8));
+            }
+            if (sideCastleRights.canCastleQueenSide() && getPiece(D8) == null && getPiece(C8) == null && getPiece(B8) == null) {
+                moves.add(new Move(E8, C8));
+            }
+            if (epSquare != null) {
+                File epSquareFile = epSquare.getFile();
+                if (!epSquareFile.equals(A) && getPiece(epSquare.getOffsetSquare(-1,1)) == BLACK_PAWN) {
+                    moves.add(new Move(epSquare.getOffsetSquare(-1,1), epSquare));
+                }
+                if (!epSquareFile.equals(H) && getPiece(epSquare.getOffsetSquare(1,1)) == BLACK_PAWN) {
+                    moves.add(new Move(epSquare.getOffsetSquare(1,1), epSquare));
+                }
+            }
+        }
+        return moves;
     }
 }
