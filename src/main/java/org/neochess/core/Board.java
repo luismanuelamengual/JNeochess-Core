@@ -530,6 +530,23 @@ public class Board {
         return isLegal;
     }
 
+    public Square getKingSquare (Side side) {
+
+        Square kingSquare = null;
+        Piece sideKingPiece = side == WHITE? WHITE_KING : BLACK_KING;
+        for (Square testSquare : Square.values()) {
+            if (getPiece(testSquare) == sideKingPiece) {
+                kingSquare = testSquare;
+                break;
+            }
+        }
+        return kingSquare;
+    }
+
+    public boolean isKingSquareAttacked (Side side) {
+        return isSquareAttacked(getKingSquare(side), side.getOppositeSide());
+    }
+
     public boolean isSquareAttacked (Square square, Side side) {
 
         for (Square testSquare : Square.values()) {
@@ -587,19 +604,5 @@ public class Board {
 
     public boolean inStaleMate () {
         return !inCheck() && getLegalMoves().isEmpty();
-    }
-
-    private boolean isKingSquareAttacked (Side side) {
-
-        boolean inCheck = false;
-        Side oppositeSide = side.getOppositeSide();
-        Piece sideKingPiece = side == WHITE? WHITE_KING : BLACK_KING;
-        for (Square testSquare : Square.values()) {
-            if (getPiece(testSquare) == sideKingPiece) {
-                inCheck = isSquareAttacked(testSquare, oppositeSide);
-                break;
-            }
-        }
-        return inCheck;
     }
 }
