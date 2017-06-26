@@ -218,25 +218,31 @@ public class Board {
         if (movingFigure == PAWN) {
 
             if (sideToMove == WHITE) {
-                if (toSquare == epSquare) {
-                    removePiece(toSquare.getOffsetSquare(0,-1));
-                }
-                else if (toSquare.getRank() == EIGHT) {
-                    movingPiece = move.getPromotionPiece() != null? move.getPromotionPiece() : WHITE_QUEEN;
-                }
-                else if (fromSquare.getRank() == TWO && toSquare.getRank() == FOUR) {
+                if (fromSquare.getRank() == TWO && toSquare.getRank() == FOUR) {
                     setEpSquare(Square.getSquare(fromSquare.getFile(), THREE));
+                }
+                else {
+                    if (toSquare == epSquare) {
+                        removePiece(toSquare.getOffsetSquare(0,-1));
+                    }
+                    else if (toSquare.getRank() == EIGHT) {
+                        movingPiece = move.getPromotionPiece() != null? move.getPromotionPiece() : WHITE_QUEEN;
+                    }
+                    setEpSquare(null);
                 }
             }
             else {
-                if (toSquare == epSquare) {
-                    removePiece(toSquare.getOffsetSquare(0,1));
-                }
-                else if (toSquare.getRank() == ONE) {
-                    movingPiece = move.getPromotionPiece() != null? move.getPromotionPiece() : BLACK_QUEEN;
-                }
-                else if (fromSquare.getRank() == SEVEN && toSquare.getRank() == FIVE) {
+                if (fromSquare.getRank() == SEVEN && toSquare.getRank() == FIVE) {
                     setEpSquare(Square.getSquare(fromSquare.getFile(), SIX));
+                }
+                else {
+                    if (toSquare == epSquare) {
+                        removePiece(toSquare.getOffsetSquare(0, 1));
+                    }
+                    else if (toSquare.getRank() == ONE) {
+                        movingPiece = move.getPromotionPiece() != null ? move.getPromotionPiece() : BLACK_QUEEN;
+                    }
+                    setEpSquare(null);
                 }
             }
         }
