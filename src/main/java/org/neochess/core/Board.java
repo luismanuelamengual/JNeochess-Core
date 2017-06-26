@@ -418,15 +418,22 @@ public class Board {
             }
         }
 
-        //TODO: checks attacked squares in castles
         if (sideToMove == WHITE) {
 
             CastleRights sideCastleRights = this.castleRights.get(WHITE);
-            if (sideCastleRights.canCastleKingSide() && getPiece(F1) == null && getPiece(G1) == null) {
-                moves.add(new Move(E1, G1));
-            }
-            if (sideCastleRights.canCastleQueenSide() && getPiece(D1) == null && getPiece(C1) == null && getPiece(B1) == null) {
-                moves.add(new Move(E1, C1));
+            if (sideCastleRights.canCastleKingSide() || sideCastleRights.canCastleQueenSide()) {
+                if (!isSquareAttacked(E1, BLACK)) {
+                    if (sideCastleRights.canCastleKingSide() && getPiece(F1) == null && getPiece(G1) == null) {
+                        if (!isSquareAttacked(F1, BLACK) && !isSquareAttacked(G1, BLACK)) {
+                            moves.add(new Move(E1, G1));
+                        }
+                    }
+                    if (sideCastleRights.canCastleQueenSide() && getPiece(D1) == null && getPiece(C1) == null && getPiece(B1) == null) {
+                        if (!isSquareAttacked(D1, BLACK) && !isSquareAttacked(C1, BLACK) && !isSquareAttacked(B1, BLACK)) {
+                            moves.add(new Move(E1, C1));
+                        }
+                    }
+                }
             }
             if (epSquare != null) {
                 File epSquareFile = epSquare.getFile();
@@ -441,11 +448,19 @@ public class Board {
         else {
 
             CastleRights sideCastleRights = this.castleRights.get(BLACK);
-            if (sideCastleRights.canCastleKingSide() && getPiece(F8) == null && getPiece(G8) == null) {
-                moves.add(new Move(E8, G8));
-            }
-            if (sideCastleRights.canCastleQueenSide() && getPiece(D8) == null && getPiece(C8) == null && getPiece(B8) == null) {
-                moves.add(new Move(E8, C8));
+            if (sideCastleRights.canCastleKingSide() || sideCastleRights.canCastleQueenSide()) {
+                if (!isSquareAttacked(E8, WHITE)) {
+                    if (sideCastleRights.canCastleKingSide() && getPiece(F8) == null && getPiece(G8) == null) {
+                        if (!isSquareAttacked(F8, WHITE) && !isSquareAttacked(G8, WHITE)) {
+                            moves.add(new Move(E8, G8));
+                        }
+                    }
+                    if (sideCastleRights.canCastleQueenSide() && getPiece(D8) == null && getPiece(C8) == null && getPiece(B8) == null) {
+                        if (!isSquareAttacked(D8, WHITE) && !isSquareAttacked(C8, WHITE) && !isSquareAttacked(B8, WHITE)) {
+                            moves.add(new Move(E8, C8));
+                        }
+                    }
+                }
             }
             if (epSquare != null) {
                 File epSquareFile = epSquare.getFile();
