@@ -550,6 +550,14 @@ public class Board {
         return isKingSquareAttacked(sideToMove);
     }
 
+    public boolean inCheckMate () {
+        return inCheck() && getLegalMoves().isEmpty();
+    }
+
+    public boolean inStaleMate () {
+        return !inCheck() && getLegalMoves().isEmpty();
+    }
+
     private boolean isKingSquareAttacked (Side side) {
 
         boolean inCheck = false;
