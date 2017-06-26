@@ -487,6 +487,18 @@ public class Board {
         return moves;
     }
 
+    public boolean isLegalMove (Move move) {
+        boolean isLegal = false;
+        List<Move> legalMoves = getLegalMoves();
+        for (Move legalMove : legalMoves) {
+            if (move.getFromSquare().equals(legalMove.getFromSquare()) && move.getToSquare().equals(legalMove.getToSquare())) {
+                isLegal = true;
+                break;
+            }
+        }
+        return isLegal;
+    }
+
     public boolean isSquareAttacked (Square square, Side side) {
 
         for (Square testSquare : Square.values()) {
