@@ -3,6 +3,7 @@ package org.neochess.core;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.neochess.core.Square.*;
@@ -13,6 +14,17 @@ import static org.neochess.core.Rank.*;
 import static org.neochess.core.File.*;
 
 public class Board {
+
+    private static EnumMap<Figure, int[][]> figureOffsets;
+
+    static {
+        figureOffsets = new EnumMap<>(Figure.class);
+        figureOffsets.put(KNIGHT, new int[][]{{1, 2}, {1, -2}, {2, 1}, {2, -1}, {-1, 2}, {-1, -2}, {-2, 1}, {-2, -1}});
+        figureOffsets.put(BISHOP, new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}});
+        figureOffsets.put(ROOK, new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}});
+        figureOffsets.put(QUEEN, new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}});
+        figureOffsets.put(KING, new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}});
+    }
 
     private EnumMap<Square,Piece> squares;
     private Side sideToMove;
@@ -326,13 +338,6 @@ public class Board {
 
     public List<Move> getLegalMoves () {
 
-        EnumMap<Figure, int[][]> figureOffsets = new EnumMap<>(Figure.class);
-        figureOffsets.put(KNIGHT, new int[][]{{1,2},{1,-2},{2,1},{2,-1},{-1,2},{-1,-2},{-2,1},{-2,-1}});
-        figureOffsets.put(BISHOP, new int[][]{{1,1},{1,-1},{-1,1},{-1,-1}});
-        figureOffsets.put(ROOK, new int[][]{{1,0},{-1,0},{0,1},{0,-1}});
-        figureOffsets.put(QUEEN, new int[][]{{1,0},{-1,0},{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1}});
-        figureOffsets.put(KING, new int[][]{{1,0},{-1,0},{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1}});
-
         List<Move> moves = new ArrayList<>();
         Side oppositeSide = sideToMove.getOppositeSide();
         for (Square testSquare : Square.values()) {
@@ -404,7 +409,7 @@ public class Board {
                                 break;
                             }
                             moves.add(new Move(testSquare, currentOffsetSquare));
-                            if (pieceFigure.equals(KNIGHT)) {
+                            if (pieceFigure.equals(KNIGHT) || pieceFigure.equals(KING)) {
                                 break;
                             }
                         }
@@ -452,6 +457,83 @@ public class Board {
                 }
             }
         }
+
+        Side currentSideToMove = sideToMove;
+        Iterator<Move> moveIterator = moves.iterator();
+        while (moveIterator.hasNext()) {
+            Move move = moveIterator.next();
+            makeMove(move);
+            if (isKingSquareAttacked(currentSideToMove)) {
+                moveIterator.remove();
+            }
+            unmakeMove(move);
+        }
+
         return moves;
+    }
+
+    public boolean isSquareAttacked (Square square, Side side) {
+
+        for (Square testSquare : Square.values()) {
+
+            Piece piece = getPiece(testSquare);
+            if (piece != null) {
+                Side pieceSide = piece.getSide();
+                if (side == pieceSide) {
+
+                    Figure pieceFigure = piece.getFigure();
+                    if (pieceFigure == PAWN) {
+
+                        File pieceFile = testSquare.getFile();
+                        if (side == WHITE) {
+                            if (!pieceFile.equals(A) && testSquare.getOffsetSquare(-1, 1) == square) return true;
+                            if (!pieceFile.equals(H) && testSquare.getOffsetSquare(1, 1) == square) return true;
+                        } else {
+                            if (!pieceFile.equals(A) && testSquare.getOffsetSquare(-1, -1) == square) return true;
+                            if (!pieceFile.equals(H) && testSquare.getOffsetSquare(1, -1) == square) return true;
+                        }
+                    } else {
+                        for (int[] offset : figureOffsets.get(pieceFigure)) {
+
+                            Square currentOffsetSquare = testSquare;
+                            while (true) {
+                                currentOffsetSquare = currentOffsetSquare.getOffsetSquare(offset[0], offset[1]);
+                                if (currentOffsetSquare == null) {
+                                    break;
+                                }
+                                if (currentOffsetSquare == square) {
+                                    return true;
+                                }
+                                if (getPiece(currentOffsetSquare) != null) {
+                                    break;
+                                }
+                                if (pieceFigure.equals(KNIGHT) || pieceFigure.equals(KING)) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean inCheck () {
+        return isKingSquareAttacked(sideToMove);
+    }
+
+    private boolean isKingSquareAttacked (Side side) {
+
+        boolean inCheck = false;
+        Side oppositeSide = side.getOppositeSide();
+        Piece sideKingPiece = side == WHITE? WHITE_KING : BLACK_KING;
+        for (Square testSquare : Square.values()) {
+            if (getPiece(testSquare) == sideKingPiece) {
+                inCheck = isSquareAttacked(testSquare, oppositeSide);
+                break;
+            }
+        }
+        return inCheck;
     }
 }
