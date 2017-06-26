@@ -11,6 +11,7 @@ public class Move {
     private Piece capturedPiece;
     private EnumMap<Side, CastleRights> castleRights;
     private Square epSquare;
+    private int halfMoveCounter;
 
     public Move(Square fromSquare, Square toSquare) {
         this.fromSquare = fromSquare;
@@ -63,6 +64,14 @@ public class Move {
 
     protected void setEpSquare(Square epSquare) {
         this.epSquare = epSquare;
+    }
+
+    protected int getHalfMoveCounter() {
+        return halfMoveCounter;
+    }
+
+    protected void setHalfMoveCounter(int halfMoveCounter) {
+        this.halfMoveCounter = halfMoveCounter;
     }
 
     @Override

@@ -30,6 +30,8 @@ public class Board {
     private Side sideToMove;
     private Square epSquare;
     private EnumMap<Side,CastleRights> castleRights;
+    private int moveCounter;
+    private int halfMoveCounter;
 
     public Board() {
         squares = new EnumMap<Square, Piece>(Square.class);
@@ -70,6 +72,22 @@ public class Board {
         return castleRights.get(side);
     }
 
+    public int getMoveCounter() {
+        return moveCounter;
+    }
+
+    public void setMoveCounter(int moveCounter) {
+        this.moveCounter = moveCounter;
+    }
+
+    public int getHalfMoveCounter() {
+        return halfMoveCounter;
+    }
+
+    public void setHalfMoveCounter(int halfMoveCounter) {
+        this.halfMoveCounter = halfMoveCounter;
+    }
+
     public void clear () {
         for (Square square : Square.values()) {
             removePiece(square);
@@ -78,6 +96,8 @@ public class Board {
         getCastleRights(WHITE).clear();
         getCastleRights(BLACK).clear();
         setSideToMove(WHITE);
+        moveCounter = 0;
+        halfMoveCounter = 0;
     }
 
     public void setInitialPosition () {
@@ -188,6 +208,7 @@ public class Board {
         move.setCapturedPiece(capturedPiece);
         move.setEpSquare(epSquare);
         move.setCastleRights(castleRights.clone());
+        move.setHalfMoveCounter(halfMoveCounter);
 
         Figure movingFigure = movingPiece.getFigure();
         if (movingFigure == PAWN) {
@@ -273,6 +294,13 @@ public class Board {
             }
         }
 
+        moveCounter++;
+        if (movingFigure.equals(PAWN) || capturedPiece != null) {
+            halfMoveCounter = 0;
+        }
+        else {
+            halfMoveCounter++;
+        }
         sideToMove = sideToMove.getOppositeSide();
     }
 
@@ -333,6 +361,9 @@ public class Board {
         this.epSquare = epSquare;
         this.castleRights.put(WHITE, castleRights.get(WHITE));
         this.castleRights.put(BLACK, castleRights.get(BLACK));
+
+        moveCounter--;
+        halfMoveCounter = move.getHalfMoveCounter();
         sideToMove = getOppositeSide(sideToMove);
     }
 
