@@ -6,6 +6,7 @@ import java.util.EnumMap;
 public class MoveHistorySlot {
 
     private Move move;
+    private Piece movingPiece;
     private Piece capturedPiece;
     private EnumMap<Side, CastleRights> castleRights;
     private Square epSquare;
@@ -17,6 +18,14 @@ public class MoveHistorySlot {
 
     public void setMove(Move move) {
         this.move = move;
+    }
+
+    public Piece getMovingPiece() {
+        return movingPiece;
+    }
+
+    public void setMovingPiece(Piece movingPiece) {
+        this.movingPiece = movingPiece;
     }
 
     public Piece getCapturedPiece() {

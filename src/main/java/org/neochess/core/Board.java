@@ -207,6 +207,7 @@ public class Board {
 
         MoveHistorySlot slot = new MoveHistorySlot();
         slot.setMove(move);
+        slot.setMovingPiece(movingPiece);
         slot.setCapturedPiece(capturedPiece);
         slot.setEpSquare(epSquare);
         slot.setCastleRights(castleRights.clone());
@@ -315,7 +316,7 @@ public class Board {
         Piece capturedPiece = slot.getCapturedPiece();
         EnumMap<Side,CastleRights> castleRights = slot.getCastleRights();
         Square epSquare = slot.getEpSquare();
-        Piece movingPiece = getPiece(toSquare);
+        Piece movingPiece = slot.getMovingPiece();
         Figure movingFigure = movingPiece.getFigure();
         Side movingSide = movingPiece.getSide();
 
