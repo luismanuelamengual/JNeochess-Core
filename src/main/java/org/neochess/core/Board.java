@@ -417,7 +417,7 @@ public class Board {
                             Square nextSquare = testSquare.getOffsetSquare(0, -1);
                             if (getPiece(nextSquare) == null) {
                                 moves.add(new Move(testSquare, nextSquare));
-                                if (testSquare.getRank().equals(TWO)) {
+                                if (testSquare.getRank().equals(SEVEN)) {
                                     Square nextTwoSquare = testSquare.getOffsetSquare(0, -2);
                                     if (getPiece(nextTwoSquare) == null) {
                                         moves.add(new Move(testSquare, nextTwoSquare));

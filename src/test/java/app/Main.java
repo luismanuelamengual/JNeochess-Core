@@ -1,6 +1,7 @@
 package app;
 
 import app.processors.BoardProcessor;
+import app.processors.SearchBoardProcessor;
 import org.neogroup.sparks.Application;
 import org.neogroup.sparks.console.ConsoleModule;
 

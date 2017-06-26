@@ -1,11 +1,20 @@
-
 package app.processors;
 
+import org.neochess.core.*;
 import org.neochess.core.searchengine.SearchBoard;
 import org.neogroup.sparks.console.Command;
 import org.neogroup.sparks.console.Console;
 import org.neogroup.sparks.console.ConsoleCommand;
 import org.neogroup.sparks.console.processors.ConsoleProcessor;
+
+import java.util.List;
+
+import static org.neochess.core.Square.*;
+import static org.neochess.core.Side.*;
+import static org.neochess.core.Figure.*;
+import static org.neochess.core.Piece.*;
+import static org.neochess.core.Rank.*;
+import static org.neochess.core.File.*;
 
 public class BoardProcessor extends ConsoleProcessor {
 
@@ -20,11 +29,11 @@ public class BoardProcessor extends ConsoleProcessor {
     public static final String ANSI_WHITE = "\u001B[37m";
 
     private boolean flipped;
-    private SearchBoard board;
+    private Board board;
 
     public BoardProcessor() {
         flipped = false;
-        board = new SearchBoard();
+        board = new Board();
         board.setInitialPosition();
     }
 
@@ -48,9 +57,9 @@ public class BoardProcessor extends ConsoleProcessor {
     @ConsoleCommand("move")
     public void makeMove (Console console, Command command) {
         String moveString = command.getParameters().get(0);
-        int fromSquare = getSquareFromString(moveString.substring(0,2));
-        int toSquare = getSquareFromString(moveString.substring(2));
-        board.makeMove(SearchBoard.createMove(fromSquare, toSquare));
+        Square fromSquare = getSquareFromString(moveString.substring(0,2));
+        Square toSquare = getSquareFromString(moveString.substring(2));
+        board.makeMove(new Move(fromSquare, toSquare));
         printBoard(console);
     }
 
@@ -59,72 +68,68 @@ public class BoardProcessor extends ConsoleProcessor {
         printLegalMoves(console);
     }
 
-    private String getSquareString (int square) {
+    private String getSquareString (Square square) {
 
-        int file = SearchBoard.getSquareFile(square);
-        int rank = SearchBoard.getSquareRank(square);
+        File file = square.getFile();
+        Rank rank = square.getRank();
         StringBuilder squareString = new StringBuilder();
         switch (file) {
-            case SearchBoard.FILE_A: squareString.append("a"); break;
-            case SearchBoard.FILE_B: squareString.append("b"); break;
-            case SearchBoard.FILE_C: squareString.append("c"); break;
-            case SearchBoard.FILE_D: squareString.append("d"); break;
-            case SearchBoard.FILE_E: squareString.append("e"); break;
-            case SearchBoard.FILE_F: squareString.append("f"); break;
-            case SearchBoard.FILE_G: squareString.append("g"); break;
-            case SearchBoard.FILE_H: squareString.append("h"); break;
+            case A: squareString.append("a"); break;
+            case B: squareString.append("b"); break;
+            case C: squareString.append("c"); break;
+            case D: squareString.append("d"); break;
+            case E: squareString.append("e"); break;
+            case F: squareString.append("f"); break;
+            case G: squareString.append("g"); break;
+            case H: squareString.append("h"); break;
         }
         switch (rank) {
-            case SearchBoard.RANK_1: squareString.append("1"); break;
-            case SearchBoard.RANK_2: squareString.append("2"); break;
-            case SearchBoard.RANK_3: squareString.append("3"); break;
-            case SearchBoard.RANK_4: squareString.append("4"); break;
-            case SearchBoard.RANK_5: squareString.append("5"); break;
-            case SearchBoard.RANK_6: squareString.append("6"); break;
-            case SearchBoard.RANK_7: squareString.append("7"); break;
-            case SearchBoard.RANK_8: squareString.append("8"); break;
+            case ONE: squareString.append("1"); break;
+            case TWO: squareString.append("2"); break;
+            case THREE: squareString.append("3"); break;
+            case FOUR: squareString.append("4"); break;
+            case FIVE: squareString.append("5"); break;
+            case SIX: squareString.append("6"); break;
+            case SEVEN: squareString.append("7"); break;
+            case EIGHT: squareString.append("8"); break;
         }
         return squareString.toString();
     }
 
-    private int getSquareFromString (String squareString) {
+    private Square getSquareFromString (String squareString) {
 
         char fileChar = squareString.charAt(0);
         char rankChar = squareString.charAt(1);
-        int file = -1;
+        File file = null;
         switch (fileChar) {
-            case 'a': file = SearchBoard.FILE_A; break;
-            case 'b': file = SearchBoard.FILE_B; break;
-            case 'c': file = SearchBoard.FILE_C; break;
-            case 'd': file = SearchBoard.FILE_D; break;
-            case 'e': file = SearchBoard.FILE_E; break;
-            case 'f': file = SearchBoard.FILE_F; break;
-            case 'g': file = SearchBoard.FILE_G; break;
-            case 'h': file = SearchBoard.FILE_H; break;
+            case 'a': file = A; break;
+            case 'b': file = B; break;
+            case 'c': file = C; break;
+            case 'd': file = D; break;
+            case 'e': file = E; break;
+            case 'f': file = F; break;
+            case 'g': file = G; break;
+            case 'h': file = H; break;
         }
-        int rank = -1;
+        Rank rank = null;
         switch (rankChar) {
-            case '1': rank = SearchBoard.RANK_1; break;
-            case '2': rank = SearchBoard.RANK_2; break;
-            case '3': rank = SearchBoard.RANK_3; break;
-            case '4': rank = SearchBoard.RANK_4; break;
-            case '5': rank = SearchBoard.RANK_5; break;
-            case '6': rank = SearchBoard.RANK_6; break;
-            case '7': rank = SearchBoard.RANK_7; break;
-            case '8': rank = SearchBoard.RANK_8; break;
+            case '1': rank = ONE; break;
+            case '2': rank = TWO; break;
+            case '3': rank = THREE; break;
+            case '4': rank = FOUR; break;
+            case '5': rank = FIVE; break;
+            case '6': rank = SIX; break;
+            case '7': rank = SEVEN; break;
+            case '8': rank = EIGHT; break;
         }
-        return SearchBoard.getSquare(file, rank);
+        return Square.getSquare(file, rank);
     }
 
     private void printLegalMoves (Console console) {
-        long[] moves = new long[200];
-        board.generateLegalMoves(moves);
-        for (long move : moves) {
-            if (move == 0) {
-                break;
-            }
-            console.print(getSquareString(SearchBoard.getMoveFromSquare(move)));
-            console.print(getSquareString(SearchBoard.getMoveToSquare(move)));
+        List<Move> moves = board.getLegalMoves();
+        for (Move move : moves) {
+            console.print(getSquareString(move.getFromSquare()));
+            console.print(getSquareString(move.getToSquare()));
             console.print(" ");
         }
         console.println();
@@ -133,35 +138,37 @@ public class BoardProcessor extends ConsoleProcessor {
     private void printBoard (Console console) {
         console.print("   ");
         console.println("╔═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╗");
-        for (int rank = SearchBoard.RANK_8; rank >= SearchBoard.RANK_1; rank--) {
+        for (int rank = 7; rank >= 0; rank--) {
             int currentRank = rank;
             if (flipped) {
                 currentRank = 7 - currentRank;
             }
             console.print(" ");
-            console.print(getRankString(currentRank));
+            console.print(getRankString(Rank.values()[currentRank]));
             console.print(" ");
             console.print("║");
-            for (int file = SearchBoard.FILE_A; file <= SearchBoard.FILE_H; file++) {
+            for (int file = 0; file <= 7; file++) {
                 int currentFile = file;
                 if (flipped) {
                     currentFile = 7 - currentFile;
                 }
-                int square = SearchBoard.getSquare(currentFile,currentRank);
-                int piece = board.getPiece(square);
-                int pieceSide = SearchBoard.getPieceSide(piece);
-                console.print(" ");
-                if (pieceSide == SearchBoard.WHITE) {
-                    console.print(ANSI_YELLOW);
-                    console.print(getPieceString(piece));
-                    console.print(ANSI_RESET);
-                }
-                else if (pieceSide == SearchBoard.BLACK) {
-                    console.print(ANSI_PURPLE);
-                    console.print(getPieceString(piece));
-                    console.print(ANSI_RESET);
+                Square square = Square.getSquare(File.values()[currentFile],Rank.values()[currentRank]);
+                Piece piece = board.getPiece(square);
+                if (piece != null) {
+                    Side pieceSide = piece.getSide();
+                    console.print(" ");
+                    if (pieceSide == WHITE) {
+                        console.print(ANSI_YELLOW);
+                        console.print(getPieceString(piece));
+                        console.print(ANSI_RESET);
+                    } else if (pieceSide == BLACK) {
+                        console.print(ANSI_PURPLE);
+                        console.print(getPieceString(piece));
+                        console.print(ANSI_RESET);
+                    }
                 }
                 else {
+                    console.print(" ");
                     console.print(" ");
                 }
                 console.print(" ║");
@@ -185,45 +192,45 @@ public class BoardProcessor extends ConsoleProcessor {
                 currentFile = 7 - currentFile;
             }
             console.print("  ");
-            console.print(getFileString(currentFile));
+            console.print(getFileString(File.values()[currentFile]));
             console.print(" ");
         }
         console.println();
     }
 
-    private String getPieceString (int piece) {
+    private String getPieceString (Piece piece) {
         switch (piece) {
-            case SearchBoard.WHITE_PAWN: return "P";
-            case SearchBoard.WHITE_KNIGHT: return "N";
-            case SearchBoard.WHITE_BISHOP: return "B";
-            case SearchBoard.WHITE_ROOK: return "R";
-            case SearchBoard.WHITE_QUEEN: return "Q";
-            case SearchBoard.WHITE_KING: return "K";
-            case SearchBoard.BLACK_PAWN: return "p";
-            case SearchBoard.BLACK_KNIGHT: return "n";
-            case SearchBoard.BLACK_BISHOP: return "b";
-            case SearchBoard.BLACK_ROOK: return "r";
-            case SearchBoard.BLACK_QUEEN: return "q";
-            case SearchBoard.BLACK_KING: return "k";
+            case WHITE_PAWN: return "P";
+            case WHITE_KNIGHT: return "N";
+            case WHITE_BISHOP: return "B";
+            case WHITE_ROOK: return "R";
+            case WHITE_QUEEN: return "Q";
+            case WHITE_KING: return "K";
+            case BLACK_PAWN: return "p";
+            case BLACK_KNIGHT: return "n";
+            case BLACK_BISHOP: return "b";
+            case BLACK_ROOK: return "r";
+            case BLACK_QUEEN: return "q";
+            case BLACK_KING: return "k";
             default: return " ";
         }
     }
 
-    private String getFileString (int file) {
+    private String getFileString (File file) {
         switch (file) {
-            case SearchBoard.FILE_A: return "A";
-            case SearchBoard.FILE_B: return "B";
-            case SearchBoard.FILE_C: return "C";
-            case SearchBoard.FILE_D: return "D";
-            case SearchBoard.FILE_E: return "E";
-            case SearchBoard.FILE_F: return "F";
-            case SearchBoard.FILE_G: return "G";
-            case SearchBoard.FILE_H: return "H";
+            case A: return "A";
+            case B: return "B";
+            case C: return "C";
+            case D: return "D";
+            case E: return "E";
+            case F: return "F";
+            case G: return "G";
+            case H: return "H";
             default: return "";
         }
     }
 
-    private String getRankString (int rank) {
-        return String.valueOf(rank+1);
+    private String getRankString (Rank rank) {
+        return String.valueOf(rank.ordinal()+1);
     }
 }
