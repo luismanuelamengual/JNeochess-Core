@@ -1,10 +1,7 @@
 
 package org.neochess.core;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static org.neochess.core.Square.*;
 import static org.neochess.core.Side.*;
@@ -32,12 +29,14 @@ public class Board {
     private EnumMap<Side,CastleRights> castleRights;
     private int moveCounter;
     private int halfMoveCounter;
+    private Stack<MoveHistorySlot> moveHistorySlots;
 
     public Board() {
         squares = new EnumMap<Square, Piece>(Square.class);
         castleRights = new EnumMap<Side, CastleRights>(Side.class);
         castleRights.put(WHITE, new CastleRights());
         castleRights.put(BLACK, new CastleRights());
+        moveHistorySlots = new Stack<>();
     }
 
     public Piece getPiece (Square square) {
@@ -205,10 +204,14 @@ public class Board {
         Square toSquare = move.getToSquare();
         Piece movingPiece = getPiece(fromSquare);
         Piece capturedPiece = getPiece(toSquare);
-        move.setCapturedPiece(capturedPiece);
-        move.setEpSquare(epSquare);
-        move.setCastleRights(castleRights.clone());
-        move.setHalfMoveCounter(halfMoveCounter);
+
+        MoveHistorySlot slot = new MoveHistorySlot();
+        slot.setMove(move);
+        slot.setCapturedPiece(capturedPiece);
+        slot.setEpSquare(epSquare);
+        slot.setCastleRights(castleRights.clone());
+        slot.setHalfMoveCounter(halfMoveCounter);
+        moveHistorySlots.push(slot);
 
         Figure movingFigure = movingPiece.getFigure();
         if (movingFigure == PAWN) {
@@ -304,13 +307,14 @@ public class Board {
         sideToMove = sideToMove.getOppositeSide();
     }
 
-    public void unmakeMove (Move move) {
+    public void unmakeMove () {
 
-        Square fromSquare = move.getFromSquare();
-        Square toSquare = move.getToSquare();
-        Piece capturedPiece = move.getCapturedPiece();
-        EnumMap<Side,CastleRights> castleRights = move.getCastleRights();
-        Square epSquare = move.getEpSquare();
+        MoveHistorySlot slot = moveHistorySlots.pop();
+        Square fromSquare = slot.getMove().getFromSquare();
+        Square toSquare = slot.getMove().getToSquare();
+        Piece capturedPiece = slot.getCapturedPiece();
+        EnumMap<Side,CastleRights> castleRights = slot.getCastleRights();
+        Square epSquare = slot.getEpSquare();
         Piece movingPiece = getPiece(toSquare);
         Figure movingFigure = movingPiece.getFigure();
         Side movingSide = movingPiece.getSide();
@@ -363,7 +367,7 @@ public class Board {
         this.castleRights.put(BLACK, castleRights.get(BLACK));
 
         moveCounter--;
-        halfMoveCounter = move.getHalfMoveCounter();
+        halfMoveCounter = slot.getHalfMoveCounter();
         sideToMove = getOppositeSide(sideToMove);
     }
 
@@ -512,7 +516,7 @@ public class Board {
             if (isKingSquareAttacked(currentSideToMove)) {
                 moveIterator.remove();
             }
-            unmakeMove(move);
+            unmakeMove();
         }
 
         return moves;
@@ -598,11 +602,15 @@ public class Board {
         return isKingSquareAttacked(sideToMove);
     }
 
-    public boolean inCheckMate () {
+    public boolean isCheckMate() {
         return inCheck() && getLegalMoves().isEmpty();
     }
 
-    public boolean inStaleMate () {
+    public boolean isStaleMate() {
         return !inCheck() && getLegalMoves().isEmpty();
+    }
+
+    public boolean isDraw() {
+        return isStaleMate() || halfMoveCounter >= 100;
     }
 }
