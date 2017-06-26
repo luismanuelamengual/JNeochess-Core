@@ -378,75 +378,74 @@ public class Board {
         Side oppositeSide = sideToMove.getOppositeSide();
         for (Square testSquare : Square.values()) {
             Piece piece = getPiece(testSquare);
-            Side pieceSide = piece.getSide();
-            if (sideToMove == pieceSide) {
-                Figure pieceFigure = piece.getFigure();
-                if (pieceFigure == PAWN) {
-                    File pieceFile = testSquare.getFile();
-                    if (sideToMove == WHITE) {
+            if (piece != null) {
+                Side pieceSide = piece.getSide();
+                if (sideToMove == pieceSide) {
+                    Figure pieceFigure = piece.getFigure();
+                    if (pieceFigure == PAWN) {
+                        File pieceFile = testSquare.getFile();
+                        if (sideToMove == WHITE) {
 
-                        Square leftCaptureSquare = testSquare.getOffsetSquare(-1, 1);
-                        if (pieceFile != A && getPiece(leftCaptureSquare) != null && getPiece(leftCaptureSquare).getSide().equals(BLACK)) {
-                            moves.add(new Move(testSquare, leftCaptureSquare));
-                        }
-                        Square rightCaptureSquare = testSquare.getOffsetSquare(1,1);
-                        if (pieceFile != H && getPiece(rightCaptureSquare) != null && getPiece(rightCaptureSquare).getSide().equals(BLACK)) {
-                            moves.add(new Move(testSquare, rightCaptureSquare));
-                        }
-                        Square nextSquare = testSquare.getOffsetSquare(0, 1);
-                        if (getPiece(nextSquare) == null) {
-                            moves.add(new Move(testSquare, nextSquare));
-                            if (testSquare.getRank().equals(TWO)) {
-                                Square nextTwoSquare = testSquare.getOffsetSquare(0, 2);
-                                if (getPiece(nextTwoSquare) == null) {
-                                    moves.add(new Move(testSquare, nextTwoSquare));
+                            Square leftCaptureSquare = testSquare.getOffsetSquare(-1, 1);
+                            if (pieceFile != A && getPiece(leftCaptureSquare) != null && getPiece(leftCaptureSquare).getSide().equals(BLACK)) {
+                                moves.add(new Move(testSquare, leftCaptureSquare));
+                            }
+                            Square rightCaptureSquare = testSquare.getOffsetSquare(1, 1);
+                            if (pieceFile != H && getPiece(rightCaptureSquare) != null && getPiece(rightCaptureSquare).getSide().equals(BLACK)) {
+                                moves.add(new Move(testSquare, rightCaptureSquare));
+                            }
+                            Square nextSquare = testSquare.getOffsetSquare(0, 1);
+                            if (getPiece(nextSquare) == null) {
+                                moves.add(new Move(testSquare, nextSquare));
+                                if (testSquare.getRank().equals(TWO)) {
+                                    Square nextTwoSquare = testSquare.getOffsetSquare(0, 2);
+                                    if (getPiece(nextTwoSquare) == null) {
+                                        moves.add(new Move(testSquare, nextTwoSquare));
+                                    }
+                                }
+                            }
+                        } else {
+
+                            Square leftCaptureSquare = testSquare.getOffsetSquare(-1, -1);
+                            if (pieceFile != A && getPiece(leftCaptureSquare) != null && getPiece(leftCaptureSquare).getSide().equals(WHITE)) {
+                                moves.add(new Move(testSquare, leftCaptureSquare));
+                            }
+                            Square rightCaptureSquare = testSquare.getOffsetSquare(1, -1);
+                            if (pieceFile != H && getPiece(rightCaptureSquare) != null && getPiece(rightCaptureSquare).getSide().equals(WHITE)) {
+                                moves.add(new Move(testSquare, rightCaptureSquare));
+                            }
+                            Square nextSquare = testSquare.getOffsetSquare(0, -1);
+                            if (getPiece(nextSquare) == null) {
+                                moves.add(new Move(testSquare, nextSquare));
+                                if (testSquare.getRank().equals(TWO)) {
+                                    Square nextTwoSquare = testSquare.getOffsetSquare(0, -2);
+                                    if (getPiece(nextTwoSquare) == null) {
+                                        moves.add(new Move(testSquare, nextTwoSquare));
+                                    }
                                 }
                             }
                         }
-                    }
-                    else {
+                    } else {
+                        for (int[] offset : figureOffsets.get(pieceFigure)) {
 
-                        Square leftCaptureSquare = testSquare.getOffsetSquare(-1, -1);
-                        if (pieceFile != A && getPiece(leftCaptureSquare) != null && getPiece(leftCaptureSquare).getSide().equals(WHITE)) {
-                            moves.add(new Move(testSquare, leftCaptureSquare));
-                        }
-                        Square rightCaptureSquare = testSquare.getOffsetSquare(1,-1);
-                        if (pieceFile != H && getPiece(rightCaptureSquare) != null && getPiece(rightCaptureSquare).getSide().equals(WHITE)) {
-                            moves.add(new Move(testSquare, rightCaptureSquare));
-                        }
-                        Square nextSquare = testSquare.getOffsetSquare(0, -1);
-                        if (getPiece(nextSquare) == null) {
-                            moves.add(new Move(testSquare, nextSquare));
-                            if (testSquare.getRank().equals(TWO)) {
-                                Square nextTwoSquare = testSquare.getOffsetSquare(0, -2);
-                                if (getPiece(nextTwoSquare) == null) {
-                                    moves.add(new Move(testSquare, nextTwoSquare));
+                            Square currentOffsetSquare = testSquare;
+                            while (true) {
+
+                                currentOffsetSquare = currentOffsetSquare.getOffsetSquare(offset[0], offset[1]);
+                                if (currentOffsetSquare == null) {
+                                    break;
                                 }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    for (int[] offset : figureOffsets.get(pieceFigure)) {
-
-                        Square currentOffsetSquare = testSquare;
-                        while (true) {
-
-                            currentOffsetSquare = currentOffsetSquare.getOffsetSquare(offset[0], offset[1]);
-                            if (currentOffsetSquare == null) {
-                                break;
-                            }
-                            Piece pieceAtCurrentSquare = getPiece(currentOffsetSquare);
-                            if (pieceAtCurrentSquare != null) {
-                                if (pieceAtCurrentSquare.getSide().equals(oppositeSide)) {
-                                    moves.add(new Move(testSquare, currentOffsetSquare));
+                                Piece pieceAtCurrentSquare = getPiece(currentOffsetSquare);
+                                if (pieceAtCurrentSquare != null) {
+                                    if (pieceAtCurrentSquare.getSide().equals(oppositeSide)) {
+                                        moves.add(new Move(testSquare, currentOffsetSquare));
+                                    }
+                                    break;
                                 }
-                                break;
-                            }
-                            moves.add(new Move(testSquare, currentOffsetSquare));
-                            if (pieceFigure.equals(KNIGHT) || pieceFigure.equals(KING)) {
-                                break;
+                                moves.add(new Move(testSquare, currentOffsetSquare));
+                                if (pieceFigure.equals(KNIGHT) || pieceFigure.equals(KING)) {
+                                    break;
+                                }
                             }
                         }
                     }
