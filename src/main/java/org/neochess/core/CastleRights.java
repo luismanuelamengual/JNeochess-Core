@@ -31,4 +31,8 @@ public class CastleRights {
     public void setCastleQueenSide(boolean castleQueenSide) {
         this.castleQueenSide = castleQueenSide;
     }
+
+    public boolean canCastle () {
+        return castleKingSide || castleQueenSide;
+    }
 }

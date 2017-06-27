@@ -221,6 +221,79 @@ public class Board {
         }
     }
 
+    public String getFen () {
+
+        Rank[] ranks = { ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT };
+        File[] files = { A, B, C, D, E, F, G, H };
+        StringBuilder fen = new StringBuilder();
+        for (int rankIndex = 7; rankIndex >= 0; rankIndex--) {
+            Rank rank = ranks[rankIndex];
+            for (int fileIndex = 0; fileIndex <= 7; fileIndex++) {
+                File file = files[fileIndex];
+                Square square = Square.getSquare(file, rank);
+                Piece piece = getPiece(square);
+                if (piece == null) {
+                    int spaceCounter = 1;
+                    while ((++fileIndex) <= 7) {
+                        file = files[fileIndex];
+                        square = Square.getSquare(file, rank);
+                        if (getPiece(square) == null)
+                            spaceCounter++;
+                        else
+                            break;
+                    }
+                    fen.append(String.valueOf(spaceCounter));
+                    fileIndex--;
+                }
+                else {
+                    switch (piece) {
+                        case WHITE_PAWN: fen.append("P"); break;
+                        case WHITE_KNIGHT: fen.append("N"); break;
+                        case WHITE_BISHOP: fen.append("B"); break;
+                        case WHITE_ROOK: fen.append("R"); break;
+                        case WHITE_QUEEN: fen.append("Q"); break;
+                        case WHITE_KING: fen.append("K"); break;
+                        case BLACK_PAWN: fen.append("p"); break;
+                        case BLACK_KNIGHT: fen.append("n"); break;
+                        case BLACK_BISHOP: fen.append("b"); break;
+                        case BLACK_ROOK: fen.append("r"); break;
+                        case BLACK_QUEEN: fen.append("q"); break;
+                        case BLACK_KING: fen.append("k"); break;
+                    }
+                }
+            }
+            if (rankIndex > 0) {
+                fen.append("/");
+            }
+        }
+
+        fen.append(" ");
+        fen.append(getSideToMove() == WHITE? "w" : "b");
+
+        fen.append(" ");
+        CastleRights whiteCastleRights = castleRights.get(WHITE);
+        CastleRights blackCastleRights = castleRights.get(BLACK);
+        if (whiteCastleRights.canCastle() || blackCastleRights.canCastle())
+        {
+            if (whiteCastleRights.canCastleKingSide()) fen.append("K");
+            if (whiteCastleRights.canCastleQueenSide()) fen.append("Q");
+            if (blackCastleRights.canCastleKingSide()) fen.append("k");
+            if (blackCastleRights.canCastleQueenSide()) fen.append("q");
+        }
+        else
+        {
+            fen.append("-");
+        }
+
+        fen.append(" ");
+        fen.append(epSquare != null? epSquare.toString().toLowerCase() : "-");
+        fen.append(" ");
+        fen.append(halfMoveCounter);
+        fen.append(" ");
+        fen.append((int)Math.ceil(moveCounter/2) + 1);
+        return fen.toString();
+    }
+
     public void makeMove (Move move) {
 
         Square fromSquare = move.getFromSquare();
