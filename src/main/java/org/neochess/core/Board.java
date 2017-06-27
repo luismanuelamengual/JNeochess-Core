@@ -140,7 +140,7 @@ public class Board {
         setSideToMove(WHITE);
     }
 
-    public void setFenPosition (String fen) {
+    public void setFen(String fen) {
 
         clear();
         String squares = fen.substring(0, fen.indexOf(' '));
@@ -190,10 +190,10 @@ public class Board {
         }
         CastleRights blackCastleRights = getCastleRights(BLACK);
         blackCastleRights.clear();
-        if (state.contains("K")) {
+        if (state.contains("k")) {
             blackCastleRights.setCastleKingSide(true);
         }
-        if (state.contains("Q")) {
+        if (state.contains("q")) {
             blackCastleRights.setCastleQueenSide(true);
         }
 

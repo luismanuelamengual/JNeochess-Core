@@ -63,7 +63,7 @@ public class BoardProcessor extends ConsoleProcessor {
     @ConsoleCommand("setFen")
     public void setFenPosition (Console console, Command command) {
         String fen = command.getParameters().get(0);
-        board.setFenPosition(fen);
+        board.setFen(fen);
         printBoard(console);
     }
 
