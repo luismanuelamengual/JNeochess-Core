@@ -298,7 +298,7 @@ public class Board {
     public boolean makeMove(Move move) {
         boolean isLegalMove = isLegalMove(move);
         if (isLegalMove) {
-            MoveSlot slot = new MoveSlot(this, move);
+            MoveSlot slot = createMoveSlot(move);
             makeMove(slot);
             moveSlots.push(slot);
         }
@@ -309,9 +309,24 @@ public class Board {
         MoveSlot slot = moveSlots.pop();
         boolean unmakeMove = slot != null;
         if (unmakeMove) {
-            undoMove(slot);
+            unmakeMove(slot);
         }
         return unmakeMove;
+    }
+
+    private MoveSlot createMoveSlot (Move move) {
+
+        EnumMap<Side, CastleRights> castleRights = new EnumMap<>(Side.class);
+        castleRights.put(WHITE, getCastleRights(WHITE).clone());
+        castleRights.put(BLACK, getCastleRights(BLACK).clone());
+        MoveSlot slot = new MoveSlot(move.getFromSquare(), move.getToSquare());
+        slot.setCastleRights(castleRights);
+        slot.setPromotionPiece(move.getPromotionPiece());
+        slot.setMovingPiece(getPiece(move.getFromSquare()));
+        slot.setCapturedPiece(getPiece(move.getToSquare()));
+        slot.setEnPassantSquare(getEnPassantSquare());
+        slot.setHalfMoveCounter(getHalfMoveCounter());
+        return slot;
     }
 
     private void makeMove(MoveSlot move) {
@@ -421,12 +436,11 @@ public class Board {
         sideToMove = sideToMove.getOppositeSide();
     }
 
-    private void undoMove(MoveSlot move) {
+    private void unmakeMove(MoveSlot move) {
 
         Square fromSquare = move.getFromSquare();
         Square toSquare = move.getToSquare();
         Piece capturedPiece = move.getCapturedPiece();
-        EnumMap<Side,CastleRights> castleRights = move.getCastleRights();
         Square epSquare = move.getEnPassantSquare();
         Piece movingPiece = move.getMovingPiece();
         Figure movingFigure = movingPiece.getFigure();
@@ -475,10 +489,9 @@ public class Board {
             removePiece(toSquare);
         }
         putPiece(fromSquare, movingPiece);
-        this.enPassantSquare = epSquare;
-        this.castleRights.put(WHITE, castleRights.get(WHITE));
-        this.castleRights.put(BLACK, castleRights.get(BLACK));
-
+        enPassantSquare = epSquare;
+        castleRights.put(WHITE, move.getCastleRights().get(WHITE));
+        castleRights.put(BLACK, move.getCastleRights().get(BLACK));
         moveCounter--;
         halfMoveCounter = move.getHalfMoveCounter();
         sideToMove = getOppositeSide(sideToMove);
@@ -623,12 +636,12 @@ public class Board {
         Side currentSideToMove = sideToMove;
         Iterator<Move> moveIterator = moves.iterator();
         while (moveIterator.hasNext()) {
-            MoveSlot move = new MoveSlot(this, moveIterator.next());
+            MoveSlot move = createMoveSlot(moveIterator.next());
             makeMove(move);
             if (isKingSquareAttacked(currentSideToMove)) {
                 moveIterator.remove();
             }
-            undoMove(move);
+            unmakeMove(move);
         }
 
         return moves;

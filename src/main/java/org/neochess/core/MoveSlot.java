@@ -14,15 +14,8 @@ public class MoveSlot extends Move {
     private Square enPassantSquare;
     private int halfMoveCounter;
 
-    protected MoveSlot(Board board, Move move) {
-        super(move.getFromSquare(), move.getToSquare());
-        castleRights = new EnumMap<>(Side.class);
-        castleRights.put(WHITE, board.getCastleRights(WHITE).clone());
-        castleRights.put(BLACK, board.getCastleRights(BLACK).clone());
-        movingPiece = board.getPiece(fromSquare);
-        capturedPiece = board.getPiece(toSquare);
-        enPassantSquare = board.getEnPassantSquare();
-        halfMoveCounter = board.getHalfMoveCounter();
+    public MoveSlot(Square fromSquare, Square toSquare) {
+        super(fromSquare, toSquare);
     }
 
     public Piece getMovingPiece() {
