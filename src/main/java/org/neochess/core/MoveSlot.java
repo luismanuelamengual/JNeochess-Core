@@ -3,21 +3,16 @@ package org.neochess.core;
 
 import java.util.EnumMap;
 
-public class MoveHistorySlot {
+public class MoveSlot extends Move {
 
-    private Move move;
     private Piece movingPiece;
     private Piece capturedPiece;
     private EnumMap<Side, CastleRights> castleRights;
     private Square epSquare;
     private int halfMoveCounter;
 
-    public Move getMove() {
-        return move;
-    }
-
-    public void setMove(Move move) {
-        this.move = move;
+    protected MoveSlot(Move move) {
+        super(move.getFromSquare(), move.getToSquare());
     }
 
     public Piece getMovingPiece() {

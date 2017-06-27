@@ -29,14 +29,14 @@ public class Board {
     private EnumMap<Side,CastleRights> castleRights;
     private int moveCounter;
     private int halfMoveCounter;
-    private Stack<MoveHistorySlot> moveHistorySlots;
+    private Stack<MoveSlot> moveSlots;
 
     public Board() {
         squares = new EnumMap<Square, Piece>(Square.class);
         castleRights = new EnumMap<Side, CastleRights>(Side.class);
         castleRights.put(WHITE, new CastleRights());
         castleRights.put(BLACK, new CastleRights());
-        moveHistorySlots = new Stack<>();
+        moveSlots = new Stack<>();
     }
 
     public Piece getPiece (Square square) {
@@ -97,6 +97,7 @@ public class Board {
         setSideToMove(WHITE);
         moveCounter = 0;
         halfMoveCounter = 0;
+        moveSlots.clear();
     }
 
     public void setInitialPosition () {
@@ -304,14 +305,13 @@ public class Board {
         castleRights.put(WHITE, this.castleRights.get(WHITE).clone());
         castleRights.put(BLACK, this.castleRights.get(BLACK).clone());
 
-        MoveHistorySlot slot = new MoveHistorySlot();
-        slot.setMove(move);
+        MoveSlot slot = new MoveSlot(move);
         slot.setMovingPiece(movingPiece);
         slot.setCapturedPiece(capturedPiece);
         slot.setEpSquare(epSquare);
         slot.setCastleRights(castleRights);
         slot.setHalfMoveCounter(halfMoveCounter);
-        moveHistorySlots.push(slot);
+        moveSlots.push(slot);
 
         Figure movingFigure = movingPiece.getFigure();
         if (movingFigure == PAWN) {
@@ -415,9 +415,9 @@ public class Board {
 
     public void unmakeMove () {
 
-        MoveHistorySlot slot = moveHistorySlots.pop();
-        Square fromSquare = slot.getMove().getFromSquare();
-        Square toSquare = slot.getMove().getToSquare();
+        MoveSlot slot = moveSlots.pop();
+        Square fromSquare = slot.getFromSquare();
+        Square toSquare = slot.getToSquare();
         Piece capturedPiece = slot.getCapturedPiece();
         EnumMap<Side,CastleRights> castleRights = slot.getCastleRights();
         Square epSquare = slot.getEpSquare();
