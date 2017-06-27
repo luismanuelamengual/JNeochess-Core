@@ -143,60 +143,82 @@ public class Board {
     public void setFenPosition (String fen) {
 
         clear();
+        String squares = fen.substring(0, fen.indexOf(' '));
+        String state = fen.substring(fen.indexOf(' ') + 1);
         Rank[] ranks = { ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT };
         File[] files = { A, B, C, D, E, F, G, H };
-        epSquare = null;
-        byte fenIndex = 0;
-        char fenCharacter = fen.charAt(0);
-        int rankIndex = 7;
+        String rankLines[] = squares.split("/");
         int fileIndex = 0;
-        while (fenCharacter != ' ') {
-            switch (fenCharacter) {
-                case '/': rankIndex--; fileIndex = 0; break;
-                case '1': fileIndex++; break;
-                case '2': fileIndex += 2; break;
-                case '3': fileIndex += 3; break;
-                case '4': fileIndex += 4; break;
-                case '5': fileIndex += 5; break;
-                case '6': fileIndex += 6; break;
-                case '7': fileIndex += 7; break;
-                case '8': fileIndex = 0; break;
-                case 'p': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_PAWN); fileIndex++; break;
-                case 'n': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_KNIGHT); fileIndex++; break;
-                case 'b': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_BISHOP); fileIndex++; break;
-                case 'r': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_ROOK); fileIndex++; break;
-                case 'q': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_QUEEN); fileIndex++; break;
-                case 'k': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_KING); fileIndex++; break;
-                case 'P': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_PAWN); fileIndex++; break;
-                case 'N': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_KNIGHT); fileIndex++; break;
-                case 'B': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_BISHOP); fileIndex++; break;
-                case 'R': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_ROOK); fileIndex++; break;
-                case 'Q': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_QUEEN); fileIndex++; break;
-                case 'K': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_KING); fileIndex++; break;
+        int rankIndex = 7;
+        for (String rankLine : rankLines) {
+            fileIndex = 0;
+            for (int fenIndex = 0; fenIndex < rankLine.length(); fenIndex++) {
+                char fenCharacter = rankLine.charAt(fenIndex);
+                if (Character.isDigit(fenCharacter)) {
+                    fileIndex += Integer.parseInt(fenCharacter + "");
+                } else {
+                    Square square = Square.getSquare(files[fileIndex], ranks[rankIndex]);
+                    switch (fenCharacter) {
+                        case 'p': putPiece (square, BLACK_PAWN); break;
+                        case 'n': putPiece (square, BLACK_KNIGHT); break;
+                        case 'b': putPiece (square, BLACK_BISHOP); break;
+                        case 'r': putPiece (square, BLACK_ROOK); break;
+                        case 'q': putPiece (square, BLACK_QUEEN); break;
+                        case 'k': putPiece (square, BLACK_KING); break;
+                        case 'P': putPiece (square, WHITE_PAWN); break;
+                        case 'N': putPiece (square, WHITE_KNIGHT); break;
+                        case 'B': putPiece (square, WHITE_BISHOP); break;
+                        case 'R': putPiece (square, WHITE_ROOK); break;
+                        case 'Q': putPiece (square, WHITE_QUEEN); break;
+                        case 'K': putPiece (square, WHITE_KING); break;
+                    }
+                    fileIndex++;
+                }
             }
-            fenCharacter = fen.charAt(++fenIndex);
-        }
-        fenCharacter = fen.charAt(++fenIndex);
-
-        if (fenCharacter == 'w') sideToMove = WHITE;
-        else if (fenCharacter == 'b') sideToMove = BLACK;
-
-        fenIndex+=2;
-        getCastleRights(WHITE).clear();
-        getCastleRights(BLACK).clear();
-        if (fenIndex < fen.length()) {
-            fenCharacter = fen.charAt(fenIndex);
-            while(fenCharacter!=' ') {
-                if ( fenCharacter == 'K') getCastleRights(WHITE).setCastleKingSide(true);
-                else if ( fenCharacter == 'Q') getCastleRights(WHITE).setCastleQueenSide(true);
-                else if ( fenCharacter == 'k') getCastleRights(BLACK).setCastleKingSide(true);
-                else if ( fenCharacter == 'q') getCastleRights(BLACK).setCastleQueenSide(true);
-                fenCharacter = fen.charAt(++fenIndex);
-            }
+            rankIndex--;
         }
 
-        String remainingText = fen.substring(++fenIndex);
-        epSquare = (!remainingText.equals("-"))? Square.valueOf(remainingText) : null;
+        sideToMove = state.toLowerCase().charAt(0) == 'w' ? Side.WHITE : Side.BLACK;
+
+        CastleRights whiteCastleRights = getCastleRights(WHITE);
+        whiteCastleRights.clear();
+        if (state.contains("K")) {
+            whiteCastleRights.setCastleKingSide(true);
+        }
+        if (state.contains("Q")) {
+            whiteCastleRights.setCastleQueenSide(true);
+        }
+        CastleRights blackCastleRights = getCastleRights(BLACK);
+        blackCastleRights.clear();
+        if (state.contains("K")) {
+            blackCastleRights.setCastleKingSide(true);
+        }
+        if (state.contains("Q")) {
+            blackCastleRights.setCastleQueenSide(true);
+        }
+
+        String flags[] = state.split(" ");
+        if (flags != null) {
+            if (flags.length >= 3) {
+                String s = flags[2].toUpperCase().trim();
+                if (!s.equals("-")) {
+                    Square ep = Square.valueOf(s.toUpperCase());
+                    epSquare = ep;
+                }
+                else {
+                    epSquare = null;
+                }
+                if (flags.length >= 4) {
+                    halfMoveCounter = Integer.parseInt(flags[3]);
+                    if (flags.length >= 5) {
+                        moveCounter = (Integer.parseInt(flags[4]) - 1) * 2;
+                        if (sideToMove == BLACK) {
+                            moveCounter++;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void makeMove (Move move) {
