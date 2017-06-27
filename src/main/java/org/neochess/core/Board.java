@@ -300,13 +300,16 @@ public class Board {
         Square toSquare = move.getToSquare();
         Piece movingPiece = getPiece(fromSquare);
         Piece capturedPiece = getPiece(toSquare);
+        EnumMap<Side,CastleRights> castleRights = new EnumMap<Side, CastleRights>(Side.class);
+        castleRights.put(WHITE, this.castleRights.get(WHITE).clone());
+        castleRights.put(BLACK, this.castleRights.get(BLACK).clone());
 
         MoveHistorySlot slot = new MoveHistorySlot();
         slot.setMove(move);
         slot.setMovingPiece(movingPiece);
         slot.setCapturedPiece(capturedPiece);
         slot.setEpSquare(epSquare);
-        slot.setCastleRights(castleRights.clone());
+        slot.setCastleRights(castleRights);
         slot.setHalfMoveCounter(halfMoveCounter);
         moveHistorySlots.push(slot);
 

@@ -11,6 +11,13 @@ public class CastleRights {
         this.castleQueenSide = false;
     }
 
+    public CastleRights clone() {
+        CastleRights clone = new CastleRights();
+        clone.setCastleKingSide(castleKingSide);
+        clone.setCastleQueenSide(castleQueenSide);
+        return clone;
+    }
+
     public void clear () {
         castleKingSide = false;
         castleQueenSide = false;
