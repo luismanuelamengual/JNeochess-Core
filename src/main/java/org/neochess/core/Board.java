@@ -141,60 +141,61 @@ public class Board {
     }
 
     public void setFenPosition (String fen) {
+
         clear();
-        byte i,s;
-        char c;
+        Rank[] ranks = { ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT };
+        File[] files = { A, B, C, D, E, F, G, H };
         epSquare = null;
-        i=0;
-        s=56;
-        c = fen.charAt(0);
-        Square[] squares = Square.values();
-        while (c != ' ')
-        {
-            switch (c)
-            {
-                case '/': s-=16; break;
-                case '1': s+=1;  break;
-                case '2': s+=2;  break;
-                case '3': s+=3;  break;
-                case '4': s+=4;  break;
-                case '5': s+=5;  break;
-                case '6': s+=6;  break;
-                case '7': s+=7;  break;
-                case '8': s+=8;  break;
-                case 'p': putPiece (squares[s], BLACK_PAWN); s++; break;
-                case 'n': putPiece (squares[s], BLACK_KNIGHT); s++; break;
-                case 'b': putPiece (squares[s], BLACK_BISHOP); s++; break;
-                case 'r': putPiece (squares[s], BLACK_ROOK); s++; break;
-                case 'q': putPiece (squares[s], BLACK_QUEEN); s++; break;
-                case 'k': putPiece (squares[s], BLACK_KING); s++; break;
-                case 'P': putPiece (squares[s], WHITE_PAWN); s++; break;
-                case 'N': putPiece (squares[s], WHITE_KNIGHT); s++; break;
-                case 'B': putPiece (squares[s], WHITE_BISHOP); s++; break;
-                case 'R': putPiece (squares[s], WHITE_ROOK); s++; break;
-                case 'Q': putPiece (squares[s], WHITE_QUEEN); s++; break;
-                case 'K': putPiece (squares[s], WHITE_KING); s++; break;
+        byte fenIndex = 0;
+        char fenCharacter = fen.charAt(0);
+        int rankIndex = 7;
+        int fileIndex = 0;
+        while (fenCharacter != ' ') {
+            switch (fenCharacter) {
+                case '/': rankIndex--; fileIndex = 0; break;
+                case '1': fileIndex++; break;
+                case '2': fileIndex += 2; break;
+                case '3': fileIndex += 3; break;
+                case '4': fileIndex += 4; break;
+                case '5': fileIndex += 5; break;
+                case '6': fileIndex += 6; break;
+                case '7': fileIndex += 7; break;
+                case '8': fileIndex = 0; break;
+                case 'p': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_PAWN); fileIndex++; break;
+                case 'n': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_KNIGHT); fileIndex++; break;
+                case 'b': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_BISHOP); fileIndex++; break;
+                case 'r': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_ROOK); fileIndex++; break;
+                case 'q': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_QUEEN); fileIndex++; break;
+                case 'k': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), BLACK_KING); fileIndex++; break;
+                case 'P': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_PAWN); fileIndex++; break;
+                case 'N': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_KNIGHT); fileIndex++; break;
+                case 'B': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_BISHOP); fileIndex++; break;
+                case 'R': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_ROOK); fileIndex++; break;
+                case 'Q': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_QUEEN); fileIndex++; break;
+                case 'K': putPiece (Square.getSquare(files[fileIndex], ranks[rankIndex]), WHITE_KING); fileIndex++; break;
             }
-            c = fen.charAt(++i);
+            fenCharacter = fen.charAt(++fenIndex);
         }
-        c = fen.charAt(++i);
-        if (c == 'w') sideToMove = Side.WHITE;
-        else if (c == 'b') sideToMove = Side.BLACK;
-        i+=2;
+        fenCharacter = fen.charAt(++fenIndex);
+
+        if (fenCharacter == 'w') sideToMove = WHITE;
+        else if (fenCharacter == 'b') sideToMove = BLACK;
+
+        fenIndex+=2;
         getCastleRights(WHITE).clear();
         getCastleRights(BLACK).clear();
-        if (i < fen.length()) {
-            c = fen.charAt(i);
-            while(c!=' ') {
-                if ( c == 'K') getCastleRights(WHITE).setCastleKingSide(true);
-                else if ( c == 'Q') getCastleRights(WHITE).setCastleQueenSide(true);
-                else if ( c == 'k') getCastleRights(BLACK).setCastleKingSide(true);
-                else if ( c == 'q') getCastleRights(BLACK).setCastleQueenSide(true);
-                c = fen.charAt(++i);
+        if (fenIndex < fen.length()) {
+            fenCharacter = fen.charAt(fenIndex);
+            while(fenCharacter!=' ') {
+                if ( fenCharacter == 'K') getCastleRights(WHITE).setCastleKingSide(true);
+                else if ( fenCharacter == 'Q') getCastleRights(WHITE).setCastleQueenSide(true);
+                else if ( fenCharacter == 'k') getCastleRights(BLACK).setCastleKingSide(true);
+                else if ( fenCharacter == 'q') getCastleRights(BLACK).setCastleQueenSide(true);
+                fenCharacter = fen.charAt(++fenIndex);
             }
         }
 
-        String remainingText = fen.substring(++i);
+        String remainingText = fen.substring(++fenIndex);
         epSquare = (!remainingText.equals("-"))? Square.valueOf(remainingText) : null;
     }
 

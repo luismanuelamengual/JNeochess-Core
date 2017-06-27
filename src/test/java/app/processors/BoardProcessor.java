@@ -1,7 +1,6 @@
 package app.processors;
 
 import org.neochess.core.*;
-import org.neochess.core.searchengine.SearchBoard;
 import org.neogroup.sparks.console.Command;
 import org.neogroup.sparks.console.Console;
 import org.neogroup.sparks.console.ConsoleCommand;
@@ -9,12 +8,10 @@ import org.neogroup.sparks.console.processors.ConsoleProcessor;
 
 import java.util.List;
 
-import static org.neochess.core.Square.*;
-import static org.neochess.core.Side.*;
-import static org.neochess.core.Figure.*;
-import static org.neochess.core.Piece.*;
-import static org.neochess.core.Rank.*;
 import static org.neochess.core.File.*;
+import static org.neochess.core.Rank.*;
+import static org.neochess.core.Side.BLACK;
+import static org.neochess.core.Side.WHITE;
 
 public class BoardProcessor extends ConsoleProcessor {
 
@@ -60,6 +57,13 @@ public class BoardProcessor extends ConsoleProcessor {
         Square fromSquare = getSquareFromString(moveString.substring(0,2));
         Square toSquare = getSquareFromString(moveString.substring(2));
         board.makeMove(new Move(fromSquare, toSquare));
+        printBoard(console);
+    }
+
+    @ConsoleCommand("fen")
+    public void setFenPosition (Console console, Command command) {
+        String fen = command.getParameters().get(0);
+        board.setFenPosition(fen);
         printBoard(console);
     }
 
@@ -136,23 +140,28 @@ public class BoardProcessor extends ConsoleProcessor {
     }
 
     private void printBoard (Console console) {
+
+        Rank[] ranks = { ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT };
+        File[] files = { A, B, C, D, E, F, G, H };
         console.print("   ");
         console.println("╔═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╗");
-        for (int rank = 7; rank >= 0; rank--) {
-            int currentRank = rank;
+        for (int rankIndex = 7; rankIndex >= 0; rankIndex--) {
+            int currentRankIndex = rankIndex;
             if (flipped) {
-                currentRank = 7 - currentRank;
+                currentRankIndex = 7 - currentRankIndex;
             }
+            Rank rank = ranks[currentRankIndex];
             console.print(" ");
-            console.print(getRankString(Rank.values()[currentRank]));
+            console.print(getRankString(rank));
             console.print(" ");
             console.print("║");
-            for (int file = 0; file <= 7; file++) {
-                int currentFile = file;
+            for (int fileIndex = 0; fileIndex <= 7; fileIndex++) {
+                int currentFileIndex = fileIndex;
                 if (flipped) {
-                    currentFile = 7 - currentFile;
+                    currentFileIndex = 7 - currentFileIndex;
                 }
-                Square square = Square.getSquare(File.values()[currentFile],Rank.values()[currentRank]);
+                File file = files[currentFileIndex];
+                Square square = Square.getSquare(file,rank);
                 Piece piece = board.getPiece(square);
                 if (piece != null) {
                     Side pieceSide = piece.getSide();
@@ -175,7 +184,7 @@ public class BoardProcessor extends ConsoleProcessor {
             }
             console.println();
 
-            if (rank == SearchBoard.RANK_1) {
+            if (!flipped && rank == ONE || flipped && rank == EIGHT) {
                 console.print("   ");
                 console.println("╚═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╝");
             }
@@ -186,13 +195,14 @@ public class BoardProcessor extends ConsoleProcessor {
         }
 
         console.print("   ");
-        for (int file = SearchBoard.FILE_A; file <= SearchBoard.FILE_H; file++) {
-            int currentFile = file;
+        for (int fileIndex = 0; fileIndex <= 7; fileIndex++) {
+            int currentFileIndex = fileIndex;
             if (flipped) {
-                currentFile = 7 - currentFile;
+                currentFileIndex = 7 - currentFileIndex;
             }
+            File file = files[currentFileIndex];
             console.print("  ");
-            console.print(getFileString(File.values()[currentFile]));
+            console.print(getFileString(file));
             console.print(" ");
         }
         console.println();
