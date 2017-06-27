@@ -3,9 +3,9 @@ package org.neochess.core;
 
 public class Move {
 
-    private Square fromSquare;
-    private Square toSquare;
-    private Piece promotionPiece;
+    protected Square fromSquare;
+    protected Square toSquare;
+    protected Piece promotionPiece;
 
     public Move(Square fromSquare, Square toSquare) {
         this.fromSquare = fromSquare;

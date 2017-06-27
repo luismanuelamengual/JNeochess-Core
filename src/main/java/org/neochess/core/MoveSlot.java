@@ -3,16 +3,26 @@ package org.neochess.core;
 
 import java.util.EnumMap;
 
+import static org.neochess.core.Side.BLACK;
+import static org.neochess.core.Side.WHITE;
+
 public class MoveSlot extends Move {
 
     private Piece movingPiece;
     private Piece capturedPiece;
     private EnumMap<Side, CastleRights> castleRights;
-    private Square epSquare;
+    private Square enPassantSquare;
     private int halfMoveCounter;
 
-    protected MoveSlot(Move move) {
+    protected MoveSlot(Board board, Move move) {
         super(move.getFromSquare(), move.getToSquare());
+        castleRights = new EnumMap<>(Side.class);
+        castleRights.put(WHITE, board.getCastleRights(WHITE).clone());
+        castleRights.put(BLACK, board.getCastleRights(BLACK).clone());
+        movingPiece = board.getPiece(fromSquare);
+        capturedPiece = board.getPiece(toSquare);
+        enPassantSquare = board.getEnPassantSquare();
+        halfMoveCounter = board.getHalfMoveCounter();
     }
 
     public Piece getMovingPiece() {
@@ -39,12 +49,12 @@ public class MoveSlot extends Move {
         this.castleRights = castleRights;
     }
 
-    public Square getEpSquare() {
-        return epSquare;
+    public Square getEnPassantSquare() {
+        return enPassantSquare;
     }
 
-    public void setEpSquare(Square epSquare) {
-        this.epSquare = epSquare;
+    public void setEnPassantSquare(Square enPassantSquare) {
+        this.enPassantSquare = enPassantSquare;
     }
 
     public int getHalfMoveCounter() {

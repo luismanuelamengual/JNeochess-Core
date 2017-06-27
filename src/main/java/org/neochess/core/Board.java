@@ -298,15 +298,7 @@ public class Board {
     public boolean makeMove(Move move) {
         boolean isLegalMove = isLegalMove(move);
         if (isLegalMove) {
-            EnumMap<Side,CastleRights> castleRights = new EnumMap<Side, CastleRights>(Side.class);
-            castleRights.put(WHITE, this.castleRights.get(WHITE).clone());
-            castleRights.put(BLACK, this.castleRights.get(BLACK).clone());
-            MoveSlot slot = new MoveSlot(move);
-            slot.setMovingPiece(getPiece(move.getFromSquare()));
-            slot.setCapturedPiece(getPiece(move.getToSquare()));
-            slot.setEpSquare(enPassantSquare);
-            slot.setCastleRights(castleRights);
-            slot.setHalfMoveCounter(halfMoveCounter);
+            MoveSlot slot = new MoveSlot(this, move);
             makeMove(slot);
             moveSlots.push(slot);
         }
@@ -435,7 +427,7 @@ public class Board {
         Square toSquare = move.getToSquare();
         Piece capturedPiece = move.getCapturedPiece();
         EnumMap<Side,CastleRights> castleRights = move.getCastleRights();
-        Square epSquare = move.getEpSquare();
+        Square epSquare = move.getEnPassantSquare();
         Piece movingPiece = move.getMovingPiece();
         Figure movingFigure = movingPiece.getFigure();
         Side movingSide = movingPiece.getSide();
@@ -631,15 +623,7 @@ public class Board {
         Side currentSideToMove = sideToMove;
         Iterator<Move> moveIterator = moves.iterator();
         while (moveIterator.hasNext()) {
-            EnumMap<Side,CastleRights> castleRights = new EnumMap<Side, CastleRights>(Side.class);
-            castleRights.put(WHITE, this.castleRights.get(WHITE).clone());
-            castleRights.put(BLACK, this.castleRights.get(BLACK).clone());
-            MoveSlot move = new MoveSlot(moveIterator.next());
-            move.setMovingPiece(getPiece(move.getFromSquare()));
-            move.setCapturedPiece(getPiece(move.getToSquare()));
-            move.setEpSquare(enPassantSquare);
-            move.setCastleRights(castleRights);
-            move.setHalfMoveCounter(halfMoveCounter);
+            MoveSlot move = new MoveSlot(this, moveIterator.next());
             makeMove(move);
             if (isKingSquareAttacked(currentSideToMove)) {
                 moveIterator.remove();
