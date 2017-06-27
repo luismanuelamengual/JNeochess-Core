@@ -56,8 +56,13 @@ public class BoardProcessor extends ConsoleProcessor {
         String moveString = command.getParameters().get(0);
         Square fromSquare = getSquareFromString(moveString.substring(0,2));
         Square toSquare = getSquareFromString(moveString.substring(2));
-        board.makeMove(new Move(fromSquare, toSquare));
-        printBoard(console);
+        boolean moveMade = board.makeMove(new Move(fromSquare, toSquare));
+        if (moveMade) {
+            printBoard(console);
+        }
+        else {
+            console.println ("Illegal move !!");
+        }
     }
 
     @ConsoleCommand("takeback")
