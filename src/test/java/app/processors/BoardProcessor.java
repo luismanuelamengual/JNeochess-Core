@@ -60,6 +60,12 @@ public class BoardProcessor extends ConsoleProcessor {
         printBoard(console);
     }
 
+    @ConsoleCommand("takeback")
+    public void unmakeMove (Console console, Command command) {
+        board.unmakeMove();
+        printBoard(console);
+    }
+
     @ConsoleCommand("setFen")
     public void setFenPosition (Console console, Command command) {
         String fen = command.getParameters().get(0);
