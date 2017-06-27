@@ -25,7 +25,7 @@ public class Board {
 
     private EnumMap<Square,Piece> squares;
     private Side sideToMove;
-    private Square epSquare;
+    private Square enPassantSquare;
     private EnumMap<Side,CastleRights> castleRights;
     private int moveCounter;
     private int halfMoveCounter;
@@ -51,12 +51,12 @@ public class Board {
         squares.remove(square);
     }
 
-    public Square getEpSquare() {
-        return epSquare;
+    public Square getEnPassantSquare() {
+        return enPassantSquare;
     }
 
-    public void setEpSquare(Square epSquare) {
-        this.epSquare = epSquare;
+    public void setEnPassantSquare(Square enPassantSquare) {
+        this.enPassantSquare = enPassantSquare;
     }
 
     public Side getSideToMove() {
@@ -91,7 +91,7 @@ public class Board {
         for (Square square : Square.values()) {
             removePiece(square);
         }
-        setEpSquare(null);
+        setEnPassantSquare(null);
         getCastleRights(WHITE).clear();
         getCastleRights(BLACK).clear();
         setSideToMove(WHITE);
@@ -204,10 +204,10 @@ public class Board {
                 String s = flags[2].toUpperCase().trim();
                 if (!s.equals("-")) {
                     Square ep = Square.valueOf(s.toUpperCase());
-                    epSquare = ep;
+                    enPassantSquare = ep;
                 }
                 else {
-                    epSquare = null;
+                    enPassantSquare = null;
                 }
                 if (flags.length >= 4) {
                     halfMoveCounter = Integer.parseInt(flags[3]);
@@ -287,7 +287,7 @@ public class Board {
         }
 
         fen.append(" ");
-        fen.append(epSquare != null? epSquare.toString().toLowerCase() : "-");
+        fen.append(enPassantSquare != null? enPassantSquare.toString().toLowerCase() : "-");
         fen.append(" ");
         fen.append(halfMoveCounter);
         fen.append(" ");
@@ -308,7 +308,7 @@ public class Board {
         MoveSlot slot = new MoveSlot(move);
         slot.setMovingPiece(movingPiece);
         slot.setCapturedPiece(capturedPiece);
-        slot.setEpSquare(epSquare);
+        slot.setEpSquare(enPassantSquare);
         slot.setCastleRights(castleRights);
         slot.setHalfMoveCounter(halfMoveCounter);
         moveSlots.push(slot);
@@ -318,30 +318,30 @@ public class Board {
 
             if (sideToMove == WHITE) {
                 if (fromSquare.getRank() == TWO && toSquare.getRank() == FOUR) {
-                    setEpSquare(Square.getSquare(fromSquare.getFile(), THREE));
+                    setEnPassantSquare(Square.getSquare(fromSquare.getFile(), THREE));
                 }
                 else {
-                    if (toSquare == epSquare) {
+                    if (toSquare == enPassantSquare) {
                         removePiece(toSquare.getOffsetSquare(0,-1));
                     }
                     else if (toSquare.getRank() == EIGHT) {
                         movingPiece = move.getPromotionPiece() != null? move.getPromotionPiece() : WHITE_QUEEN;
                     }
-                    setEpSquare(null);
+                    setEnPassantSquare(null);
                 }
             }
             else {
                 if (fromSquare.getRank() == SEVEN && toSquare.getRank() == FIVE) {
-                    setEpSquare(Square.getSquare(fromSquare.getFile(), SIX));
+                    setEnPassantSquare(Square.getSquare(fromSquare.getFile(), SIX));
                 }
                 else {
-                    if (toSquare == epSquare) {
+                    if (toSquare == enPassantSquare) {
                         removePiece(toSquare.getOffsetSquare(0, 1));
                     }
                     else if (toSquare.getRank() == ONE) {
                         movingPiece = move.getPromotionPiece() != null ? move.getPromotionPiece() : BLACK_QUEEN;
                     }
-                    setEpSquare(null);
+                    setEnPassantSquare(null);
                 }
             }
         }
@@ -373,7 +373,7 @@ public class Board {
                     }
                 }
             }
-            setEpSquare(null);
+            setEnPassantSquare(null);
         }
 
         removePiece(fromSquare);
@@ -468,7 +468,7 @@ public class Board {
             removePiece(toSquare);
         }
         putPiece(fromSquare, movingPiece);
-        this.epSquare = epSquare;
+        this.enPassantSquare = epSquare;
         this.castleRights.put(WHITE, castleRights.get(WHITE));
         this.castleRights.put(BLACK, castleRights.get(BLACK));
 
@@ -575,13 +575,13 @@ public class Board {
                     }
                 }
             }
-            if (epSquare != null) {
-                File epSquareFile = epSquare.getFile();
-                if (!epSquareFile.equals(A) && getPiece(epSquare.getOffsetSquare(-1,-1)) == WHITE_PAWN) {
-                    moves.add(new Move(epSquare.getOffsetSquare(-1,-1), epSquare));
+            if (enPassantSquare != null) {
+                File epSquareFile = enPassantSquare.getFile();
+                if (!epSquareFile.equals(A) && getPiece(enPassantSquare.getOffsetSquare(-1,-1)) == WHITE_PAWN) {
+                    moves.add(new Move(enPassantSquare.getOffsetSquare(-1,-1), enPassantSquare));
                 }
-                if (!epSquareFile.equals(H) && getPiece(epSquare.getOffsetSquare(1,-1)) == WHITE_PAWN) {
-                    moves.add(new Move(epSquare.getOffsetSquare(1,-1), epSquare));
+                if (!epSquareFile.equals(H) && getPiece(enPassantSquare.getOffsetSquare(1,-1)) == WHITE_PAWN) {
+                    moves.add(new Move(enPassantSquare.getOffsetSquare(1,-1), enPassantSquare));
                 }
             }
         }
@@ -602,13 +602,13 @@ public class Board {
                     }
                 }
             }
-            if (epSquare != null) {
-                File epSquareFile = epSquare.getFile();
-                if (!epSquareFile.equals(A) && getPiece(epSquare.getOffsetSquare(-1,1)) == BLACK_PAWN) {
-                    moves.add(new Move(epSquare.getOffsetSquare(-1,1), epSquare));
+            if (enPassantSquare != null) {
+                File epSquareFile = enPassantSquare.getFile();
+                if (!epSquareFile.equals(A) && getPiece(enPassantSquare.getOffsetSquare(-1,1)) == BLACK_PAWN) {
+                    moves.add(new Move(enPassantSquare.getOffsetSquare(-1,1), enPassantSquare));
                 }
-                if (!epSquareFile.equals(H) && getPiece(epSquare.getOffsetSquare(1,1)) == BLACK_PAWN) {
-                    moves.add(new Move(epSquare.getOffsetSquare(1,1), epSquare));
+                if (!epSquareFile.equals(H) && getPiece(enPassantSquare.getOffsetSquare(1,1)) == BLACK_PAWN) {
+                    moves.add(new Move(enPassantSquare.getOffsetSquare(1,1), enPassantSquare));
                 }
             }
         }
