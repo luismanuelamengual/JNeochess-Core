@@ -103,6 +103,16 @@ public enum Square {
         return rank;
     }
 
+    public boolean isLight() {
+        int ordinal = ordinal();
+        int ordinalRank = ordinal / 8;
+        return ordinal % 2 == ((ordinalRank % 2 == 1)? 0 : 1);
+    }
+
+    public boolean isDark() {
+        return !isLight();
+    }
+
     public Square getOffsetSquare(int fileOffset, int rankOffset) {
         return Square.getOffsetSquare(this, fileOffset, rankOffset);
     }
