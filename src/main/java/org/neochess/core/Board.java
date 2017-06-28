@@ -17,6 +17,7 @@ import static org.neochess.core.File.*;
  * 3. No hacer 2 make move / 2 unmake move las generar movimientos
  * 4. Crear método para mostrar un tablero ya jugado eg. getHistory(2);
  * 5. Crear clase Match y métodos getPgn y setPgn
+ * 6. Tratar movimientos ambiguos en notacion san the movimientos
  */
 public class Board {
 
