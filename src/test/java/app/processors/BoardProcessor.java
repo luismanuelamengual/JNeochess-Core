@@ -86,7 +86,22 @@ public class BoardProcessor extends ConsoleProcessor {
 
     @ConsoleCommand("list")
     public void listMoves (Console console, Command command) {
-        printLegalMoves(console);
+        List<Move> moves = board.getLegalMoves();
+        for (Move move : moves) {
+            console.print(move.getSan());
+            console.print(" ");
+        }
+        console.println();
+    }
+
+    @ConsoleCommand("history")
+    public void listHistoryMoves (Console console, Command command) {
+        List<Move> moves = board.getHistory();
+        for (Move move : moves) {
+            console.print(move.getSan());
+            console.print(" ");
+        }
+        console.println();
     }
 
     private String getSquareString (Square square) {
@@ -144,15 +159,6 @@ public class BoardProcessor extends ConsoleProcessor {
             case '8': rank = EIGHT; break;
         }
         return Square.getSquare(file, rank);
-    }
-
-    private void printLegalMoves (Console console) {
-        List<Move> moves = board.getLegalMoves();
-        for (Move move : moves) {
-            console.print(move.getSan());
-            console.print(" ");
-        }
-        console.println();
     }
 
     private void printBoard (Console console) {

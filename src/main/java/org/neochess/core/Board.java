@@ -87,6 +87,12 @@ public class Board {
         this.halfMoveCounter = halfMoveCounter;
     }
 
+    public List<Move> getHistory () {
+        List<Move> moves = new ArrayList<>();
+        moves.addAll(moveStack);
+        return moves;
+    }
+
     public void clear () {
         for (Square square : Square.values()) {
             removePiece(square);
