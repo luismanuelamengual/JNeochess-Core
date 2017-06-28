@@ -297,6 +297,21 @@ public class Board {
         return move;
     }
 
+    public Move makeMove(String sanMove) {
+        Move move = null;
+        List<Move> moves = getLegalMoves();
+        for (Move testMove : moves) {
+            if (testMove.getSan().equals(sanMove)) {
+                move = testMove;
+            }
+        }
+        if (move != null) {
+            makeMove(move);
+            moveStack.push(move);
+        }
+        return move;
+    }
+
     public Move unmakeMove() {
         Move move = moveStack.pop();
         if (move != null) {

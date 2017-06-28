@@ -7,6 +7,8 @@ import org.neogroup.sparks.console.ConsoleCommand;
 import org.neogroup.sparks.console.processors.ConsoleProcessor;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.neochess.core.File.*;
 import static org.neochess.core.Rank.*;
@@ -53,10 +55,19 @@ public class BoardProcessor extends ConsoleProcessor {
 
     @ConsoleCommand("move")
     public void makeMove (Console console, Command command) {
+
         String moveString = command.getParameters().get(0);
-        Square fromSquare = getSquareFromString(moveString.substring(0,2));
-        Square toSquare = getSquareFromString(moveString.substring(2));
-        Move moveMade = board.makeMove(fromSquare, toSquare);
+        Pattern pattern = Pattern.compile("[a-h][1-8][a-h][1-8]");
+        Matcher matcher = pattern.matcher(moveString);
+        Move moveMade = null;
+        if (matcher.find()) {
+            Square fromSquare = Square.fromSan(moveString.substring(0, 2));
+            Square toSquare = Square.fromSan(moveString.substring(2));
+            moveMade = board.makeMove(fromSquare, toSquare);
+        }
+        else {
+            moveMade = board.makeMove(moveString);
+        }
         if (moveMade != null) {
             printBoard(console);
         }
