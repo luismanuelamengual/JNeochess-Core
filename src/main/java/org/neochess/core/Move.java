@@ -1,13 +1,21 @@
 
 package org.neochess.core;
 
+import java.util.EnumMap;
+
 public class Move {
 
     private Square fromSquare;
     private Square toSquare;
-    private Piece promotionPiece;
 
-    public Move(Square fromSquare, Square toSquare) {
+    private Piece promotionPiece;
+    private Piece movingPiece;
+    private Piece capturedPiece;
+    private EnumMap<Side, CastleRights> castleRights;
+    private Square enPassantSquare;
+    private int halfMoveCounter;
+
+    protected Move(Square fromSquare, Square toSquare) {
         this.fromSquare = fromSquare;
         this.toSquare = toSquare;
     }
@@ -28,12 +36,52 @@ public class Move {
         this.toSquare = toSquare;
     }
 
-    public Piece getPromotionPiece() {
+    protected Piece getPromotionPiece() {
         return promotionPiece;
     }
 
-    public void setPromotionPiece(Piece promotionPiece) {
+    protected void setPromotionPiece(Piece promotionPiece) {
         this.promotionPiece = promotionPiece;
+    }
+
+    protected Piece getMovingPiece() {
+        return movingPiece;
+    }
+
+    protected void setMovingPiece(Piece movingPiece) {
+        this.movingPiece = movingPiece;
+    }
+
+    protected Piece getCapturedPiece() {
+        return capturedPiece;
+    }
+
+    protected void setCapturedPiece(Piece capturedPiece) {
+        this.capturedPiece = capturedPiece;
+    }
+
+    protected EnumMap<Side, CastleRights> getCastleRights() {
+        return castleRights;
+    }
+
+    protected void setCastleRights(EnumMap<Side, CastleRights> castleRights) {
+        this.castleRights = castleRights;
+    }
+
+    protected Square getEnPassantSquare() {
+        return enPassantSquare;
+    }
+
+    protected void setEnPassantSquare(Square enPassantSquare) {
+        this.enPassantSquare = enPassantSquare;
+    }
+
+    protected int getHalfMoveCounter() {
+        return halfMoveCounter;
+    }
+
+    protected void setHalfMoveCounter(int halfMoveCounter) {
+        this.halfMoveCounter = halfMoveCounter;
     }
 
     @Override

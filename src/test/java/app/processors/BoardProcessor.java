@@ -56,8 +56,8 @@ public class BoardProcessor extends ConsoleProcessor {
         String moveString = command.getParameters().get(0);
         Square fromSquare = getSquareFromString(moveString.substring(0,2));
         Square toSquare = getSquareFromString(moveString.substring(2));
-        boolean moveMade = board.makeMove(new Move(fromSquare, toSquare));
-        if (moveMade) {
+        Move moveMade = board.makeMove(fromSquare, toSquare);
+        if (moveMade != null) {
             printBoard(console);
         }
         else {
