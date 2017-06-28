@@ -296,12 +296,18 @@ public class Board {
     }
 
     public Move makeMove(Square fromSquare, Square toSquare) {
+        return makeMove(fromSquare, toSquare, null);
+    }
+
+    public Move makeMove(Square fromSquare, Square toSquare, Piece promotionPiece) {
         Move move = null;
         List<Move> moves = getLegalMoves();
         for (Move testMove : moves) {
             if (testMove.getFromSquare().equals(fromSquare) && testMove.getToSquare().equals(toSquare)) {
-                move = testMove;
-                break;
+                if (promotionPiece == null || promotionPiece == testMove.getPromotionPiece()) {
+                    move = testMove;
+                    break;
+                }
             }
         }
         if (move != null) {
@@ -317,6 +323,15 @@ public class Board {
             unmakeMove(move);
         }
         return move;
+    }
+
+    private List<Move> createPromotionMoves (Square fromSquare, Square toSquare) {
+        List<Move> promotionMoves = new ArrayList<>();
+        promotionMoves.add(createMove(fromSquare, toSquare, QUEEN));
+        promotionMoves.add(createMove(fromSquare, toSquare, ROOK));
+        promotionMoves.add(createMove(fromSquare, toSquare, BISHOP));
+        promotionMoves.add(createMove(fromSquare, toSquare, KNIGHT));
+        return promotionMoves;
     }
 
     private Move createMove (Square fromSquare, Square toSquare) {
@@ -342,8 +357,8 @@ public class Board {
 
         Square fromSquare = move.getFromSquare();
         Square toSquare = move.getToSquare();
-        Piece movingPiece = getPiece(fromSquare);
-        Piece capturedPiece = getPiece(toSquare);
+        Piece movingPiece = move.getMovingPiece();
+        Piece capturedPiece = move.getCapturedPiece();
         Figure movingFigure = movingPiece.getFigure();
 
         if (movingFigure == PAWN) {
@@ -522,19 +537,34 @@ public class Board {
 
                             Square leftCaptureSquare = testSquare.getOffsetSquare(-1, 1);
                             if (pieceFile != A && getPiece(leftCaptureSquare) != null && getPiece(leftCaptureSquare).getSide().equals(BLACK)) {
-                                moves.add(createMove(testSquare, leftCaptureSquare));
+                                if (leftCaptureSquare.getRank().equals(EIGHT)) {
+                                    moves.addAll(createPromotionMoves(testSquare, leftCaptureSquare));
+                                }
+                                else {
+                                    moves.add(createMove(testSquare, leftCaptureSquare));
+                                }
                             }
                             Square rightCaptureSquare = testSquare.getOffsetSquare(1, 1);
                             if (pieceFile != H && getPiece(rightCaptureSquare) != null && getPiece(rightCaptureSquare).getSide().equals(BLACK)) {
-                                moves.add(createMove(testSquare, rightCaptureSquare));
+                                if (rightCaptureSquare.getRank().equals(EIGHT)) {
+                                    moves.addAll(createPromotionMoves(testSquare, rightCaptureSquare));
+                                }
+                                else {
+                                    moves.add(createMove(testSquare, rightCaptureSquare));
+                                }
                             }
                             Square nextSquare = testSquare.getOffsetSquare(0, 1);
                             if (getPiece(nextSquare) == null) {
-                                moves.add(createMove(testSquare, nextSquare));
-                                if (testSquare.getRank().equals(TWO)) {
-                                    Square nextTwoSquare = testSquare.getOffsetSquare(0, 2);
-                                    if (getPiece(nextTwoSquare) == null) {
-                                        moves.add(createMove(testSquare, nextTwoSquare));
+                                if (nextSquare.getRank().equals(EIGHT)) {
+                                    moves.addAll(createPromotionMoves(testSquare, nextSquare));
+                                }
+                                else {
+                                    moves.add(createMove(testSquare, nextSquare));
+                                    if (testSquare.getRank().equals(TWO)) {
+                                        Square nextTwoSquare = testSquare.getOffsetSquare(0, 2);
+                                        if (getPiece(nextTwoSquare) == null) {
+                                            moves.add(createMove(testSquare, nextTwoSquare));
+                                        }
                                     }
                                 }
                             }
@@ -542,19 +572,34 @@ public class Board {
 
                             Square leftCaptureSquare = testSquare.getOffsetSquare(-1, -1);
                             if (pieceFile != A && getPiece(leftCaptureSquare) != null && getPiece(leftCaptureSquare).getSide().equals(WHITE)) {
-                                moves.add(createMove(testSquare, leftCaptureSquare));
+                                if (leftCaptureSquare.getRank().equals(ONE)) {
+                                    moves.addAll(createPromotionMoves(testSquare, leftCaptureSquare));
+                                }
+                                else {
+                                    moves.add(createMove(testSquare, leftCaptureSquare));
+                                }
                             }
                             Square rightCaptureSquare = testSquare.getOffsetSquare(1, -1);
                             if (pieceFile != H && getPiece(rightCaptureSquare) != null && getPiece(rightCaptureSquare).getSide().equals(WHITE)) {
-                                moves.add(createMove(testSquare, rightCaptureSquare));
+                                if (rightCaptureSquare.getRank().equals(ONE)) {
+                                    moves.addAll(createPromotionMoves(testSquare, rightCaptureSquare));
+                                }
+                                else {
+                                    moves.add(createMove(testSquare, rightCaptureSquare));
+                                }
                             }
                             Square nextSquare = testSquare.getOffsetSquare(0, -1);
                             if (getPiece(nextSquare) == null) {
-                                moves.add(createMove(testSquare, nextSquare));
-                                if (testSquare.getRank().equals(SEVEN)) {
-                                    Square nextTwoSquare = testSquare.getOffsetSquare(0, -2);
-                                    if (getPiece(nextTwoSquare) == null) {
-                                        moves.add(createMove(testSquare, nextTwoSquare));
+                                if (nextSquare.getRank().equals(ONE)) {
+                                    moves.addAll(createPromotionMoves(testSquare, nextSquare));
+                                }
+                                else {
+                                    moves.add(createMove(testSquare, nextSquare));
+                                    if (testSquare.getRank().equals(SEVEN)) {
+                                        Square nextTwoSquare = testSquare.getOffsetSquare(0, -2);
+                                        if (getPiece(nextTwoSquare) == null) {
+                                            moves.add(createMove(testSquare, nextTwoSquare));
+                                        }
                                     }
                                 }
                             }
