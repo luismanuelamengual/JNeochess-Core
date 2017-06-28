@@ -13,7 +13,7 @@ import static org.neochess.core.File.*;
 /**
  * TODO: Cosas a hacer
  * 1. Crear getHash() y método getDrawByRepetition()
- * 2. No hacer 2 make move / 2 unmake move las generar movimientos
+ * 2. Pasar el contenido del constructor de Move a Board
  * 3. Crear método para mostrar un tablero ya jugado eg. getHistory(2);
  * 4. Crear clase Match y métodos getPgn y setPgn
  * 5. Tratar movimientos ambiguos en notacion san the movimientos
@@ -494,17 +494,13 @@ public class Board {
             }
         }
 
-        Side currentSideToMove = sideToMove;
         Iterator<Move> moveIterator = moves.iterator();
         while (moveIterator.hasNext()) {
             Move move = moveIterator.next();
-            makeMove(move);
-            if (isKingSquareAttacked(currentSideToMove)) {
+            if (!move.isLegal()) {
                 moveIterator.remove();
             }
-            unmakeMove(move);
         }
-
         return moves;
     }
 
