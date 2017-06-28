@@ -20,11 +20,11 @@ public class Move {
     private final Square enPassantSquare;
     private final int halfMoveCounter;
 
-    protected Move(Board board, Square fromSquare, Square toSquare, boolean generateSan) {
-        this(board, fromSquare, toSquare, null, generateSan);
+    protected Move(Board board, Square fromSquare, Square toSquare) {
+        this(board, fromSquare, toSquare, null);
     }
 
-    protected Move(Board board, Square fromSquare, Square toSquare, Figure promotionFigure, boolean generateSan) {
+    protected Move(Board board, Square fromSquare, Square toSquare, Figure promotionFigure) {
 
         this.fromSquare = fromSquare;
         this.toSquare = toSquare;
@@ -36,7 +36,7 @@ public class Move {
         capturedPiece = board.getPiece(toSquare);
         enPassantSquare = board.getEnPassantSquare();
         halfMoveCounter = board.getHalfMoveCounter();
-        san = generateSan? generateSan(board) : null;
+        san = generateSan(board);
     }
 
     public Square getFromSquare() {
@@ -98,7 +98,6 @@ public class Move {
                 }
             }
             else {
-                //TODO: Treat ambiguous moves
                 san.append(movingFigure.getSan());
                 if (capturedPiece != null) {
                     san.append("x");
