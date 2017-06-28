@@ -3,85 +3,74 @@ package org.neochess.core;
 
 import java.util.EnumMap;
 
+import static org.neochess.core.Side.BLACK;
+import static org.neochess.core.Side.WHITE;
+
 public class Move {
 
-    private Square fromSquare;
-    private Square toSquare;
+    private final Square fromSquare;
+    private final Square toSquare;
+    private final String san;
+    private final Piece promotionPiece;
+    private final Piece movingPiece;
+    private final Piece capturedPiece;
+    private final EnumMap<Side, CastleRights> castleRights;
+    private final Square enPassantSquare;
+    private final int halfMoveCounter;
 
-    private Piece promotionPiece;
-    private Piece movingPiece;
-    private Piece capturedPiece;
-    private EnumMap<Side, CastleRights> castleRights;
-    private Square enPassantSquare;
-    private int halfMoveCounter;
+    protected Move(Board board, Square fromSquare, Square toSquare, boolean generateSan) {
+        this(board, fromSquare, toSquare, null, generateSan);
+    }
 
-    protected Move(Square fromSquare, Square toSquare) {
+    protected Move(Board board, Square fromSquare, Square toSquare, Figure promotionFigure, boolean generateSan) {
+
         this.fromSquare = fromSquare;
         this.toSquare = toSquare;
+        castleRights = new EnumMap<>(Side.class);
+        castleRights.put(WHITE, board.getCastleRights(WHITE).clone());
+        castleRights.put(BLACK, board.getCastleRights(BLACK).clone());
+        promotionPiece = promotionFigure != null? Piece.getPiece(board.getSideToMove(), promotionFigure) : null;
+        movingPiece = board.getPiece(fromSquare);
+        capturedPiece = board.getPiece(toSquare);
+        enPassantSquare = board.getEnPassantSquare();
+        halfMoveCounter = board.getHalfMoveCounter();
+        san = "";
     }
 
     public Square getFromSquare() {
         return fromSquare;
     }
 
-    public void setFromSquare(Square fromSquare) {
-        this.fromSquare = fromSquare;
-    }
-
     public Square getToSquare() {
         return toSquare;
     }
 
-    public void setToSquare(Square toSquare) {
-        this.toSquare = toSquare;
+    public String getSan() {
+        return san;
     }
 
     protected Piece getPromotionPiece() {
         return promotionPiece;
     }
 
-    protected void setPromotionPiece(Piece promotionPiece) {
-        this.promotionPiece = promotionPiece;
-    }
-
     protected Piece getMovingPiece() {
         return movingPiece;
-    }
-
-    protected void setMovingPiece(Piece movingPiece) {
-        this.movingPiece = movingPiece;
     }
 
     protected Piece getCapturedPiece() {
         return capturedPiece;
     }
 
-    protected void setCapturedPiece(Piece capturedPiece) {
-        this.capturedPiece = capturedPiece;
-    }
-
     protected EnumMap<Side, CastleRights> getCastleRights() {
         return castleRights;
-    }
-
-    protected void setCastleRights(EnumMap<Side, CastleRights> castleRights) {
-        this.castleRights = castleRights;
     }
 
     protected Square getEnPassantSquare() {
         return enPassantSquare;
     }
 
-    protected void setEnPassantSquare(Square enPassantSquare) {
-        this.enPassantSquare = enPassantSquare;
-    }
-
     protected int getHalfMoveCounter() {
         return halfMoveCounter;
-    }
-
-    protected void setHalfMoveCounter(int halfMoveCounter) {
-        this.halfMoveCounter = halfMoveCounter;
     }
 
     @Override
