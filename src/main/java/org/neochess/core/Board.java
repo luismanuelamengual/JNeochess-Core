@@ -10,6 +10,14 @@ import static org.neochess.core.Piece.*;
 import static org.neochess.core.Rank.*;
 import static org.neochess.core.File.*;
 
+/**
+ * TODO: Cosas a hacer
+ * 1. Quitar el generateSan the getLegalMoves()
+ * 2. Crear getHash() y método getDrawByRepetition()
+ * 3. No hacer 2 make move / 2 unmake move las generar movimientos
+ * 4. Crear método para mostrar un tablero ya jugado eg. getHistory(2);
+ * 5. Crear clase Match y métodos getPgn y setPgn
+ */
 public class Board {
 
     private static EnumMap<Figure, int[][]> figureOffsets;
