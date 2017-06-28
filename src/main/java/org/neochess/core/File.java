@@ -21,4 +21,12 @@ public enum File {
         int offsetOrdinal = file.ordinal() + fileOffset;
         return (offsetOrdinal >= 0 && offsetOrdinal <= 7)? files[offsetOrdinal] : null;
     }
+
+    public String getSan() {
+        return toString().toLowerCase();
+    }
+
+    public static File fromSan (String san) {
+        return File.valueOf(san.toUpperCase());
+    }
 }

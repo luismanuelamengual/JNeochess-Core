@@ -149,8 +149,7 @@ public class BoardProcessor extends ConsoleProcessor {
     private void printLegalMoves (Console console) {
         List<Move> moves = board.getLegalMoves();
         for (Move move : moves) {
-            console.print(getSquareString(move.getFromSquare()));
-            console.print(getSquareString(move.getToSquare()));
+            console.print(move.getSan());
             console.print(" ");
         }
         console.println();

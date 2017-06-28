@@ -3,8 +3,10 @@ package org.neochess.core;
 
 import java.util.EnumMap;
 
-import static org.neochess.core.Side.BLACK;
-import static org.neochess.core.Side.WHITE;
+import static org.neochess.core.Figure.*;
+import static org.neochess.core.Piece.*;
+import static org.neochess.core.Side.*;
+import static org.neochess.core.Square.*;
 
 public class Move {
 
@@ -34,7 +36,7 @@ public class Move {
         capturedPiece = board.getPiece(toSquare);
         enPassantSquare = board.getEnPassantSquare();
         halfMoveCounter = board.getHalfMoveCounter();
-        san = "";
+        san = generateSan? generateSan(board) : null;
     }
 
     public Square getFromSquare() {
@@ -71,6 +73,46 @@ public class Move {
 
     protected int getHalfMoveCounter() {
         return halfMoveCounter;
+    }
+
+    private String generateSan (Board board) {
+
+        StringBuilder san = new StringBuilder();
+        if ((movingPiece == WHITE_KING && fromSquare == E1 && toSquare == G1) || (movingPiece == BLACK_KING && fromSquare == E8 && toSquare == G8)) {
+            san.append("O-O");
+        }
+        else if ((movingPiece == WHITE_KING && fromSquare == E1 && toSquare == C1) || (movingPiece == BLACK_KING && fromSquare == E8 && toSquare == C8)) {
+            san.append("O-O-O");
+        }
+        else {
+            Figure movingFigure = movingPiece.getFigure();
+            if (movingFigure == PAWN) {
+                if (capturedPiece != null || toSquare == enPassantSquare) {
+                    san.append(fromSquare.getFile().getSan());
+                    san.append('x');
+                }
+                san.append(toSquare.getSan());
+                if (promotionPiece != null) {
+                    san.append("=");
+                    san.append(promotionPiece.getFigure().getSan());
+                }
+            }
+            else {
+                //TODO: Treat ambiguous moves
+                san.append(movingFigure.getSan());
+                if (capturedPiece != null) {
+                    san.append("x");
+                }
+                san.append(toSquare.getSan());
+            }
+
+            board.makeMove(this);
+            if (board.inCheck()) {
+                san.append(board.isCheckMate()? "#" : "+");
+            }
+            board.unmakeMove(this);
+        }
+        return san.toString();
     }
 
     @Override

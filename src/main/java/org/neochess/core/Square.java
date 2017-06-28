@@ -1,8 +1,8 @@
 
 package org.neochess.core;
 
-import static org.neochess.core.Rank.*;
 import static org.neochess.core.File.*;
+import static org.neochess.core.Rank.*;
 
 public enum Square {
 
@@ -125,5 +125,13 @@ public enum Square {
         File offsetFile = square.getFile().getOffsetFile(fileOffset);
         Rank offsetRank = square.getRank().getOffsetRank(rankOffset);
         return (offsetFile != null && offsetRank != null)? getSquare(offsetFile, offsetRank) : null;
+    }
+
+    public String getSan() {
+        return toString().toLowerCase();
+    }
+
+    public static Square fromSan (String san) {
+        return Square.valueOf(san.toUpperCase());
     }
 }
