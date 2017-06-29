@@ -46,6 +46,14 @@ public class Board {
     public Board (Board board) {
         squares = new EnumMap<Square, Piece>(Square.class);
         castleRights = new EnumMap<Side, CastleRights>(Side.class);
+        setFrom(board);
+    }
+
+    public Board clone () {
+        return new Board(this);
+    }
+
+    public void setFrom (Board board) {
         for (Square square : Square.values()) {
             putPiece(square, board.getPiece(square));
         }
@@ -55,10 +63,6 @@ public class Board {
         setEnPassantSquare(board.getEnPassantSquare());
         setMoveCounter(board.getMoveCounter());
         setHalfMoveCounter(board.getHalfMoveCounter());
-    }
-
-    public Board clone () {
-        return new Board(this);
     }
 
     public Piece getPiece (Square square) {
