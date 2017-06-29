@@ -921,7 +921,11 @@ public class Board {
         return !inCheck() && getLegalMoves().isEmpty();
     }
 
+    public boolean isDrawByFiftyMoveRule() {
+        return halfMoveCounter >= 100;
+    }
+
     public boolean isDraw() {
-        return isStaleMate() || halfMoveCounter >= 100;
+        return isStaleMate() || isDrawByFiftyMoveRule();
     }
 }
