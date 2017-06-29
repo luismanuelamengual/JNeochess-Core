@@ -10,81 +10,21 @@ import static org.neochess.core.Square.*;
 
 public class Move {
 
-    private final Square fromSquare;
-    private final Square toSquare;
-    private final String san;
-    private final Piece promotionPiece;
-    private final Piece movingPiece;
-    private final Piece capturedPiece;
-    private final EnumMap<Side, CastleRights> castleRights;
-    private final Square enPassantSquare;
-    private final int halfMoveCounter;
-    private final boolean isLegal;
+    private Square fromSquare;
+    private Square toSquare;
+    private String san;
+    private boolean isLegal;
 
-    protected Move(Board board, Square fromSquare, Square toSquare) {
-        this(board, fromSquare, toSquare, null);
-    }
+    private Piece promotionPiece;
+    private Piece movingPiece;
+    private Piece capturedPiece;
+    private EnumMap<Side, CastleRights> castleRights;
+    private Square enPassantSquare;
+    private int halfMoveCounter;
 
-    protected Move(Board board, Square fromSquare, Square toSquare, Figure promotionFigure) {
-
+    protected Move(Square fromSquare, Square toSquare) {
         this.fromSquare = fromSquare;
         this.toSquare = toSquare;
-        castleRights = new EnumMap<>(Side.class);
-        castleRights.put(WHITE, board.getCastleRights(WHITE).clone());
-        castleRights.put(BLACK, board.getCastleRights(BLACK).clone());
-        promotionPiece = promotionFigure != null? Piece.getPiece(board.getSideToMove(), promotionFigure) : null;
-        movingPiece = board.getPiece(fromSquare);
-        capturedPiece = board.getPiece(toSquare);
-        enPassantSquare = board.getEnPassantSquare();
-        halfMoveCounter = board.getHalfMoveCounter();
-
-        boolean producesCheck = false;
-        boolean producesCheckmate = false;
-        Side currentSideToMove = board.getSideToMove();
-        board.makeMove(this);
-        isLegal = !board.isKingSquareAttacked(currentSideToMove);
-        if (board.inCheck()) {
-            producesCheck = true;
-            if (board.isCheckMate()) {
-                producesCheckmate = true;
-            }
-        }
-        board.unmakeMove(this);
-
-        StringBuilder sanBuilder = new StringBuilder();
-        if ((movingPiece == WHITE_KING && fromSquare == E1 && toSquare == G1) || (movingPiece == BLACK_KING && fromSquare == E8 && toSquare == G8)) {
-            sanBuilder.append("O-O");
-        }
-        else if ((movingPiece == WHITE_KING && fromSquare == E1 && toSquare == C1) || (movingPiece == BLACK_KING && fromSquare == E8 && toSquare == C8)) {
-            sanBuilder.append("O-O-O");
-        }
-        else {
-            Figure movingFigure = movingPiece.getFigure();
-            if (movingFigure == PAWN) {
-                if (capturedPiece != null || toSquare == enPassantSquare) {
-                    sanBuilder.append(fromSquare.getFile().getSan());
-                    sanBuilder.append('x');
-                }
-                sanBuilder.append(toSquare.getSan());
-                if (promotionPiece != null) {
-                    sanBuilder.append("=");
-                    sanBuilder.append(promotionPiece.getFigure().getSan());
-                }
-            }
-            else {
-                sanBuilder.append(movingFigure.getSan());
-                if (capturedPiece != null) {
-                    sanBuilder.append("x");
-                }
-                sanBuilder.append(toSquare.getSan());
-            }
-
-            if (producesCheck) {
-                sanBuilder.append(producesCheckmate? "#" : "+");
-            }
-
-        }
-        san = sanBuilder.toString();
     }
 
     public Square getFromSquare() {
@@ -99,7 +39,7 @@ public class Move {
         return san;
     }
 
-    protected boolean isLegal() {
+    public boolean isLegal() {
         return isLegal;
     }
 
@@ -125,6 +65,46 @@ public class Move {
 
     protected int getHalfMoveCounter() {
         return halfMoveCounter;
+    }
+
+    protected void setFromSquare(Square fromSquare) {
+        this.fromSquare = fromSquare;
+    }
+
+    protected void setToSquare(Square toSquare) {
+        this.toSquare = toSquare;
+    }
+
+    protected void setSan(String san) {
+        this.san = san;
+    }
+
+    protected void setPromotionPiece(Piece promotionPiece) {
+        this.promotionPiece = promotionPiece;
+    }
+
+    protected void setMovingPiece(Piece movingPiece) {
+        this.movingPiece = movingPiece;
+    }
+
+    protected void setCapturedPiece(Piece capturedPiece) {
+        this.capturedPiece = capturedPiece;
+    }
+
+    protected void setCastleRights(EnumMap<Side, CastleRights> castleRights) {
+        this.castleRights = castleRights;
+    }
+
+    protected void setEnPassantSquare(Square enPassantSquare) {
+        this.enPassantSquare = enPassantSquare;
+    }
+
+    protected void setHalfMoveCounter(int halfMoveCounter) {
+        this.halfMoveCounter = halfMoveCounter;
+    }
+
+    protected void setLegal(boolean legal) {
+        isLegal = legal;
     }
 
     @Override

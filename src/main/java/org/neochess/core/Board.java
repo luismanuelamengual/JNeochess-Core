@@ -12,11 +12,12 @@ import static org.neochess.core.File.*;
 
 /**
  * TODO: Cosas a hacer
- * 1. Crear getHash() y método getDrawByRepetition()
- * 2. Pasar el contenido del constructor de Move a Board
- * 3. Crear método para mostrar un tablero ya jugado eg. getHistory(2);
- * 4. Crear clase Match y métodos getPgn y setPgn
- * 5. Tratar movimientos ambiguos en notacion san the movimientos
+ * 1. Pasar el contenido del constructor de Move a Board
+ * 2. Tratar movimientos ambiguos en notacion san the movimientos (metodo getAttackingSquares())
+ * 3. Crear clase Match y pasar los metodos makeMove a Match
+ * 4. Crear getHash() y método getDrawByRepetition() en clase match
+ * 5. Crear método para mostrar un tablero ya jugado eg. getHistory(2)
+ * 6. Agreagar métodos getPgn y setPgn al Match
  */
 public class Board {
 
@@ -504,7 +505,7 @@ public class Board {
         return moves;
     }
 
-    protected List<Move> createPromotionMoves (Square fromSquare, Square toSquare) {
+    private List<Move> createPromotionMoves (Square fromSquare, Square toSquare) {
         List<Move> promotionMoves = new ArrayList<>();
         promotionMoves.add(createMove(fromSquare, toSquare, QUEEN));
         promotionMoves.add(createMove(fromSquare, toSquare, ROOK));
@@ -513,15 +514,82 @@ public class Board {
         return promotionMoves;
     }
 
-    protected Move createMove (Square fromSquare, Square toSquare) {
+    private Move createMove (Square fromSquare, Square toSquare) {
         return createMove (fromSquare, toSquare, null);
     }
 
-    protected Move createMove (Square fromSquare, Square toSquare, Figure promotionFigure) {
-        return new Move(this, fromSquare, toSquare, promotionFigure);
+    private Move createMove (Square fromSquare, Square toSquare, Figure promotionFigure) {
+
+        EnumMap<Side, CastleRights> castleRights = new EnumMap<>(Side.class);
+        castleRights.put(WHITE, getCastleRights(WHITE).clone());
+        castleRights.put(BLACK, getCastleRights(BLACK).clone());
+        Piece promotionPiece = promotionFigure != null? Piece.getPiece(getSideToMove(), promotionFigure) : null;
+        Piece movingPiece = getPiece(fromSquare);
+        Piece capturedPiece = getPiece(toSquare);
+        Square enPassantSquare = getEnPassantSquare();
+        int halfMoveCounter = getHalfMoveCounter();
+
+        Move move = new Move(fromSquare, toSquare);
+        move.setCastleRights(castleRights);
+        move.setPromotionPiece(promotionPiece);
+        move.setMovingPiece(movingPiece);
+        move.setCapturedPiece(capturedPiece);
+        move.setEnPassantSquare(enPassantSquare);
+        move.setHalfMoveCounter(halfMoveCounter);
+
+        boolean isLegal = false;
+        boolean producesCheck = false;
+        boolean producesCheckmate = false;
+        Side currentSideToMove = getSideToMove();
+        makeMove(move);
+        isLegal = !isKingSquareAttacked(currentSideToMove);
+        if (inCheck()) {
+            producesCheck = true;
+            if (getLegalMoves().isEmpty()) {
+                producesCheckmate = true;
+            }
+        }
+        unmakeMove(move);
+
+        StringBuilder sanBuilder = new StringBuilder();
+        if ((movingPiece == WHITE_KING && fromSquare == E1 && toSquare == G1) || (movingPiece == BLACK_KING && fromSquare == E8 && toSquare == G8)) {
+            sanBuilder.append("O-O");
+        }
+        else if ((movingPiece == WHITE_KING && fromSquare == E1 && toSquare == C1) || (movingPiece == BLACK_KING && fromSquare == E8 && toSquare == C8)) {
+            sanBuilder.append("O-O-O");
+        }
+        else {
+            Figure movingFigure = movingPiece.getFigure();
+            if (movingFigure == PAWN) {
+                if (capturedPiece != null || toSquare == enPassantSquare) {
+                    sanBuilder.append(fromSquare.getFile().getSan());
+                    sanBuilder.append('x');
+                }
+                sanBuilder.append(toSquare.getSan());
+                if (promotionPiece != null) {
+                    sanBuilder.append("=");
+                    sanBuilder.append(promotionPiece.getFigure().getSan());
+                }
+            }
+            else {
+                sanBuilder.append(movingFigure.getSan());
+                if (capturedPiece != null) {
+                    sanBuilder.append("x");
+                }
+                sanBuilder.append(toSquare.getSan());
+            }
+
+            if (producesCheck) {
+                sanBuilder.append(producesCheckmate? "#" : "+");
+            }
+
+        }
+        move.setLegal(isLegal);
+        move.setSan(sanBuilder.toString());
+        return move;
     }
 
-    protected void makeMove(Move move) {
+    private void makeMove(Move move) {
 
         Square fromSquare = move.getFromSquare();
         Square toSquare = move.getToSquare();
@@ -628,7 +696,7 @@ public class Board {
         sideToMove = sideToMove.getOppositeSide();
     }
 
-    protected void unmakeMove(Move move) {
+    private void unmakeMove(Move move) {
 
         Square fromSquare = move.getFromSquare();
         Square toSquare = move.getToSquare();
