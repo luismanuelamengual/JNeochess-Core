@@ -15,7 +15,7 @@ import static org.neochess.core.Rank.*;
 import static org.neochess.core.Side.BLACK;
 import static org.neochess.core.Side.WHITE;
 
-public class BoardProcessor extends ConsoleProcessor {
+public class MatchConsoleProcessor extends ConsoleProcessor {
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[30m";
@@ -28,23 +28,23 @@ public class BoardProcessor extends ConsoleProcessor {
     public static final String ANSI_WHITE = "\u001B[37m";
 
     private boolean flipped;
-    private Board board;
+    private Match match;
 
-    public BoardProcessor() {
+    public MatchConsoleProcessor() {
         flipped = false;
-        board = new Board();
-        board.setInitialPosition();
+        match = new Match();
+        match.getBoard().setInitialPosition();
     }
 
     @ConsoleCommand("init")
     public void initBoard (Console console, Command command) {
-        board.setInitialPosition();
+        match.getBoard().setInitialPosition();
         console.println("Board initialized !!");
     }
 
     @ConsoleCommand("print")
     public void printBoard (Console console, Command command) {
-        printBoard(console);
+        printBoard(console, match.getBoard());
     }
 
     @ConsoleCommand("flip")
@@ -63,13 +63,13 @@ public class BoardProcessor extends ConsoleProcessor {
         if (matcher.find()) {
             Square fromSquare = Square.fromSan(moveString.substring(0, 2));
             Square toSquare = Square.fromSan(moveString.substring(2));
-            moveMade = board.makeMove(fromSquare, toSquare);
+            moveMade = match.makeMove(fromSquare, toSquare);
         }
         else {
-            moveMade = board.makeMove(moveString);
+            moveMade = match.makeMove(moveString);
         }
         if (moveMade != null) {
-            printBoard(console);
+            printBoard(console, match.getBoard());
         }
         else {
             console.println ("Illegal move !!");
@@ -78,26 +78,26 @@ public class BoardProcessor extends ConsoleProcessor {
 
     @ConsoleCommand("takeback")
     public void unmakeMove (Console console, Command command) {
-        board.unmakeMove();
-        printBoard(console);
+        match.unmakeMove();
+        printBoard(console, match.getBoard());
     }
 
     @ConsoleCommand("setFen")
     public void setFenPosition (Console console, Command command) {
         String fen = command.getParameters().get(0);
-        board.setFen(fen);
-        printBoard(console);
+        match.getBoard().setFen(fen);
+        printBoard(console, match.getBoard());
     }
 
     @ConsoleCommand("getFen")
     public void getFenPosition (Console console, Command command) {
-        String fen = board.getFen();
+        String fen = match.getBoard().getFen();
         console.println(fen);
     }
 
     @ConsoleCommand("list")
     public void listMoves (Console console, Command command) {
-        List<Move> moves = board.getLegalMoves();
+        List<Move> moves = match.getBoard().getLegalMoves();
         for (Move move : moves) {
             console.print(move.getSan());
             console.print(" ");
@@ -107,7 +107,7 @@ public class BoardProcessor extends ConsoleProcessor {
 
     @ConsoleCommand("history")
     public void listHistoryMoves (Console console, Command command) {
-        List<Move> moves = board.getHistory();
+        List<Move> moves = match.getHistoryMoves();
         for (Move move : moves) {
             console.print(move.getSan());
             console.print(" ");
@@ -115,7 +115,7 @@ public class BoardProcessor extends ConsoleProcessor {
         console.println();
     }
 
-    private void printBoard (Console console) {
+    private void printBoard (Console console, Board board) {
 
         Rank[] ranks = { ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT };
         File[] files = { A, B, C, D, E, F, G, H };

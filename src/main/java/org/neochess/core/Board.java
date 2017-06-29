@@ -12,10 +12,9 @@ import static org.neochess.core.File.*;
 
 /**
  * TODO: Cosas a hacer
- * 1. Crear clase Match y pasar los metodos makeMove a Match
- * 2. Crear getHash() y método getDrawByRepetition() en clase match
- * 3. Crear método para mostrar un tablero ya jugado eg. getHistory(2)
- * 4. Agreagar métodos getPgn y setPgn al Match
+ * 1. Crear getHash() y método getDrawByRepetition() en clase match
+ * 2. Crear método para mostrar un tablero ya jugado eg. getHistory(2)
+ * 3. Agreagar métodos getPgn y setPgn al Match
  */
 public class Board {
 
@@ -36,14 +35,13 @@ public class Board {
     private EnumMap<Side,CastleRights> castleRights;
     private int moveCounter;
     private int halfMoveCounter;
-    private Stack<Move> moveStack;
 
     public Board() {
         squares = new EnumMap<Square, Piece>(Square.class);
         castleRights = new EnumMap<Side, CastleRights>(Side.class);
         castleRights.put(WHITE, new CastleRights());
         castleRights.put(BLACK, new CastleRights());
-        moveStack = new Stack<>();
+
     }
 
     public Piece getPiece (Square square) {
@@ -94,12 +92,6 @@ public class Board {
         this.halfMoveCounter = halfMoveCounter;
     }
 
-    public List<Move> getHistory () {
-        List<Move> moves = new ArrayList<>();
-        moves.addAll(moveStack);
-        return moves;
-    }
-
     public void clear () {
         for (Square square : Square.values()) {
             removePiece(square);
@@ -110,7 +102,6 @@ public class Board {
         setSideToMove(WHITE);
         moveCounter = 0;
         halfMoveCounter = 0;
-        moveStack.clear();
     }
 
     public void setInitialPosition () {
@@ -280,60 +271,6 @@ public class Board {
         fen.append(" ");
         fen.append((int)Math.ceil(moveCounter/2) + 1);
         return fen.toString();
-    }
-
-    public Move makeMove(Square fromSquare, Square toSquare) {
-        return makeMove(fromSquare, toSquare, null);
-    }
-
-    public Move makeMove(Square fromSquare, Square toSquare, Piece promotionPiece) {
-        Move move = null;
-        List<Move> moves = getLegalMoves();
-        for (Move testMove : moves) {
-            if (testMove.getFromSquare().equals(fromSquare) && testMove.getToSquare().equals(toSquare)) {
-                if (promotionPiece == null || promotionPiece == testMove.getPromotionPiece()) {
-                    move = testMove;
-                    break;
-                }
-            }
-        }
-        if (move != null) {
-            makeMove(move);
-            moveStack.push(move);
-        }
-        return move;
-    }
-
-    public Move makeMove(String sanMove) {
-        Move move = null;
-        List<Move> moves = getLegalMoves();
-        for (Move testMove : moves) {
-            String testMoveSan = testMove.getSan();
-            if (sanMove.equals(testMoveSan)) {
-                move = testMove;
-                break;
-            }
-            else if (testMoveSan.endsWith("+") || testMoveSan.endsWith("#")) {
-                testMoveSan = testMoveSan.substring(0, testMoveSan.length()-1);
-                if (sanMove.equals(testMoveSan)) {
-                    move = testMove;
-                    break;
-                }
-            }
-        }
-        if (move != null) {
-            makeMove(move);
-            moveStack.push(move);
-        }
-        return move;
-    }
-
-    public Move unmakeMove() {
-        Move move = moveStack.pop();
-        if (move != null) {
-            unmakeMove(move);
-        }
-        return move;
     }
 
     public List<Move> getLegalMoves () {
@@ -617,7 +554,7 @@ public class Board {
         return move;
     }
 
-    private void makeMove(Move move) {
+    protected void makeMove(Move move) {
 
         Square fromSquare = move.getFromSquare();
         Square toSquare = move.getToSquare();
@@ -724,7 +661,7 @@ public class Board {
         sideToMove = sideToMove.getOppositeSide();
     }
 
-    private void unmakeMove(Move move) {
+    protected void unmakeMove(Move move) {
 
         Square fromSquare = move.getFromSquare();
         Square toSquare = move.getToSquare();
