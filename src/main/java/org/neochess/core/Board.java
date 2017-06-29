@@ -922,7 +922,7 @@ public class Board {
     }
 
     public boolean isDrawByFiftyMoveRule() {
-        return halfMoveCounter >= 100;
+        return halfMoveCounter >= 50;
     }
 
     public boolean isDraw() {
