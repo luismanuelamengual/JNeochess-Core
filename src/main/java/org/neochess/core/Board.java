@@ -12,12 +12,10 @@ import static org.neochess.core.File.*;
 
 /**
  * TODO: Cosas a hacer
- * 1. Pasar el contenido del constructor de Move a Board
- * 2. Tratar movimientos ambiguos en notacion san the movimientos (metodo getAttackingSquares())
- * 3. Crear clase Match y pasar los metodos makeMove a Match
- * 4. Crear getHash() y método getDrawByRepetition() en clase match
- * 5. Crear método para mostrar un tablero ya jugado eg. getHistory(2)
- * 6. Agreagar métodos getPgn y setPgn al Match
+ * 1. Crear clase Match y pasar los metodos makeMove a Match
+ * 2. Crear getHash() y método getDrawByRepetition() en clase match
+ * 3. Crear método para mostrar un tablero ya jugado eg. getHistory(2)
+ * 4. Agreagar métodos getPgn y setPgn al Match
  */
 public class Board {
 
@@ -573,6 +571,27 @@ public class Board {
             }
             else {
                 sanBuilder.append(movingFigure.getSan());
+                List<Square> figureAttackingSquares = getAttackingSquares(toSquare, getSideToMove());
+                Iterator<Square> attackingSquaresIterator = figureAttackingSquares.iterator();
+                while(attackingSquaresIterator.hasNext()) {
+                    Square attackingSquare = attackingSquaresIterator.next();
+                    if (!getPiece(attackingSquare).getFigure().equals(movingFigure)) {
+                        attackingSquaresIterator.remove();
+                    }
+                }
+                if (figureAttackingSquares.size() > 1) {
+                    sanBuilder.append(fromSquare.getFile().getSan());
+                    int fileAttakingFigures = 0;
+                    for (Square square : figureAttackingSquares) {
+                        if (square.getFile().equals(fromSquare.getFile())) {
+                            fileAttakingFigures++;
+                        }
+                    }
+                    if (fileAttakingFigures > 1) {
+                        sanBuilder.append(fromSquare.getRank().getSan());
+                    }
+                }
+
                 if (capturedPiece != null) {
                     sanBuilder.append("x");
                 }
@@ -770,14 +789,70 @@ public class Board {
         return kingSquare;
     }
 
-    public boolean isKingSquareAttacked (Side side) {
-        return isSquareAttacked(getKingSquare(side), side.getOppositeSide());
+    public List<Square> getAttackingSquares (Square square, Side side) {
+
+        List<Square> squares = new ArrayList<>();
+        for (Square testSquare : Square.values()) {
+            Piece piece = getPiece(testSquare);
+            if (piece != null) {
+                Side pieceSide = piece.getSide();
+                if (side == pieceSide) {
+
+                    Figure pieceFigure = piece.getFigure();
+                    if (pieceFigure == PAWN) {
+
+                        File pieceFile = testSquare.getFile();
+                        if (side == WHITE) {
+                            if (!pieceFile.equals(A) && testSquare.getOffsetSquare(-1, 1) == square) {
+                                squares.add(testSquare);
+                            }
+                            if (!pieceFile.equals(H) && testSquare.getOffsetSquare(1, 1) == square) {
+                                squares.add(testSquare);
+                            }
+                        } else {
+                            if (!pieceFile.equals(A) && testSquare.getOffsetSquare(-1, -1) == square) {
+                                squares.add(testSquare);
+                            }
+                            if (!pieceFile.equals(H) && testSquare.getOffsetSquare(1, -1) == square) {
+                                squares.add(testSquare);
+                            }
+                        }
+                    } else {
+
+                        boolean squareFound = false;
+                        for (int[] offset : figureOffsets.get(pieceFigure)) {
+                            Square currentOffsetSquare = testSquare;
+                            while (true) {
+                                currentOffsetSquare = currentOffsetSquare.getOffsetSquare(offset[0], offset[1]);
+                                if (currentOffsetSquare == null) {
+                                    break;
+                                }
+                                if (currentOffsetSquare == square) {
+                                    squares.add(testSquare);
+                                    squareFound = true;
+                                    break;
+                                }
+                                if (getPiece(currentOffsetSquare) != null) {
+                                    break;
+                                }
+                                if (pieceFigure.equals(KNIGHT) || pieceFigure.equals(KING)) {
+                                    break;
+                                }
+                            }
+                            if (squareFound) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return squares;
     }
 
     public boolean isSquareAttacked (Square square, Side side) {
 
         for (Square testSquare : Square.values()) {
-
             Piece piece = getPiece(testSquare);
             if (piece != null) {
                 Side pieceSide = piece.getSide();
@@ -819,6 +894,10 @@ public class Board {
             }
         }
         return false;
+    }
+
+    public boolean isKingSquareAttacked (Side side) {
+        return isSquareAttacked(getKingSquare(side), side.getOppositeSide());
     }
 
     public boolean inCheck () {
