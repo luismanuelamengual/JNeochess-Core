@@ -308,8 +308,17 @@ public class Board {
         Move move = null;
         List<Move> moves = getLegalMoves();
         for (Move testMove : moves) {
-            if (testMove.getSan().equals(sanMove)) {
+            String testMoveSan = testMove.getSan();
+            if (sanMove.equals(testMoveSan)) {
                 move = testMove;
+                break;
+            }
+            else if (testMoveSan.endsWith("+") || testMoveSan.endsWith("#")) {
+                testMoveSan = testMoveSan.substring(0, testMoveSan.length()-1);
+                if (sanMove.equals(testMoveSan)) {
+                    move = testMove;
+                    break;
+                }
             }
         }
         if (move != null) {
