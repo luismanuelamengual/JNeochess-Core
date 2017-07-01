@@ -28,12 +28,12 @@ public class Match {
         return makeMove(fromSquare, toSquare, null);
     }
 
-    public Move makeMove(Square fromSquare, Square toSquare, Piece promotionPiece) {
+    public Move makeMove(Square fromSquare, Square toSquare, Figure promotionFigure) {
         Move move = null;
         List<Move> moves = board.getLegalMoves();
         for (Move testMove : moves) {
             if (testMove.getFromSquare().equals(fromSquare) && testMove.getToSquare().equals(toSquare)) {
-                if (promotionPiece == null || promotionPiece == testMove.getPromotionPiece()) {
+                if (promotionFigure == null || promotionFigure == testMove.getPromotionFigure()) {
                     move = testMove;
                     break;
                 }

@@ -56,23 +56,25 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
     @ConsoleCommand("move")
     public void makeMove (Console console, Command command) {
 
-        String moveString = command.getParameters().get(0);
-        Pattern pattern = Pattern.compile("[a-h][1-8][a-h][1-8]");
-        Matcher matcher = pattern.matcher(moveString);
-        Move moveMade = null;
-        if (matcher.find()) {
-            Square fromSquare = Square.fromSan(moveString.substring(0, 2));
-            Square toSquare = Square.fromSan(moveString.substring(2));
-            moveMade = match.makeMove(fromSquare, toSquare);
-        }
-        else {
-            moveMade = match.makeMove(moveString);
-        }
-        if (moveMade != null) {
-            printBoard(console, match.getBoard());
-        }
-        else {
-            console.println ("Illegal move !!");
+        try {
+            String moveString = command.getParameters().get(0);
+            Pattern pattern = Pattern.compile("[a-h][1-8][a-h][1-8]");
+            Matcher matcher = pattern.matcher(moveString);
+            Move moveMade = null;
+            if (matcher.find()) {
+                Square fromSquare = Square.fromSan(moveString.substring(0, 2));
+                Square toSquare = Square.fromSan(moveString.substring(2));
+                moveMade = match.makeMove(fromSquare, toSquare);
+            } else {
+                moveMade = match.makeMove(moveString);
+            }
+            if (moveMade != null) {
+                printBoard(console, match.getBoard());
+            } else {
+                console.println("Illegal move !!");
+            }
+        }catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
