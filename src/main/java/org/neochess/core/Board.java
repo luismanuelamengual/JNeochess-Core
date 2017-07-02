@@ -468,9 +468,9 @@ public class Board {
         Iterator<Move> moveIterator = moves.iterator();
         while (moveIterator.hasNext()) {
             Move move = moveIterator.next();
-            Side currentSideToMove = board.getSideToMove();
+            Side currentSideToMove = getSideToMove();
             makeMove(move);
-            if (board.isKingSquareAttacked(currentSideToMove)) {
+            if (isKingSquareAttacked(currentSideToMove)) {
                 moveIterator.remove();
             }
             unmakeMove(move);
