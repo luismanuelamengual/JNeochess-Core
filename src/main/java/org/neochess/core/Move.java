@@ -14,8 +14,6 @@ public class Move {
     private final Square fromSquare;
     private final Square toSquare;
     private final Figure promotionFigure;
-    private final boolean isLegal;
-    private final String san;
 
     protected Move(Board board, Square fromSquare, Square toSquare) {
         this(board, fromSquare, toSquare, null);
@@ -27,20 +25,32 @@ public class Move {
         this.fromSquare = fromSquare;
         this.toSquare = toSquare;
         this.promotionFigure = promotionFigure;
+    }
 
-        boolean isLegal = false;
+    public Square getFromSquare() {
+        return fromSquare;
+    }
+
+    public Square getToSquare() {
+        return toSquare;
+    }
+
+    public Figure getPromotionFigure() {
+        return promotionFigure;
+    }
+
+    public String getSan() {
+
+        Board cloneBoard = board.clone();
         boolean producesCheck = false;
         boolean producesCheckmate = false;
-        Side currentSideToMove = board.getSideToMove();
-        board.makeMove(this);
-        isLegal = !board.isKingSquareAttacked(currentSideToMove);
-        if (board.inCheck()) {
+        cloneBoard.makeMove(this);
+        if (cloneBoard.inCheck()) {
             producesCheck = true;
-            if (board.getLegalMoves().isEmpty()) {
+            if (cloneBoard.getLegalMoves().isEmpty()) {
                 producesCheckmate = true;
             }
         }
-        board.unmakeMove(this);
 
         Piece movingPiece = board.getPiece(fromSquare);
         Piece capturedPiece = board.getPiece(toSquare);
@@ -100,28 +110,7 @@ public class Move {
                 sanBuilder.append(producesCheckmate? "#" : "+");
             }
         }
-        this.isLegal = isLegal;
-        this.san = sanBuilder.toString();
-    }
-
-    public Square getFromSquare() {
-        return fromSquare;
-    }
-
-    public Square getToSquare() {
-        return toSquare;
-    }
-
-    public Figure getPromotionFigure() {
-        return promotionFigure;
-    }
-
-    public String getSan() {
-        return san;
-    }
-
-    protected boolean isLegal() {
-        return isLegal;
+        return sanBuilder.toString();
     }
 
     protected Board getBoard() {
