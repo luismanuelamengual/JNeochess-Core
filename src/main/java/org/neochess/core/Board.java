@@ -57,8 +57,8 @@ public class Board {
         for (Square square : Square.values()) {
             putPiece(square, board.getPiece(square));
         }
-        setCastleRights(WHITE, board.getCastleRights(WHITE));
-        setCastleRights(BLACK, board.getCastleRights(BLACK));
+        setCastleRights(WHITE, board.getCastleRights(WHITE).clone());
+        setCastleRights(BLACK, board.getCastleRights(BLACK).clone());
         setSideToMove(board.getSideToMove());
         setEnPassantSquare(board.getEnPassantSquare());
         setMoveCounter(board.getMoveCounter());
