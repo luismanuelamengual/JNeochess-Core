@@ -51,6 +51,7 @@ public class Move {
                 producesCheckmate = true;
             }
         }
+        cloneBoard.unmakeMove(this);
 
         Piece movingPiece = board.getPiece(fromSquare);
         Piece capturedPiece = board.getPiece(toSquare);

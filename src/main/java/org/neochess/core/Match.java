@@ -20,8 +20,20 @@ public class Match {
         return board;
     }
 
+    public int getPly() {
+        return moves.size();
+    }
+
     public List<Move> getHistoryMoves() {
         return Collections.unmodifiableList(moves);
+    }
+
+    public Move getHistoryMove (int ply) {
+        return moves.get(ply);
+    }
+
+    public Board getHistoryBoard (int ply) {
+        return moves.get(ply).getBoard();
     }
 
     public Move makeMove(Square fromSquare, Square toSquare) {

@@ -44,7 +44,14 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
 
     @ConsoleCommand("print")
     public void printBoard (Console console, Command command) {
-        printBoard(console, match.getBoard());
+
+        if (command.getParameters().size() > 0) {
+            int ply = Integer.parseInt(command.getParameters().get(0));
+            printBoard(console, match.getHistoryBoard(ply));
+        }
+        else {
+            printBoard(console, match.getBoard());
+        }
     }
 
     @ConsoleCommand("flip")
