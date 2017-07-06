@@ -13,8 +13,7 @@ import static org.neochess.core.File.*;
 /**
  * TODO: Cosas a hacer
  * 1. Crear getHash() y método getDrawByRepetition() en clase match
- * 2. Crear método para mostrar un tablero ya jugado eg. getHistory(2)
- * 3. Agreagar métodos getPgn y setPgn al Match
+ * 2. Agreagar métodos getPgn y setPgn al Match
  */
 public class Board {
 

@@ -33,7 +33,15 @@ public class Match {
     }
 
     public Board getHistoryBoard (int ply) {
-        return moves.get(ply).getBoard();
+
+        Board board;
+        if (ply >= moves.size()) {
+            board = this.board;
+        }
+        else {
+            board = moves.get(ply).getBoard();
+        }
+        return board;
     }
 
     public Move makeMove(Square fromSquare, Square toSquare) {
