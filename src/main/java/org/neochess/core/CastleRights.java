@@ -23,6 +23,20 @@ public class CastleRights {
         castleQueenSide = false;
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if(object instanceof CastleRights) {
+            CastleRights castleRights = (CastleRights)object;
+            if (castleKingSide != castleRights.castleKingSide) {
+                return false;
+            }
+            if (castleQueenSide != castleRights.castleQueenSide) {
+                return false;
+            }
+        }
+        return super.equals(object);
+    }
+
     public boolean canCastleKingSide() {
         return castleKingSide;
     }

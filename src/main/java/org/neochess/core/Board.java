@@ -52,6 +52,38 @@ public class Board {
         return new Board(this);
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof Board) {
+
+            Board board = (Board)object;
+            for (Square square : Square.values()) {
+                if (getPiece(square) != board.getPiece(square)) {
+                    return false;
+                }
+            }
+            if (getSideToMove() != board.getSideToMove()) {
+                return false;
+            }
+            if (getEnPassantSquare() != board.getEnPassantSquare()) {
+                return false;
+            }
+            if (getCastleRights(WHITE) != board.getCastleRights(WHITE)) {
+                return false;
+            }
+            if (getCastleRights(BLACK) != board.getCastleRights(BLACK)) {
+                return false;
+            }
+            if (getMoveCounter() != board.getMoveCounter()) {
+                return false;
+            }
+            if (getHalfMoveCounter() != board.getHalfMoveCounter()) {
+                return false;
+            }
+        }
+        return super.equals(object);
+    }
+
     public void setFrom (Board board) {
         for (Square square : Square.values()) {
             putPiece(square, board.getPiece(square));
