@@ -504,16 +504,16 @@ public class Board {
         initBoardVars ();
     }
 
-    public static int getSquare (int file, int rank) {
-        return (rank * 8) + file;
+    public static byte getSquare (int file, int rank) {
+        return (byte)((rank * 8) + file);
     }
 
-    public static int getSquareFile (int square) {
-        return square & 7;
+    public static byte getSquareFile (int square) {
+        return (byte)(square & 7);
     }
 
-    public static int getSquareRank (int square) {
-        return square >> 3;
+    public static byte getSquareRank (int square) {
+        return (byte)(square >> 3);
     }
 
     public static byte getPieceSide (byte piece) {
