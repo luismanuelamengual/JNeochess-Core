@@ -130,6 +130,22 @@ public class Board {
     private static final long HASHCASTLEBS;
     private static final long HASHCASTLEBL;
 
+    public static final long MOVE_FROM_SQUARE_MASK = 0xFF;
+    public static final long MOVE_TO_SQUARE_MASK = 0xFF00;
+    public static final long MOVE_PROMOTION_PIECE_MASK = 0xFF0000;
+    public static final long MOVE_CAPTURED_PIECE_MASK = 0xFF000000;
+    public static final long MOVE_CASTLE_STATE_MASK = 0xFF00000000L;
+    public static final long MOVE_EP_SQUARE_MASK = 0xFF0000000000L;
+    public static final long MOVE_SCORE_MASK = 0xFFFF000000000000L;
+
+    public static final int MOVE_FROM_SQUARE_OFFSET = Long.numberOfTrailingZeros(MOVE_FROM_SQUARE_MASK);
+    public static final int MOVE_TO_SQUARE_OFFSET = Long.numberOfTrailingZeros(MOVE_TO_SQUARE_MASK);
+    public static final int MOVE_PROMOTION_PIECE_OFFSET = Long.numberOfTrailingZeros(MOVE_PROMOTION_PIECE_MASK);
+    public static final int MOVE_CAPTURED_PIECE_OFFSET = Long.numberOfTrailingZeros(MOVE_CAPTURED_PIECE_MASK);
+    public static final int MOVE_CASTLE_STATE_OFFSET = Long.numberOfTrailingZeros(MOVE_CASTLE_STATE_MASK);
+    public static final int MOVE_EP_SQUARE_OFFSET = Long.numberOfTrailingZeros(MOVE_EP_SQUARE_MASK);
+    public static final int MOVE_SCORE_OFFSET = Long.numberOfTrailingZeros(MOVE_SCORE_MASK);
+
     private byte[] squareSide = new byte[64];
     private byte[] squareFigure = new byte[64];
     private byte epSquare;
@@ -168,6 +184,18 @@ public class Board {
         HASHCASTLEBS = randomGenerator.nextLong();
         HASHCASTLEBL = randomGenerator.nextLong();
         HASHSIDE = randomGenerator.nextLong();
+    }
+
+    public static int getSquare (int file, int rank) {
+        return (rank * 8) + file;
+    }
+
+    public static int getSquareFile (int square) {
+        return square & 7;
+    }
+
+    public static int getSquareRank (int square) {
+        return square >> 3;
     }
 
     public static byte getPieceSide (byte piece) {
@@ -296,5 +324,134 @@ public class Board {
         sideToMove = WHITE;
         epSquare = INVALIDSQUARE;
         castleState = WHITECASTLESHORT | WHITECASTLELONG | BLACKCASTLESHORT | BLACKCASTLELONG;
+    }
+
+    public long makeMove (long move) {
+
+        byte fromSquare = (byte)((move & MOVE_FROM_SQUARE_MASK) >>> MOVE_FROM_SQUARE_OFFSET);
+        byte toSquare = (byte)((move & MOVE_TO_SQUARE_MASK) >>> MOVE_TO_SQUARE_OFFSET);
+        byte movingPiece = getPiece(fromSquare);
+        byte movingFigure = squareFigure[fromSquare];
+        byte capturedPiece = getPiece(toSquare);
+
+        long appliedMove = move
+                | (capturedPiece << MOVE_CAPTURED_PIECE_OFFSET)
+                | (castleState << MOVE_CASTLE_STATE_OFFSET)
+                | (epSquare << MOVE_EP_SQUARE_OFFSET);
+
+        if (movingFigure == PAWN) {
+            if (sideToMove == WHITE) {
+                if (getSquareRank(toSquare) == RANK_8) {
+                    byte promotionPiece = (byte)((move & MOVE_PROMOTION_PIECE_MASK) >>> MOVE_PROMOTION_PIECE_OFFSET);
+                    movingPiece = promotionPiece != EMPTY ? promotionPiece : WHITEQUEEN;
+                }
+                else if (toSquare == epSquare) {
+                    removePiece((byte) (toSquare - 8));
+                }
+            }
+            else {
+                if (getSquareRank(toSquare) == RANK_1) {
+                    byte promotionPiece = (byte)((move & MOVE_PROMOTION_PIECE_MASK) >>> MOVE_PROMOTION_PIECE_OFFSET);
+                    movingPiece = promotionPiece != EMPTY ? promotionPiece : BLACKQUEEN;
+                }
+                else if (toSquare == epSquare) {
+                    removePiece((byte) (toSquare + 8));
+                }
+            }
+            epSquare = (Math.abs(fromSquare - toSquare) == 16)? (byte)((fromSquare + toSquare) / 2) : INVALIDSQUARE;
+        }
+        else {
+            if (movingFigure == KING) {
+                if (fromSquare == E1) {
+                    switch (toSquare) {
+                        case G1:
+                            removePiece(H1);
+                            putPiece(F1, WHITEROOK);
+                            break;
+                        case C1:
+                            removePiece(A1);
+                            putPiece(D1, WHITEROOK);
+                            break;
+                    }
+                }
+                else if (fromSquare == E8) {
+                    switch (toSquare) {
+                        case G8:
+                            removePiece(H8);
+                            putPiece(F8, BLACKROOK);
+                            break;
+                        case C8:
+                            removePiece(A8);
+                            putPiece(D8, BLACKROOK);
+                            break;
+                    }
+                }
+            }
+            epSquare = INVALIDSQUARE;
+        }
+        removePiece(fromSquare);
+        putPiece(toSquare, movingPiece);
+        castleState &= CASTLEMASK[fromSquare] & CASTLEMASK[toSquare];
+        sideToMove ^= 1;
+        return appliedMove;
+    }
+
+    public void unmakeMove (long move) {
+
+        byte fromSquare = (byte)((move & MOVE_FROM_SQUARE_MASK) >>> MOVE_FROM_SQUARE_OFFSET);
+        byte toSquare = (byte)((move & MOVE_TO_SQUARE_MASK) >>> MOVE_TO_SQUARE_OFFSET);
+        byte capturedPiece = (byte)((move & MOVE_CAPTURED_PIECE_MASK) >>> MOVE_CAPTURED_PIECE_OFFSET);
+        byte lastCastleState = (byte)((move & MOVE_CASTLE_STATE_MASK) >>> MOVE_CASTLE_STATE_OFFSET);
+        byte lastEpSquare = (byte)((move & MOVE_EP_SQUARE_MASK) >>> MOVE_EP_SQUARE_OFFSET);
+        byte movingPiece = getPiece(toSquare);
+        byte movingFigure = squareFigure[toSquare];
+        byte movingSide = squareSide[toSquare];
+
+        if (movingFigure == PAWN) {
+            if (toSquare == lastEpSquare) {
+                if (movingSide == WHITE) {
+                    putPiece((byte)(toSquare - 8), BLACKPAWN);
+                }
+                else {
+                    putPiece((byte)(toSquare + 8), WHITEPAWN);
+                }
+            }
+        }
+        else if (movingFigure == KING) {
+            if (fromSquare == E1) {
+                switch (toSquare) {
+                    case G1:
+                        removePiece(F1);
+                        putPiece(H1, WHITEROOK);
+                        break;
+                    case C1:
+                        removePiece(D1);
+                        putPiece(A1, WHITEROOK);
+                        break;
+                }
+            }
+            else if (fromSquare == E8) {
+                switch (toSquare) {
+                    case G8:
+                        removePiece(F8);
+                        putPiece(H8, BLACKROOK);
+                        break;
+                    case C8:
+                        removePiece(D8);
+                        putPiece(A8, BLACKROOK);
+                        break;
+                }
+            }
+        }
+        if (capturedPiece != EMPTY) {
+            putPiece(toSquare, capturedPiece);
+        }
+        else {
+            removePiece(toSquare);
+        }
+        putPiece(fromSquare, movingPiece);
+        epSquare = lastEpSquare;
+        castleState = lastCastleState;
+        sideToMove ^= 1;
     }
 }
