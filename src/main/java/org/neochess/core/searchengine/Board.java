@@ -666,8 +666,8 @@ public class Board {
 
         long appliedMove = move
                 | (capturedPiece << MOVE_CAPTURED_PIECE_OFFSET)
-                | (castleState << MOVE_CASTLE_STATE_OFFSET)
-                | (epSquare << MOVE_EP_SQUARE_OFFSET);
+                | ((long)castleState << MOVE_CASTLE_STATE_OFFSET)
+                | ((long)epSquare << MOVE_EP_SQUARE_OFFSET);
 
         if (movingFigure == PAWN) {
             if (sideToMove == WHITE) {
