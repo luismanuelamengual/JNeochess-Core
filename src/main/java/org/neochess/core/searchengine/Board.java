@@ -1,5 +1,8 @@
 package org.neochess.core.searchengine;
 
+import org.neochess.core.Move;
+
+import java.util.List;
 import java.util.Random;
 
 public class Board {
@@ -1224,6 +1227,120 @@ public class Board {
             if ((castleState & BLACKCASTLELONG) > 0)
                 if (squareSide[B8] == EMPTY && squareSide[C8] == EMPTY && squareSide[D8] == EMPTY && !inCheck() && !isSquareAttacked(C8, WHITE) && !isSquareAttacked(D8, WHITE))
                     movesArray[moveIndex++] = createMove(E8, C8);
+        }
+        movesArray[moveIndex++] = 0;
+    }
+
+    public void generateCaptureMoves (long[] movesArray) {
+
+        int moveIndex = 0;
+        byte side = sideToMove;
+        byte xside = getOppositeSide(side);
+        byte piece, fsq, tsq;
+        long movers, moves, captures;
+        long[] sidePieces = pieces[side];
+        long enemy = friends[xside];
+
+        for (piece = KNIGHT; piece <= KING; piece += 4) {
+            movers = sidePieces[piece];
+            while (movers != 0) {
+                fsq = (byte)BitBoard.getLeastSignificantBit(movers);
+                movers &= BitBoard.squareBitX[fsq];
+                moves = moveArray[piece][fsq] & enemy;
+                while (moves != 0) {
+                    tsq = (byte)BitBoard.getLeastSignificantBit(moves);
+                    moves &= BitBoard.squareBitX[tsq];
+                    movesArray[moveIndex++] = createMove(fsq, tsq);
+                }
+            }
+        }
+
+        movers = sidePieces[BISHOP];
+        while (movers != 0) {
+            fsq = (byte)BitBoard.getLeastSignificantBit(movers);
+            movers &= BitBoard.squareBitX[fsq];
+            moves = getBishopAttacks(fsq) & enemy;
+            while (moves != 0) {
+                tsq = (byte)BitBoard.getLeastSignificantBit(moves);
+                moves &= BitBoard.squareBitX[tsq];
+                movesArray[moveIndex++] = createMove(fsq, tsq);
+            }
+        }
+
+        movers = sidePieces[ROOK];
+        while (movers != 0) {
+            fsq = (byte)BitBoard.getLeastSignificantBit(movers);
+            movers &= BitBoard.squareBitX[fsq];
+            moves = getRookAttacks(fsq) & enemy;
+            while (moves != 0) {
+                tsq = (byte)BitBoard.getLeastSignificantBit(moves);
+                moves &= BitBoard.squareBitX[tsq];
+                movesArray[moveIndex++] = createMove(fsq, tsq);
+            }
+        }
+
+        movers = sidePieces[QUEEN];
+        while (movers != 0) {
+            fsq = (byte)BitBoard.getLeastSignificantBit(movers);
+            movers &= BitBoard.squareBitX[fsq];
+            moves = getQueenAttacks(fsq) & enemy;
+            while (moves != 0) {
+                tsq = (byte)BitBoard.getLeastSignificantBit(moves);
+                moves &= BitBoard.squareBitX[tsq];
+                movesArray[moveIndex++] = createMove(fsq, tsq);
+            }
+        }
+
+        captures = (friends[xside] | (epSquare != INVALIDSQUARE? BitBoard.squareBit[epSquare] : BitBoard.NULLBITBOARD));
+        if (side == WHITE) {
+            movers = sidePieces[PAWN] & rankBits[6];
+            moves = (movers >> 8) & ~blocker;
+            while (moves != 0) {
+                tsq = (byte)BitBoard.getLeastSignificantBit(moves);
+                moves &= BitBoard.squareBitX[tsq];
+                movesArray[moveIndex++] = createMove((byte)(tsq-8), tsq);
+            }
+
+            movers = sidePieces[PAWN] & ~fileBits[0];
+            moves = (movers >> 7) & captures;
+            while (moves != 0) {
+                tsq = (byte)BitBoard.getLeastSignificantBit(moves);
+                moves &= BitBoard.squareBitX[tsq];
+                movesArray[moveIndex++] = createMove((byte)(tsq-7), tsq);
+            }
+
+            movers = sidePieces[PAWN] & ~fileBits[7];
+            moves = (movers >> 9) & captures;
+            while (moves != 0) {
+                tsq = (byte)BitBoard.getLeastSignificantBit(moves);
+                moves &= BitBoard.squareBitX[tsq];
+                movesArray[moveIndex++] = createMove((byte)(tsq-9), tsq);
+            }
+        }
+        else if (side == BLACK) {
+            movers = sidePieces[PAWN] & rankBits[1];
+            moves = (movers << 8) & ~blocker;
+            while (moves != 0) {
+                tsq = (byte)BitBoard.getLeastSignificantBit(moves);
+                moves &= BitBoard.squareBitX[tsq];
+                movesArray[moveIndex++] = createMove((byte)(tsq+8), tsq);
+            }
+
+            movers = sidePieces[PAWN] & ~fileBits[7];
+            moves = (movers << 7) & captures;
+            while (moves != 0) {
+                tsq = (byte)BitBoard.getLeastSignificantBit(moves);
+                moves &= BitBoard.squareBitX[tsq];
+                movesArray[moveIndex++] = createMove((byte)(tsq+7), tsq);
+            }
+
+            movers = sidePieces[PAWN] & ~fileBits[0];
+            moves = (movers << 9) & captures;
+            while (moves != 0) {
+                tsq = (byte)BitBoard.getLeastSignificantBit(moves);
+                moves &= BitBoard.squareBitX[tsq];
+                movesArray[moveIndex++] = createMove((byte)(tsq+9), tsq);
+            }
         }
         movesArray[moveIndex++] = 0;
     }
