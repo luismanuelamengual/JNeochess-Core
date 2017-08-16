@@ -1078,7 +1078,7 @@ public class Board {
         return false;
     }
 
-    public void getPseudoLegalMoves (long[] movesArray) {
+    public void generatePseudoLegalMoves(long[] movesArray) {
 
         int moveIndex = 0;
         byte side = sideToMove;
@@ -1226,5 +1226,27 @@ public class Board {
                     movesArray[moveIndex++] = createMove(E8, C8);
         }
         movesArray[moveIndex++] = 0;
+    }
+
+    public void generateLegalMoves (long[] moves) {
+
+        byte currentSideToMove = sideToMove;
+        generatePseudoLegalMoves(moves);
+        int moveIndex = 0;
+        for (int currentMoveIndex = 0; currentMoveIndex < moves.length; currentMoveIndex++) {
+            long move = moves[currentMoveIndex];
+            if (move == 0) {
+                break;
+            }
+            long appliedMove = makeMove(move);
+            if (!inCheck(currentSideToMove)) {
+                if (moveIndex != currentMoveIndex) {
+                    moves[moveIndex] = move;
+                }
+                moveIndex++;
+            }
+            unmakeMove(appliedMove);
+        }
+        moves[moveIndex] = 0;
     }
 }
