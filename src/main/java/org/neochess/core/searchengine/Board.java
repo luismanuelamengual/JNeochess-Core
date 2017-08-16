@@ -173,8 +173,8 @@ public class Board {
     public static final int sliderX[] = { 1, 0, 1, 1, 1, 0 };
     public static final int raybeg[] = { 0, 0, 0, 4, 0, 0 };
     public static final int rayend[] = { 0, 0, 4, 8, 8, 0 };
-
     public static final int dirpos[] = { 1, 1, 0, 0, 1, 1, 0, 0 };
+
     public static final int dir[][] = {
     {   9,  11,   0,  0, 0,  0,  0,  0 },
     { -21, -19, -12, -8, 8, 12, 19, 21 },
@@ -1343,6 +1343,96 @@ public class Board {
             }
         }
         movesArray[moveIndex++] = 0;
+    }
+
+    public void generateEscapeMoves (long[] movesArray) {
+
+        int moveIndex = 0;
+        byte side, xside;
+        byte kingsq, chksq, sq, sq1, epsq;
+        int dir;
+        long checkers, b, c, p, escapes;
+        escapes = 0;
+        side = sideToMove;
+        xside = getOppositeSide(side);
+
+        kingsq = getKingSquare(side);
+        checkers = getSquareAttackers(kingsq, xside);
+        p = pieces[side][PAWN];
+
+        if (BitBoard.getBitCount(checkers) == 1) {
+            chksq = (byte)BitBoard.getLeastSignificantBit(checkers);
+            b = getSquareAttackers(chksq, side);
+            b &= ~pieces[side][KING];
+            while (b != 0) {
+                sq = (byte)BitBoard.getLeastSignificantBit(b);
+                b &= BitBoard.squareBitX[sq];
+                if (!isPinningKing(sq, side))
+                    movesArray[moveIndex++] = createMove(sq, chksq);
+            }
+
+            if (epSquare != INVALIDSQUARE) {
+                epsq = epSquare;
+                if (epsq + (side == WHITE ? -8 : 8) == chksq) {
+                    b = moveArray[xside == WHITE?PAWN:BPAWN][epsq] & p;
+                    while (b != 0)
+                    {
+                        sq = (byte)BitBoard.getLeastSignificantBit(b);
+                        b &= BitBoard.squareBitX[sq];
+                        if (!isPinningKing(sq, side))
+                            movesArray[moveIndex++] = createMove(sq, epsq);
+                    }
+                }
+            }
+
+            if (slider[squareFigure[chksq]] == 1) {
+                c = fromtoRay[kingsq][chksq] & BitBoard.squareBitX[chksq];
+                while (c != 0) {
+                    sq = (byte)BitBoard.getLeastSignificantBit(c);
+                    c &= BitBoard.squareBitX[sq];
+                    b = getSquareAttackers(sq, side);
+                    b &= ~(pieces[side][KING] | p);
+
+                    if (side == WHITE && sq > H2) {
+                        if ((BitBoard.squareBit[sq - 8] & p) != 0)
+                            b |= BitBoard.squareBit[sq - 8];
+
+                        if (getSquareRank(sq) == 3 && squareSide[sq - 8] == NOSIDE && ((BitBoard.squareBit[sq - 16] & p) != 0))
+                            b |= BitBoard.squareBit[sq - 16];
+                    }
+                    if (side == BLACK && sq < H7) {
+                        if ((BitBoard.squareBit[sq + 8] & p) != 0)
+                            b |= BitBoard.squareBit[sq + 8];
+                        if (getSquareRank(sq) == 4 && squareSide[sq + 8] == NOSIDE && ((BitBoard.squareBit[sq + 16] & p) != 0))
+                            b |= BitBoard.squareBit[sq + 16];
+                    }
+                    while (b != 0) {
+                        sq1 = (byte)BitBoard.getLeastSignificantBit(b);
+                        b &= BitBoard.squareBitX[sq1];
+                        if (!isPinningKing(sq1, side))
+                            movesArray[moveIndex++] = createMove(sq1, sq);
+                    }
+                }
+            }
+        }
+
+        if (checkers != 0)
+            escapes = moveArray[KING][kingsq] & ~friends[side];
+
+        while (checkers != 0) {
+            chksq = (byte)BitBoard.getLeastSignificantBit(checkers);
+            checkers &= BitBoard.squareBitX[chksq];
+            dir = directions[chksq][kingsq];
+            if (slider[squareFigure[chksq]] == 1)
+                escapes &= ~ray[chksq][dir];
+        }
+        while (escapes != 0) {
+            sq = (byte)BitBoard.getLeastSignificantBit(escapes);
+            escapes &= BitBoard.squareBitX[sq];
+            if (!isSquareAttacked(sq, xside))
+                movesArray[moveIndex++] = createMove(kingsq, sq);
+        }
+        movesArray[moveIndex] = 0;
     }
 
     public void generateLegalMoves (long[] moves) {
