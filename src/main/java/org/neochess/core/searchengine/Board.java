@@ -645,12 +645,32 @@ public class Board {
         castleState = WHITECASTLESHORT | WHITECASTLELONG | BLACKCASTLESHORT | BLACKCASTLELONG;
     }
 
-    public static long createMove (byte fromSquare, byte toSquare) {
+    private long createMove (byte fromSquare, byte toSquare) {
         return (fromSquare << MOVE_FROM_SQUARE_OFFSET) | (toSquare << MOVE_TO_SQUARE_OFFSET);
     }
 
-    public static long createMove (byte fromSquare, byte toSquare, byte promotionPiece) {
-        return (fromSquare << MOVE_FROM_SQUARE_OFFSET) | (toSquare << MOVE_TO_SQUARE_OFFSET) | (promotionPiece << MOVE_PROMOTION_PIECE_OFFSET);
+    private long createMove (byte fromSquare, byte toSquare, byte promotionPiece) {
+        return (fromSquare << MOVE_FROM_SQUARE_OFFSET) | (toSquare << MOVE_TO_SQUARE_OFFSET) | ((long)promotionPiece << MOVE_PROMOTION_PIECE_OFFSET);
+    }
+
+    public long isMoveValid (byte fromSquare, byte toSquare) {
+
+        long foundMove = 0;
+        long[] moves = new long[100];
+        generateLegalMoves(moves);
+        for (int i = 0; i < moves.length; i++) {
+            long move = moves[i];
+            if (move == 0) {
+                break;
+            }
+            byte moveFromSquare = (byte)((move & MOVE_FROM_SQUARE_MASK) >>> MOVE_FROM_SQUARE_OFFSET);
+            byte moveToSquare = (byte)((move & MOVE_TO_SQUARE_MASK) >>> MOVE_TO_SQUARE_OFFSET);
+            if (fromSquare == moveFromSquare && toSquare == moveToSquare) {
+                foundMove = move;
+                break;
+            }
+        }
+        return foundMove;
     }
 
     public long makeMove (long move) {

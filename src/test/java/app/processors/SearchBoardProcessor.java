@@ -55,8 +55,11 @@ public class SearchBoardProcessor extends ConsoleProcessor {
         String moveString = command.getParameters().get(0);
         byte fromSquare = getSquareFromString(moveString.substring(0,2));
         byte toSquare = getSquareFromString(moveString.substring(2));
-        long moveMade = board.makeMove(Board.createMove(fromSquare, toSquare));
-        movesMade.add(moveMade);
+        long move = board.isMoveValid(fromSquare, toSquare);
+        if (move != 0) {
+            long moveMade = board.makeMove(move);
+            movesMade.add(moveMade);
+        }
         printBoard(console);
     }
 
