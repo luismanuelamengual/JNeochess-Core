@@ -210,18 +210,18 @@ public class SearchBoardProcessor extends ConsoleProcessor {
 
     private String getPieceString (int piece) {
         switch (piece) {
-            case Board.WHITEPAWN: return "P";
-            case Board.WHITEKNIGHT: return "N";
-            case Board.WHITEBISHOP: return "B";
-            case Board.WHITEROOK: return "R";
-            case Board.WHITEQUEEN: return "Q";
-            case Board.WHITEKING: return "K";
-            case Board.BLACKPAWN: return "p";
-            case Board.BLACKKNIGHT: return "n";
-            case Board.BLACKBISHOP: return "b";
-            case Board.BLACKROOK: return "r";
-            case Board.BLACKQUEEN: return "q";
-            case Board.BLACKKING: return "k";
+            case Board.WHITE_PAWN: return "P";
+            case Board.WHITE_KNIGHT: return "N";
+            case Board.WHITE_BISHOP: return "B";
+            case Board.WHITE_ROOK: return "R";
+            case Board.WHITE_QUEEN: return "Q";
+            case Board.WHITE_KING: return "K";
+            case Board.BLACK_PAWN: return "p";
+            case Board.BLACK_KNIGHT: return "n";
+            case Board.BLACK_BISHOP: return "b";
+            case Board.BLACK_ROOK: return "r";
+            case Board.BLACK_QUEEN: return "q";
+            case Board.BLACK_KING: return "k";
             default: return " ";
         }
     }

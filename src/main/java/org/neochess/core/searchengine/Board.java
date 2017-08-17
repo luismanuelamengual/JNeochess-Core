@@ -1,8 +1,5 @@
 package org.neochess.core.searchengine;
 
-import org.neochess.core.Move;
-
-import java.util.List;
 import java.util.Random;
 
 public class Board {
@@ -19,18 +16,18 @@ public class Board {
     public static final byte QUEEN = 4;
     public static final byte KING = 5;
     public static final byte BPAWN = 6;
-    public static final byte WHITEPAWN = 0;
-    public static final byte WHITEKNIGHT = 1;
-    public static final byte WHITEBISHOP = 2;
-    public static final byte WHITEROOK = 3;
-    public static final byte WHITEQUEEN = 4;
-    public static final byte WHITEKING = 5;
-    public static final byte BLACKPAWN = 6;
-    public static final byte BLACKKNIGHT = 7;
-    public static final byte BLACKBISHOP = 8;
-    public static final byte BLACKROOK = 9;
-    public static final byte BLACKQUEEN = 10;
-    public static final byte BLACKKING = 11;
+    public static final byte WHITE_PAWN = 0;
+    public static final byte WHITE_KNIGHT = 1;
+    public static final byte WHITE_BISHOP = 2;
+    public static final byte WHITE_ROOK = 3;
+    public static final byte WHITE_QUEEN = 4;
+    public static final byte WHITE_KING = 5;
+    public static final byte BLACK_PAWN = 6;
+    public static final byte BLACK_KNIGHT = 7;
+    public static final byte BLACK_BISHOP = 8;
+    public static final byte BLACK_ROOK = 9;
+    public static final byte BLACK_QUEEN = 10;
+    public static final byte BLACK_KING = 11;
 
     public static final byte INVALIDSQUARE = 64;
     public static final byte A1 = 0;
@@ -481,7 +478,7 @@ public class Board {
 
         //Inicialización de variables de hash
         Random randomGenerator = new Random(0);
-        for (byte piece = WHITEPAWN; piece <= BLACKKING; piece++) {
+        for (byte piece = WHITE_PAWN; piece <= BLACK_KING; piece++) {
             for (byte square = A1; square <= H8; square++) {
                 HASHPIECE[piece][square] = randomGenerator.nextLong();
             }
@@ -609,39 +606,39 @@ public class Board {
     public void setStartupPosition () {
         clear();
 
-        putPiece (A1, WHITEROOK);
-        putPiece (B1, WHITEKNIGHT);
-        putPiece (C1, WHITEBISHOP);
-        putPiece (D1, WHITEQUEEN);
-        putPiece (E1, WHITEKING);
-        putPiece (F1, WHITEBISHOP);
-        putPiece (G1, WHITEKNIGHT);
-        putPiece (H1, WHITEROOK);
-        putPiece (A2, WHITEPAWN);
-        putPiece (B2, WHITEPAWN);
-        putPiece (C2, WHITEPAWN);
-        putPiece (D2, WHITEPAWN);
-        putPiece (E2, WHITEPAWN);
-        putPiece (F2, WHITEPAWN);
-        putPiece (G2, WHITEPAWN);
-        putPiece (H2, WHITEPAWN);
+        putPiece (A1, WHITE_ROOK);
+        putPiece (B1, WHITE_KNIGHT);
+        putPiece (C1, WHITE_BISHOP);
+        putPiece (D1, WHITE_QUEEN);
+        putPiece (E1, WHITE_KING);
+        putPiece (F1, WHITE_BISHOP);
+        putPiece (G1, WHITE_KNIGHT);
+        putPiece (H1, WHITE_ROOK);
+        putPiece (A2, WHITE_PAWN);
+        putPiece (B2, WHITE_PAWN);
+        putPiece (C2, WHITE_PAWN);
+        putPiece (D2, WHITE_PAWN);
+        putPiece (E2, WHITE_PAWN);
+        putPiece (F2, WHITE_PAWN);
+        putPiece (G2, WHITE_PAWN);
+        putPiece (H2, WHITE_PAWN);
 
-        putPiece (A8, BLACKROOK);
-        putPiece (B8, BLACKKNIGHT);
-        putPiece (C8, BLACKBISHOP);
-        putPiece (D8, BLACKQUEEN);
-        putPiece (E8, BLACKKING);
-        putPiece (F8, BLACKBISHOP);
-        putPiece (G8, BLACKKNIGHT);
-        putPiece (H8, BLACKROOK);
-        putPiece (A7, BLACKPAWN);
-        putPiece (B7, BLACKPAWN);
-        putPiece (C7, BLACKPAWN);
-        putPiece (D7, BLACKPAWN);
-        putPiece (E7, BLACKPAWN);
-        putPiece (F7, BLACKPAWN);
-        putPiece (G7, BLACKPAWN);
-        putPiece (H7, BLACKPAWN);
+        putPiece (A8, BLACK_ROOK);
+        putPiece (B8, BLACK_KNIGHT);
+        putPiece (C8, BLACK_BISHOP);
+        putPiece (D8, BLACK_QUEEN);
+        putPiece (E8, BLACK_KING);
+        putPiece (F8, BLACK_BISHOP);
+        putPiece (G8, BLACK_KNIGHT);
+        putPiece (H8, BLACK_ROOK);
+        putPiece (A7, BLACK_PAWN);
+        putPiece (B7, BLACK_PAWN);
+        putPiece (C7, BLACK_PAWN);
+        putPiece (D7, BLACK_PAWN);
+        putPiece (E7, BLACK_PAWN);
+        putPiece (F7, BLACK_PAWN);
+        putPiece (G7, BLACK_PAWN);
+        putPiece (H7, BLACK_PAWN);
 
         sideToMove = WHITE;
         epSquare = INVALIDSQUARE;
@@ -673,7 +670,7 @@ public class Board {
             if (sideToMove == WHITE) {
                 if (getSquareRank(toSquare) == RANK_8) {
                     byte promotionPiece = (byte)((move & MOVE_PROMOTION_PIECE_MASK) >>> MOVE_PROMOTION_PIECE_OFFSET);
-                    movingPiece = promotionPiece != EMPTY ? promotionPiece : WHITEQUEEN;
+                    movingPiece = promotionPiece != EMPTY ? promotionPiece : WHITE_QUEEN;
                 }
                 else if (toSquare == epSquare) {
                     removePiece((byte) (toSquare - 8));
@@ -682,7 +679,7 @@ public class Board {
             else {
                 if (getSquareRank(toSquare) == RANK_1) {
                     byte promotionPiece = (byte)((move & MOVE_PROMOTION_PIECE_MASK) >>> MOVE_PROMOTION_PIECE_OFFSET);
-                    movingPiece = promotionPiece != EMPTY ? promotionPiece : BLACKQUEEN;
+                    movingPiece = promotionPiece != EMPTY ? promotionPiece : BLACK_QUEEN;
                 }
                 else if (toSquare == epSquare) {
                     removePiece((byte) (toSquare + 8));
@@ -696,11 +693,11 @@ public class Board {
                     switch (toSquare) {
                         case G1:
                             removePiece(H1);
-                            putPiece(F1, WHITEROOK);
+                            putPiece(F1, WHITE_ROOK);
                             break;
                         case C1:
                             removePiece(A1);
-                            putPiece(D1, WHITEROOK);
+                            putPiece(D1, WHITE_ROOK);
                             break;
                     }
                 }
@@ -708,11 +705,11 @@ public class Board {
                     switch (toSquare) {
                         case G8:
                             removePiece(H8);
-                            putPiece(F8, BLACKROOK);
+                            putPiece(F8, BLACK_ROOK);
                             break;
                         case C8:
                             removePiece(A8);
-                            putPiece(D8, BLACKROOK);
+                            putPiece(D8, BLACK_ROOK);
                             break;
                     }
                 }
@@ -740,10 +737,10 @@ public class Board {
         if (movingFigure == PAWN) {
             if (toSquare == lastEpSquare) {
                 if (movingSide == WHITE) {
-                    putPiece((byte)(toSquare - 8), BLACKPAWN);
+                    putPiece((byte)(toSquare - 8), BLACK_PAWN);
                 }
                 else {
-                    putPiece((byte)(toSquare + 8), WHITEPAWN);
+                    putPiece((byte)(toSquare + 8), WHITE_PAWN);
                 }
             }
         }
@@ -752,11 +749,11 @@ public class Board {
                 switch (toSquare) {
                     case G1:
                         removePiece(F1);
-                        putPiece(H1, WHITEROOK);
+                        putPiece(H1, WHITE_ROOK);
                         break;
                     case C1:
                         removePiece(D1);
-                        putPiece(A1, WHITEROOK);
+                        putPiece(A1, WHITE_ROOK);
                         break;
                 }
             }
@@ -764,11 +761,11 @@ public class Board {
                 switch (toSquare) {
                     case G8:
                         removePiece(F8);
-                        putPiece(H8, BLACKROOK);
+                        putPiece(H8, BLACK_ROOK);
                         break;
                     case C8:
                         removePiece(D8);
-                        putPiece(A8, BLACKROOK);
+                        putPiece(A8, BLACK_ROOK);
                         break;
                 }
             }
