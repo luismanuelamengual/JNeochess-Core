@@ -132,7 +132,7 @@ public class Board {
 
     public static final long MOVE_FROM_SQUARE_MASK = 0xFF;
     public static final long MOVE_TO_SQUARE_MASK = 0xFF00;
-    public static final long MOVE_PROMOTION_FIGURE_MASK = 0xFF0000;
+    public static final long MOVE_PROMOTION_PIECE_MASK = 0xFF0000;
     public static final long MOVE_CAPTURED_PIECE_MASK = 0xFF000000;
     public static final long MOVE_CASTLE_STATE_MASK = 0xFF00000000L;
     public static final long MOVE_EP_SQUARE_MASK = 0xFF0000000000L;
@@ -140,7 +140,7 @@ public class Board {
 
     public static final int MOVE_FROM_SQUARE_OFFSET = Long.numberOfTrailingZeros(MOVE_FROM_SQUARE_MASK);
     public static final int MOVE_TO_SQUARE_OFFSET = Long.numberOfTrailingZeros(MOVE_TO_SQUARE_MASK);
-    public static final int MOVE_PROMOTION_FIGURE_OFFSET = Long.numberOfTrailingZeros(MOVE_PROMOTION_FIGURE_MASK);
+    public static final int MOVE_PROMOTION_PIECE_OFFSET = Long.numberOfTrailingZeros(MOVE_PROMOTION_PIECE_MASK);
     public static final int MOVE_CAPTURED_PIECE_OFFSET = Long.numberOfTrailingZeros(MOVE_CAPTURED_PIECE_MASK);
     public static final int MOVE_CASTLE_STATE_OFFSET = Long.numberOfTrailingZeros(MOVE_CASTLE_STATE_MASK);
     public static final int MOVE_EP_SQUARE_OFFSET = Long.numberOfTrailingZeros(MOVE_EP_SQUARE_MASK);
@@ -650,24 +650,14 @@ public class Board {
     }
 
     private long createMove (byte fromSquare, byte toSquare) {
-        return (fromSquare << MOVE_FROM_SQUARE_OFFSET) | (toSquare << MOVE_TO_SQUARE_OFFSET);
+        return createMove(fromSquare, toSquare, EMPTY);
     }
 
     private long createMove (byte fromSquare, byte toSquare, byte promotionPiece) {
-        return (fromSquare << MOVE_FROM_SQUARE_OFFSET) | (toSquare << MOVE_TO_SQUARE_OFFSET) | ((long)promotionPiece << MOVE_PROMOTION_FIGURE_OFFSET);
+        return (fromSquare << MOVE_FROM_SQUARE_OFFSET) | (toSquare << MOVE_TO_SQUARE_OFFSET) | ((long)promotionPiece << MOVE_PROMOTION_PIECE_OFFSET);
     }
 
-    private long[] createPromotionMoves (byte fromSquare, byte toSquare) {
-        long[] moves = {
-            createMove(fromSquare, toSquare, QUEEN),
-            createMove(fromSquare, toSquare, ROOK),
-            createMove(fromSquare, toSquare, BISHOP),
-            createMove(fromSquare, toSquare, KNIGHT)
-        };
-        return moves;
-    }
-
-    public long isMoveValid (byte fromSquare, byte toSquare) {
+    public long getMove(byte fromSquare, byte toSquare) {
 
         long foundMove = 0;
         long[] moves = new long[100];
@@ -703,8 +693,7 @@ public class Board {
         if (movingFigure == PAWN) {
             if (sideToMove == WHITE) {
                 if (getSquareRank(toSquare) == RANK_8) {
-                    byte promotionFigure = (byte)((move & MOVE_PROMOTION_FIGURE_MASK) >>> MOVE_PROMOTION_FIGURE_OFFSET);
-                    movingPiece = getPiece(sideToMove, promotionFigure);
+                    movingPiece = (byte)((move & MOVE_PROMOTION_PIECE_MASK) >>> MOVE_PROMOTION_PIECE_OFFSET);
                 }
                 else if (toSquare == epSquare) {
                     removePiece((byte) (toSquare - 8));
@@ -712,8 +701,7 @@ public class Board {
             }
             else {
                 if (getSquareRank(toSquare) == RANK_1) {
-                    byte promotionFigure = (byte)((move & MOVE_PROMOTION_FIGURE_MASK) >>> MOVE_PROMOTION_FIGURE_OFFSET);
-                    movingPiece = getPiece(sideToMove, promotionFigure);
+                    movingPiece = (byte)((move & MOVE_PROMOTION_PIECE_MASK) >>> MOVE_PROMOTION_PIECE_OFFSET);
                 }
                 else if (toSquare == epSquare) {
                     removePiece((byte) (toSquare + 8));
@@ -762,11 +750,12 @@ public class Board {
         byte fromSquare = (byte)((move & MOVE_FROM_SQUARE_MASK) >>> MOVE_FROM_SQUARE_OFFSET);
         byte toSquare = (byte)((move & MOVE_TO_SQUARE_MASK) >>> MOVE_TO_SQUARE_OFFSET);
         byte capturedPiece = (byte)((move & MOVE_CAPTURED_PIECE_MASK) >>> MOVE_CAPTURED_PIECE_OFFSET);
+        byte promotionPiece = (byte)((move & MOVE_PROMOTION_PIECE_MASK) >>> MOVE_PROMOTION_PIECE_OFFSET);
         byte lastCastleState = (byte)((move & MOVE_CASTLE_STATE_MASK) >>> MOVE_CASTLE_STATE_OFFSET);
         byte lastEpSquare = (byte)((move & MOVE_EP_SQUARE_MASK) >>> MOVE_EP_SQUARE_OFFSET);
-        byte movingPiece = getPiece(toSquare);
-        byte movingFigure = squareFigure[toSquare];
-        byte movingSide = squareSide[toSquare];
+        byte movingPiece = promotionPiece != EMPTY? getPiece(getPieceSide(promotionPiece),PAWN) : getPiece(toSquare);
+        byte movingFigure = getPieceFigure(movingPiece);
+        byte movingSide = getPieceSide(movingPiece);
 
         if (movingFigure == PAWN) {
             if (toSquare == lastEpSquare) {
@@ -1180,15 +1169,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte)BitBoard.getLeastSignificantBit(moves);
                 moves &= BitBoard.squareBitX[tsq];
-                if (getSquareRank(tsq) == RANK_8) {
-                    long[] promotionMoves = createPromotionMoves((byte)(tsq-8), tsq);
-                    for (int i = 0; i < promotionMoves.length; i++) {
-                        movesArray[moveIndex++] = promotionMoves[i];
-                    }
-                }
-                else {
-                    movesArray[moveIndex++] = createMove((byte)(tsq-8), tsq);
-                }
+                movesArray[moveIndex++] = createMove((byte)(tsq-8), tsq, getSquareRank(tsq) == RANK_8? WHITE_QUEEN : EMPTY);
             }
 
             movers = sidePieces[PAWN] & rankBits[1];
@@ -1205,7 +1186,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte)BitBoard.getLeastSignificantBit(moves);
                 moves &= BitBoard.squareBitX[tsq];
-                movesArray[moveIndex++] = createMove((byte)(tsq-7), tsq);
+                movesArray[moveIndex++] = createMove((byte)(tsq-7), tsq, getSquareRank(tsq) == RANK_8? WHITE_QUEEN : EMPTY);
             }
 
             movers = sidePieces[PAWN] & ~fileBits[7];
@@ -1213,7 +1194,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte)BitBoard.getLeastSignificantBit(moves);
                 moves &= BitBoard.squareBitX[tsq];
-                movesArray[moveIndex++] = createMove((byte)(tsq-9), tsq);
+                movesArray[moveIndex++] = createMove((byte)(tsq-9), tsq, getSquareRank(tsq) == RANK_8? WHITE_QUEEN : EMPTY);
             }
         }
         else if (side == BLACK) {
@@ -1222,15 +1203,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte)BitBoard.getLeastSignificantBit(moves);
                 moves &= BitBoard.squareBitX[tsq];
-                if (getSquareRank(tsq) == RANK_1) {
-                    long[] promotionMoves = createPromotionMoves((byte)(tsq+8), tsq);
-                    for (int i = 0; i < promotionMoves.length; i++) {
-                        movesArray[moveIndex++] = promotionMoves[i];
-                    }
-                }
-                else {
-                    movesArray[moveIndex++] = createMove((byte)(tsq+8), tsq);
-                }
+                movesArray[moveIndex++] = createMove((byte)(tsq+8), tsq, getSquareRank(tsq) == RANK_1? BLACK_QUEEN : EMPTY);
             }
 
             movers = sidePieces[PAWN] & rankBits[6];
@@ -1247,8 +1220,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte)BitBoard.getLeastSignificantBit(moves);
                 moves &= BitBoard.squareBitX[tsq];
-                movesArray[moveIndex++] = createMove((byte)(tsq+7), tsq);
-                //TODO: agregar promociones
+                movesArray[moveIndex++] = createMove((byte)(tsq+7), tsq, getSquareRank(tsq) == RANK_1? BLACK_QUEEN : EMPTY);
             }
 
             movers = sidePieces[PAWN] & ~fileBits[0];
@@ -1256,7 +1228,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte)BitBoard.getLeastSignificantBit(moves);
                 moves &= BitBoard.squareBitX[tsq];
-                movesArray[moveIndex++] = createMove((byte)(tsq+9), tsq);
+                movesArray[moveIndex++] = createMove((byte)(tsq+9), tsq, getSquareRank(tsq) == RANK_1? BLACK_QUEEN : EMPTY);
             }
         }
 
@@ -1505,7 +1477,7 @@ public class Board {
         moves[moveIndex] = 0;
     }
 
-    public boolean isValid () {
+    public boolean checkIntegrity() {
 
         for (byte square = A1; square <= H8; square++) {
             byte squareSide = this.squareSide[square];

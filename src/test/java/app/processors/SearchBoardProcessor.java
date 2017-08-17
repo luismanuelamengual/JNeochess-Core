@@ -55,7 +55,7 @@ public class SearchBoardProcessor extends ConsoleProcessor {
         String moveString = command.getParameters().get(0);
         byte fromSquare = getSquareFromString(moveString.substring(0,2));
         byte toSquare = getSquareFromString(moveString.substring(2));
-        long move = board.isMoveValid(fromSquare, toSquare);
+        long move = board.getMove(fromSquare, toSquare);
         if (move != 0) {
             long moveMade = board.makeMove(move);
             movesMade.add(moveMade);
@@ -209,7 +209,7 @@ public class SearchBoardProcessor extends ConsoleProcessor {
             console.print(" ");
         }
         console.println();
-        console.println ("Integrity: " + board.isValid());
+        console.println ("Integrity: " + board.checkIntegrity());
         console.println();
     }
 
