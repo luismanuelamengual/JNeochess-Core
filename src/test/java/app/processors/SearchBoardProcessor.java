@@ -206,6 +206,8 @@ public class SearchBoardProcessor extends ConsoleProcessor {
             console.print(" ");
         }
         console.println();
+        console.println ("Integrity: " + board.isValid());
+        console.println();
     }
 
     private String getPieceString (int piece) {

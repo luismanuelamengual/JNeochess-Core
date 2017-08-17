@@ -1453,4 +1453,82 @@ public class Board {
         }
         moves[moveIndex] = 0;
     }
+
+    public boolean isValid () {
+
+        for (byte square = A1; square <= H8; square++) {
+            byte squareSide = this.squareSide[square];
+            byte squareFigure = this.squareFigure[square];
+            switch (squareSide) {
+                case NOSIDE:
+                    if (squareFigure != EMPTY) {
+                        return false;
+                    }
+                    break;
+                case WHITE:
+                    if (squareFigure < PAWN || squareFigure > KING) {
+                        return false;
+                    }
+                    break;
+                case BLACK:
+                    if (squareFigure < PAWN || squareFigure > KING) {
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+            }
+
+            long squareBitBoard = BitBoard.squareBit[square];
+            for (byte side = WHITE; side <= BLACK; side++) {
+                boolean friendsBitSet = (friends[side] & squareBitBoard) != 0;
+                if (side == squareSide) {
+                    if (!friendsBitSet) {
+                        return false;
+                    }
+                }
+                else {
+                    if (friendsBitSet) {
+                        return false;
+                    }
+                }
+
+                for (byte figure = PAWN; figure <= KING; figure++) {
+                    boolean pieceBitSet = (pieces[side][figure] & squareBitBoard) != 0;
+                    if (side == squareSide && figure == squareFigure) {
+                        if (!pieceBitSet) {
+                            return false;
+                        }
+                    }
+                    else {
+                        if (pieceBitSet) {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            if (squareSide != NOSIDE) {
+                if ((blocker & squareBitBoard) == 0)
+                    return false;
+                if ((blockerr45 & BitBoard.squareBit45[square]) == 0)
+                    return false;
+                if ((blockerr90 & BitBoard.squareBit90[square]) == 0)
+                    return false;
+                if ((blockerr315 & BitBoard.squareBit315[square]) == 0)
+                    return false;
+            }
+            else {
+                if ((blocker & squareBitBoard) != 0)
+                    return false;
+                if ((blockerr45 & BitBoard.squareBit45[square]) != 0)
+                    return false;
+                if ((blockerr90 & BitBoard.squareBit90[square]) != 0)
+                    return false;
+                if ((blockerr315 & BitBoard.squareBit315[square]) != 0)
+                    return false;
+            }
+        }
+        return true;
+    }
 }
