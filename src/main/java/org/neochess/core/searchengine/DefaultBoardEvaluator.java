@@ -14,8 +14,8 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
     private final static int[] isolaniWeakerFactor = { -2, -4, -6, -8, -8, -6, -4, -2 };
     private final static long[] rootKnights = { 0x4200000000000000L, 0x0000000000000042L };
     private final static long[] rootBithops = { 0x2400000000000000L, 0x0000000000000024L };
-    private final static long[] rootRooks = { BitBoard.squareBit[Board.A1] | BitBoard.squareBit[Board.H1], BitBoard.squareBit[Board.A8] | BitBoard.squareBit[Board.H8] };
-    private final static long[] rootQueens = { BitBoard.squareBit[Board.D1], BitBoard.squareBit[Board.D8] };
+    private final static long[] rootRooks = { BoardUtils.squareBit[Board.A1] | BoardUtils.squareBit[Board.H1], BoardUtils.squareBit[Board.A8] | BoardUtils.squareBit[Board.H8] };
+    private final static long[] rootQueens = { BoardUtils.squareBit[Board.D1], BoardUtils.squareBit[Board.D8] };
     private final static long[] d2e2 = { 0x0018000000000000L, 0x0000000000001800L };
     private final static long[] rank7 = { 0x000000000000FF00L, 0x00FF000000000000L };
     private final static long[] rank8 = { 0x00000000000000FFL, 0xFF00000000000000L };
@@ -120,23 +120,23 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
             passedPawnMask[Board.BLACK][square] = 0;
         }
         for (square = 0; square < 64; square++) {
-            passedPawnMask[Board.WHITE][square] = Board.ray[square][7];
-            if (Board.getSquareFile(square) != 0) passedPawnMask[Board.WHITE][square] |= Board.ray[square-1][7];
-            if (Board.getSquareFile(square) != 7) passedPawnMask[Board.WHITE][square] |= Board.ray[square+1][7];
+            passedPawnMask[Board.WHITE][square] = BoardUtils.ray[square][7];
+            if (Board.getSquareFile(square) != 0) passedPawnMask[Board.WHITE][square] |= BoardUtils.ray[square-1][7];
+            if (Board.getSquareFile(square) != 7) passedPawnMask[Board.WHITE][square] |= BoardUtils.ray[square+1][7];
         }
         for (square = 0; square < 64; square++) {
-            passedPawnMask[Board.BLACK][square] = Board.ray[square][4];
-            if (Board.getSquareFile(square) != 0) passedPawnMask[Board.BLACK][square] |= Board.ray[square-1][4];
-            if (Board.getSquareFile(square) != 7) passedPawnMask[Board.BLACK][square] |= Board.ray[square+1][4];
+            passedPawnMask[Board.BLACK][square] = BoardUtils.ray[square][4];
+            if (Board.getSquareFile(square) != 0) passedPawnMask[Board.BLACK][square] |= BoardUtils.ray[square-1][4];
+            if (Board.getSquareFile(square) != 7) passedPawnMask[Board.BLACK][square] |= BoardUtils.ray[square+1][4];
         }
     }
 
     private static void initIsolaniPawnMask () {
 
-        isolaniPawnMask[0] = Board.fileBits[1];
-        isolaniPawnMask[7] = Board.fileBits[6];
+        isolaniPawnMask[0] = BoardUtils.fileBits[1];
+        isolaniPawnMask[7] = BoardUtils.fileBits[6];
         for (int i = 1; i <= 6; i++) {
-            isolaniPawnMask[i] = Board.fileBits[i - 1] | Board.fileBits[i + 1];
+            isolaniPawnMask[i] = BoardUtils.fileBits[i - 1] | BoardUtils.fileBits[i + 1];
         }
     }
 
@@ -148,7 +148,7 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
             i = Math.max(sq & 56, sq - len);
             j = Math.min(sq | 7, sq + len);
             while (i <= j) {
-                squarePawnMask[Board.WHITE][sq] |= (BitBoard.squareBit[i] | Board.fromtoRay[i][i|56]);
+                squarePawnMask[Board.WHITE][sq] |= (BoardUtils.squareBit[i] | BoardUtils.fromtoRay[i][i|56]);
                 i++;
             }
 
@@ -156,7 +156,7 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
             i = Math.max(sq & 56, sq - len);
             j = Math.min(sq | 7, sq + len);
             while (i <= j) {
-                squarePawnMask[Board.BLACK][sq] |= (BitBoard.squareBit[i] | Board.fromtoRay[i][i&7]);
+                squarePawnMask[Board.BLACK][sq] |= (BoardUtils.squareBit[i] | BoardUtils.fromtoRay[i][i&7]);
                 i++;
             }
         }
@@ -310,7 +310,7 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
         if (phase <= 2) {
             long[][] pieces = board.getPieces();
             long movers = (pieces[side][Board.KNIGHT] & rootKnights[side]) | (pieces[side][Board.BISHOP] & rootBithops[side]);
-            int piecesNotDeveloped = BitBoard.getBitCount(movers);
+            int piecesNotDeveloped = BoardUtils.getBitCount(movers);
             if (piecesNotDeveloped > 0) {
                 score += (piecesNotDeveloped * getScore("SCORE_MINORNOTDEVELOPED"));
                 if ((pieces[side][Board.QUEEN] & rootQueens[side]) == 0)
@@ -327,7 +327,7 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
                 }
                 else {
                     long sideRooks = pieces[side][Board.ROOK];
-                    if (((Board.ray[friendlyKing][5] & sideRooks) != 0) && ((Board.ray[friendlyKing][6] & sideRooks) != 0))
+                    if (((BoardUtils.ray[friendlyKing][5] & sideRooks) != 0) && ((BoardUtils.ray[friendlyKing][6] & sideRooks) != 0))
                         score += getScore("SCORE_NOTCASTLED");
                 }
             }
@@ -349,31 +349,31 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
         weakPawns[side] = 0;
 
         while (movers != 0) {
-            square = (byte)BitBoard.getLeastSignificantBit(movers);
-            movers &= BitBoard.squareBitX[square];
+            square = (byte) BoardUtils.getLeastSignificantBit(movers);
+            movers &= BoardUtils.squareBitX[square];
             score += scorePawn[side][square];
 
             //Verificar si es un peon pasado
             if ((xsidePawns & passedPawnMask[side][square]) == 0) {
-                if ( (side == Board.WHITE && (Board.fromtoRay[square][square|56] & sidePawns) == 0) || (side == Board.BLACK && (Board.fromtoRay[square][square&7] & sidePawns) == 0)) {
-                    passedPawns[side] |= BitBoard.squareBit[square];
+                if ( (side == Board.WHITE && (BoardUtils.fromtoRay[square][square|56] & sidePawns) == 0) || (side == Board.BLACK && (BoardUtils.fromtoRay[square][square&7] & sidePawns) == 0)) {
+                    passedPawns[side] |= BoardUtils.squareBit[square];
                     score += (getScore("SCORE_PASSEDPAWNS") * ((side == Board.WHITE)? board.getSquareRank(square) : (7-board.getSquareRank(square)) ) * phase) / 12;
                 }
             }
 
             //Verificar si es un peon debil
             testsquare = (byte)(square + (side == Board.WHITE ? 8 : -8));
-            if (((passedPawnMask[xside][testsquare] & ~Board.fileBits[Board.getSquareFile(square)] & sidePawns) == 0) && board.getSquareFigure(testsquare) != Board.PAWN) {
-                int nbits1 = BitBoard.getBitCount(sidePawns & Board.moveArray[xside == Board.WHITE? Board.PAWN:Board.BPAWN][testsquare]);
-                int nbits2 = BitBoard.getBitCount(xsidePawns & Board.moveArray[side == Board.WHITE? Board.PAWN:Board.BPAWN][testsquare]);
+            if (((passedPawnMask[xside][testsquare] & ~BoardUtils.fileBits[Board.getSquareFile(square)] & sidePawns) == 0) && board.getSquareFigure(testsquare) != Board.PAWN) {
+                int nbits1 = BoardUtils.getBitCount(sidePawns & BoardUtils.moveArray[xside == Board.WHITE? Board.PAWN:Board.BPAWN][testsquare]);
+                int nbits2 = BoardUtils.getBitCount(xsidePawns & BoardUtils.moveArray[side == Board.WHITE? Board.PAWN:Board.BPAWN][testsquare]);
                 if (nbits1 < nbits2) {
-                    weakPawns[side] |= BitBoard.squareBit[square];
+                    weakPawns[side] |= BoardUtils.squareBit[square];
                     score += getScore("SCORE_BACKWARDPAWNS");
                 }
             }
 
             //Ataque al peon base
-            pawnMoves = Board.moveArray[side == Board.WHITE? Board.PAWN:Board.BPAWN][square];
+            pawnMoves = BoardUtils.moveArray[side == Board.WHITE? Board.PAWN:Board.BPAWN][square];
             if (((pawnMoves & sidePawns) != 0) && ((pawnMoves & xsidePawns) != 0))
                 score += getScore("SCORE_PAWNBASEATAK");
 
@@ -387,28 +387,28 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
 
             //Peones isolados
             if ((pawnCounter[fileindex] > 0) && ((sidePawns & isolaniPawnMask[fileindex]) == 0)) {
-                if ((Board.fileBits[fileindex] & xsidePawns) == 0)
+                if ((BoardUtils.fileBits[fileindex] & xsidePawns) == 0)
                     score += (getScore("SCORE_ISOLATEDPAWNS") + isolaniWeakerFactor[fileindex]) * pawnCounter[fileindex];
                 else
                     score += (getScore("SCORE_ISOLATEDPAWNS") + isolaniNormalFactor[fileindex]) * pawnCounter[fileindex];
-                weakPawns[side] |= (sidePawns & Board.fileBits[fileindex]);
+                weakPawns[side] |= (sidePawns & BoardUtils.fileBits[fileindex]);
             }
         }
 
         //Favorecer el tener peones en el centro
-        score += BitBoard.getBitCount(sidePawns & centerFiles) * getScore("SCORE_CENTERPAWNS");
+        score += BoardUtils.getBitCount(sidePawns & centerFiles) * getScore("SCORE_CENTERPAWNS");
 
         //Calcular ataques al Rey
         byte xsideKingSquare = kingSquare[xside];
         if (xsideKingSquare != Board.INVALIDSQUARE) {
             long sideQueens = pieces[side][Board.QUEEN];
-            if (side == Board.WHITE && (sideQueens != 0) && ((BitBoard.squareBit[board.C6] | BitBoard.squareBit[board.F6]) & sidePawns) != 0) {
-                if (sidePawns != 0 && BitBoard.squareBit[board.F6] != 0 && xsideKingSquare > board.H6 && Board.distance[xsideKingSquare][board.G7]==1) score += getScore("SCORE_PAWNNEARKING");
-                if (sidePawns != 0 && BitBoard.squareBit[board.C6] != 0 && xsideKingSquare > board.H6 && Board.distance[xsideKingSquare][board.B7]==1) score += getScore("SCORE_PAWNNEARKING");
+            if (side == Board.WHITE && (sideQueens != 0) && ((BoardUtils.squareBit[board.C6] | BoardUtils.squareBit[board.F6]) & sidePawns) != 0) {
+                if (sidePawns != 0 && BoardUtils.squareBit[board.F6] != 0 && xsideKingSquare > board.H6 && BoardUtils.distance[xsideKingSquare][board.G7]==1) score += getScore("SCORE_PAWNNEARKING");
+                if (sidePawns != 0 && BoardUtils.squareBit[board.C6] != 0 && xsideKingSquare > board.H6 && BoardUtils.distance[xsideKingSquare][board.B7]==1) score += getScore("SCORE_PAWNNEARKING");
             }
-            else if (side == Board.BLACK && (sideQueens != 0) && ((BitBoard.squareBit[board.C3] | BitBoard.squareBit[board.F3]) & sidePawns) != 0) {
-                if (sidePawns != 0 && BitBoard.squareBit[board.F3] != 0 && xsideKingSquare < board.A3 && Board.distance[xsideKingSquare][board.G2]==1) score += getScore("SCORE_PAWNNEARKING");
-                if (sidePawns != 0 && BitBoard.squareBit[board.C3] != 0 && xsideKingSquare < board.A3 && Board.distance[xsideKingSquare][board.B2]==1) score += getScore("SCORE_PAWNNEARKING");
+            else if (side == Board.BLACK && (sideQueens != 0) && ((BoardUtils.squareBit[board.C3] | BoardUtils.squareBit[board.F3]) & sidePawns) != 0) {
+                if (sidePawns != 0 && BoardUtils.squareBit[board.F3] != 0 && xsideKingSquare < board.A3 && BoardUtils.distance[xsideKingSquare][board.G2]==1) score += getScore("SCORE_PAWNNEARKING");
+                if (sidePawns != 0 && BoardUtils.squareBit[board.C3] != 0 && xsideKingSquare < board.A3 && BoardUtils.distance[xsideKingSquare][board.B2]==1) score += getScore("SCORE_PAWNNEARKING");
             }
         }
 
@@ -421,12 +421,12 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
         if (passedPawns[side] != 0 && pieces[xside][Board.PAWN] == 0) {
             movers = passedPawns[side];
             while (movers != 0) {
-                square = (byte)BitBoard.getLeastSignificantBit(movers);
-                movers &= BitBoard.squareBitX[square];
+                square = (byte) BoardUtils.getLeastSignificantBit(movers);
+                movers &= BoardUtils.squareBitX[square];
                 if (board.getSideToMove() == side) {
                     if ((squarePawnMask[side][square] & pieces[xside][Board.KING]) == 0)
                         score += getScore("SCORE_QUEEN") * passedPawnFactor[side][Board.getSquareRank(square)] / 550;
-                    else if (kingSquare[xside] != Board.INVALIDSQUARE && (Board.moveArray[Board.KING][kingSquare[xside]] & squarePawnMask[side][square]) == 0)
+                    else if (kingSquare[xside] != Board.INVALIDSQUARE && (BoardUtils.moveArray[Board.KING][kingSquare[xside]] & squarePawnMask[side][square]) == 0)
                         score += getScore("SCORE_QUEEN") * passedPawnFactor[side][Board.getSquareRank(square)] / 550;
                 }
             }
@@ -437,11 +437,11 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
             movers = pieces[side][Board.PAWN];
             if (Math.abs(Board.getSquareFile(kingSquare[side]) - Board.getSquareFile(kingSquare[xside])) >= 4 && phase < 6) {
                 byte xsideKingFile = Board.getSquareFile(kingSquare[xside]);
-                long pawnsInKingsColumns = (isolaniPawnMask[xsideKingFile] | Board.fileBits[xsideKingFile]) & movers;
+                long pawnsInKingsColumns = (isolaniPawnMask[xsideKingFile] | BoardUtils.fileBits[xsideKingFile]) & movers;
                 while (pawnsInKingsColumns != 0) {
-                    square = (byte)BitBoard.getLeastSignificantBit(pawnsInKingsColumns);
-                    pawnsInKingsColumns &= BitBoard.squareBitX[square];
-                    score += 10 * (5 - Board.distance[square][kingSquare[xside]]);
+                    square = (byte) BoardUtils.getLeastSignificantBit(pawnsInKingsColumns);
+                    pawnsInKingsColumns &= BoardUtils.squareBitX[square];
+                    score += 10 * (5 - BoardUtils.distance[square][kingSquare[xside]]);
                 }
             }
         }
@@ -462,18 +462,18 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
         knights = pieces[side][Board.KNIGHT];
         enemyPawns = pieces[xside][Board.PAWN];
         if ((knights & pinned) != 0)
-            score += getScore("SCORE_PINNEDKNIGHT") * BitBoard.getBitCount(knights & pinned);
+            score += getScore("SCORE_PINNEDKNIGHT") * BoardUtils.getBitCount(knights & pinned);
         while (knights != 0) {
-            square = (byte)BitBoard.getLeastSignificantBit(knights);
-            knights &= BitBoard.squareBitX[square];
+            square = (byte) BoardUtils.getLeastSignificantBit(knights);
+            knights &= BoardUtils.squareBitX[square];
             tempScore = evaluateControl(board,square,side);
             tempScore += scoreKnight[square];
             if (outpost[side][square] == 1 && ((enemyPawns & isolaniPawnMask[Board.getSquareFile(square)] & passedPawnMask[side][square]) == 0)) {
                 tempScore += getScore("SCORE_OUTPOSTKNIGHT");
-                if ((Board.moveArray[xside == Board.WHITE? Board.PAWN : Board.BPAWN][square] & pieces[side][Board.PAWN]) != 0)
+                if ((BoardUtils.moveArray[xside == Board.WHITE? Board.PAWN : Board.BPAWN][square] & pieces[side][Board.PAWN]) != 0)
                     tempScore += getScore("SCORE_OUTPOSTKNIGHT");
             }
-            if ((Board.moveArray[Board.KNIGHT][square] & weakPawns[xside]) != 0)
+            if ((BoardUtils.moveArray[Board.KNIGHT][square] & weakPawns[xside]) != 0)
                 tempScore += getScore("SCORE_ATAKWEAKPAWN");
             score += tempScore;
         }
@@ -494,16 +494,16 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
         bishopCount = 0;
         enemyPawns = pieces[xside][Board.PAWN];
         if ((bishops & pinned) != 0)
-            score += getScore("SCORE_PINNEDBISHOP") * BitBoard.getBitCount(bishops & pinned);
+            score += getScore("SCORE_PINNEDBISHOP") * BoardUtils.getBitCount(bishops & pinned);
         while (bishops != 0) {
-            square = (byte)BitBoard.getLeastSignificantBit(bishops);
-            bishops &= BitBoard.squareBitX[square];
+            square = (byte) BoardUtils.getLeastSignificantBit(bishops);
+            bishops &= BoardUtils.squareBitX[square];
             bishopCount++;
             tempScore = evaluateControl(board,square,side);
             tempScore += scoreBishop[square];
             if (outpost[side][square] == 1 && (enemyPawns & isolaniPawnMask[Board.getSquareFile(square)] & passedPawnMask[side][square]) == 0) {
                 tempScore += getScore("SCORE_OUTPOSTBISHOP");
-                if ((Board.moveArray[xside == Board.WHITE? Board.PAWN : Board.BPAWN][square] & pieces[side][Board.PAWN]) != 0)
+                if ((BoardUtils.moveArray[xside == Board.WHITE? Board.PAWN : Board.BPAWN][square] & pieces[side][Board.PAWN]) != 0)
                     tempScore += getScore("SCORE_OUTPOSTBISHOP");
             }
             if (kingSquare[side] != Board.INVALIDSQUARE) {
@@ -542,43 +542,43 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
         xside = Board.getOppositeSide(side);
         enemyKingSquare = kingSquare[xside];
         if ((rooks & pinned) != 0)
-            score += getScore("SCORE_PINNEDROOK") * BitBoard.getBitCount(rooks & pinned);
+            score += getScore("SCORE_PINNEDROOK") * BoardUtils.getBitCount(rooks & pinned);
         while (rooks != 0) {
-            square = (byte)BitBoard.getLeastSignificantBit(rooks);
-            rooks &= BitBoard.squareBitX[square];
+            square = (byte) BoardUtils.getLeastSignificantBit(rooks);
+            rooks &= BoardUtils.squareBitX[square];
             tempScore = evaluateControl(board,square,side);
             fyle = Board.getSquareFile(square);
             if (phase < 7) {
-                if ((pieces[side][Board.PAWN] & Board.fileBits[fyle]) == 0) {
+                if ((pieces[side][Board.PAWN] & BoardUtils.fileBits[fyle]) == 0) {
                     if (enemyKingSquare != Board.INVALIDSQUARE && (fyle == 5 && Board.getSquareFile(enemyKingSquare) >= Board.FILE_E))
                         tempScore += getScore("SCORE_ROOKLIBERATED");
                     tempScore += getScore("SCORE_ROOKHALFFILE");
-                    if ((pieces[xside][Board.PAWN] & Board.fileBits[fyle]) == 0)
+                    if ((pieces[xside][Board.PAWN] & BoardUtils.fileBits[fyle]) == 0)
                         tempScore += getScore("SCORE_ROOKOPENFILE");
                 }
             }
             if (phase > 6) {
-                if ((Board.fileBits[fyle] & passedPawns[Board.WHITE] & rank58[Board.WHITE]) != 0) {
-                    if (BitBoard.getBitCount(Board.ray[square][7] & passedPawns[Board.WHITE]) == 1)
+                if ((BoardUtils.fileBits[fyle] & passedPawns[Board.WHITE] & rank58[Board.WHITE]) != 0) {
+                    if (BoardUtils.getBitCount(BoardUtils.ray[square][7] & passedPawns[Board.WHITE]) == 1)
                         tempScore += getScore("SCORE_ROOKBEHINDPP");
-                    else if ((Board.ray[square][4] & passedPawns[Board.WHITE]) != 0)
+                    else if ((BoardUtils.ray[square][4] & passedPawns[Board.WHITE]) != 0)
                         tempScore += getScore("SCORE_ROOKINFRONTPP");
                 }
-                if ((Board.fileBits[fyle] & passedPawns[Board.BLACK] & rank58[Board.BLACK]) != 0) {
-                    if (BitBoard.getBitCount(Board.ray[square][4] & passedPawns[Board.BLACK]) == 1)
+                if ((BoardUtils.fileBits[fyle] & passedPawns[Board.BLACK] & rank58[Board.BLACK]) != 0) {
+                    if (BoardUtils.getBitCount(BoardUtils.ray[square][4] & passedPawns[Board.BLACK]) == 1)
                         tempScore += getScore("SCORE_ROOKBEHINDPP");
-                    else if ((Board.ray[square][7] & passedPawns[Board.BLACK]) != 0)
+                    else if ((BoardUtils.ray[square][7] & passedPawns[Board.BLACK]) != 0)
                         tempScore += getScore("SCORE_ROOKINFRONTPP");
                 }
             }
             if ((board.getRookAttacks(square) & weakPawns[xside]) != 0)
                 tempScore += getScore("SCORE_ATAKWEAKPAWN");
-            if (Board.getSquareRank(square) == sideRank7[side] && ((enemyKingSquare != Board.INVALIDSQUARE && Board.getSquareRank(enemyKingSquare) == sideRank8[side]) || ((pieces[xside][Board.PAWN] & Board.rankBits[Board.getSquareRank(square)]) != 0)))
+            if (Board.getSquareRank(square) == sideRank7[side] && ((enemyKingSquare != Board.INVALIDSQUARE && Board.getSquareRank(enemyKingSquare) == sideRank8[side]) || ((pieces[xside][Board.PAWN] & BoardUtils.rankBits[Board.getSquareRank(square)]) != 0)))
                 tempScore += getScore("SCORE_ROOK7RANK");
             score += tempScore;
         }
 
-        if (BitBoard.getBitCount((pieces[side][Board.QUEEN]|pieces[side][Board.ROOK]) & rank7[side]) > 1 && (((pieces[xside][Board.KING] & rank8[side]) > 0) || ((pieces[xside][Board.PAWN] & rank7[side]) > 0)))
+        if (BoardUtils.getBitCount((pieces[side][Board.QUEEN]|pieces[side][Board.ROOK]) & rank7[side]) > 1 && (((pieces[xside][Board.KING] & rank8[side]) > 0) || ((pieces[xside][Board.PAWN] & rank7[side]) > 0)))
             score += getScore("SCORE_ROOKS7RANK");
         return score;
     }
@@ -597,12 +597,12 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
         enemyKing = kingSquare[xside];
 
         if ((queens & pinned) != 0)
-            score += getScore("SCORE_PINNEDQUEEN") * BitBoard.getBitCount(queens & pinned);
+            score += getScore("SCORE_PINNEDQUEEN") * BoardUtils.getBitCount(queens & pinned);
         while (queens != 0) {
-            square = (byte)BitBoard.getLeastSignificantBit(queens);
-            queens &= BitBoard.squareBitX[square];
+            square = (byte) BoardUtils.getLeastSignificantBit(queens);
+            queens &= BoardUtils.squareBitX[square];
             tempScore = evaluateControl(board,square,side);
-            if (enemyKing != Board.INVALIDSQUARE && Board.distance[square][enemyKing] <= 2)
+            if (enemyKing != Board.INVALIDSQUARE && BoardUtils.distance[square][enemyKing] <= 2)
                 tempScore += getScore("SCORE_QUEENNEARKING");
             if ((board.getQueenAttacks(square) & weakPawns[xside]) != 0)
                 tempScore += getScore("SCORE_ATAKWEAKPAWN");
@@ -632,18 +632,18 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
             n = 0;
             if (side == Board.WHITE) {
                 if (rank < Board.RANK_8)
-                    n = BitBoard.getBitCount(Board.moveArray[Board.KING][square] & sidePawns & Board.rankBits[rank + 1]);
+                    n = BoardUtils.getBitCount(BoardUtils.moveArray[Board.KING][square] & sidePawns & BoardUtils.rankBits[rank + 1]);
             }
             else {
                 if (rank > Board.RANK_1)
-                    n = BitBoard.getBitCount(Board.moveArray[Board.KING][square] & sidePawns & Board.rankBits[rank - 1]);
+                    n = BoardUtils.getBitCount(BoardUtils.moveArray[Board.KING][square] & sidePawns & BoardUtils.rankBits[rank - 1]);
             }
             score += pawncover[n];
 
-            if ((Board.fileBits[file] & sidePawns) == 0)
+            if ((BoardUtils.fileBits[file] & sidePawns) == 0)
                 score += getScore("SCORE_KINGOPENFILE");
 
-            if ((Board.fileBits[file] & sidePawns) == 0)
+            if ((BoardUtils.fileBits[file] & sidePawns) == 0)
                 score += getScore("SCORE_KINGOPENFILE1");
 
             switch (file)
@@ -652,18 +652,18 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
                 case Board.FILE_E:
                 case Board.FILE_F:
                 case Board.FILE_G:
-                    if ((Board.fileBits[file + 1] & sidePawns) == 0)
+                    if ((BoardUtils.fileBits[file + 1] & sidePawns) == 0)
                         score += getScore("SCORE_KINGOPENFILE");
-                    if ((Board.fileBits[file + 1] & sidePawns) == 0)
+                    if ((BoardUtils.fileBits[file + 1] & sidePawns) == 0)
                         score += getScore("SCORE_KINGOPENFILE1");
                     break;
                 case Board.FILE_H:
                 case Board.FILE_D:
                 case Board.FILE_C:
                 case Board.FILE_B:
-                    if ((Board.fileBits[file - 1] & sidePawns) == 0)
+                    if ((BoardUtils.fileBits[file - 1] & sidePawns) == 0)
                         score += getScore("SCORE_KINGOPENFILE");
-                    if ((Board.fileBits[file - 1] & sidePawns) == 0)
+                    if ((BoardUtils.fileBits[file - 1] & sidePawns) == 0)
                         score += getScore("SCORE_KINGOPENFILE1");
                     break;
                 default:
@@ -672,21 +672,21 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
 
             if (file > Board.FILE_E && Board.getSquareFile(kingSquare[xside]) < Board.FILE_D) {
                 square2 = (side == Board.WHITE)? Board.G3 : Board.G6;
-                if ((BitBoard.squareBit[square2] & sidePawns) != 0)
-                    if (((BitBoard.squareBit[Board.F4] | BitBoard.squareBit[Board.H4] | BitBoard.squareBit[Board.F5] | BitBoard.squareBit[Board.H5]) & pieces[xside][Board.PAWN]) != 0)
+                if ((BoardUtils.squareBit[square2] & sidePawns) != 0)
+                    if (((BoardUtils.squareBit[Board.F4] | BoardUtils.squareBit[Board.H4] | BoardUtils.squareBit[Board.F5] | BoardUtils.squareBit[Board.H5]) & pieces[xside][Board.PAWN]) != 0)
                         score += getScore("SCORE_FIANCHETTOTARGET");
             }
             else if (file < Board.FILE_E && Board.getSquareFile(kingSquare[xside]) > Board.FILE_E) {
                 square2 = (side == Board.WHITE)? Board.B3 : Board.B6;
-                if ((BitBoard.squareBit[square2] & sidePawns) != 0)
-                    if (((BitBoard.squareBit[Board.A4] | BitBoard.squareBit[Board.C4] | BitBoard.squareBit[Board.A5] | BitBoard.squareBit[Board.C5]) & pieces[xside][Board.PAWN]) != 0)
+                if ((BoardUtils.squareBit[square2] & sidePawns) != 0)
+                    if (((BoardUtils.squareBit[Board.A4] | BoardUtils.squareBit[Board.C4] | BoardUtils.squareBit[Board.A5] | BoardUtils.squareBit[Board.C5]) & pieces[xside][Board.PAWN]) != 0)
                         score += getScore("SCORE_FIANCHETTOTARGET");
             }
 
-            x = Board.boardHalf[side] & Board.boardSide[file <= Board.FILE_D?1:0];
-            n1 = BitBoard.getBitCount(x & (friends[xside]));
+            x = BoardUtils.boardHalf[side] & BoardUtils.boardSide[file <= Board.FILE_D?1:0];
+            n1 = BoardUtils.getBitCount(x & (friends[xside]));
             if (n1 > 0) {
-                n2 = BitBoard.getBitCount(x & (friends[side] & ~sidePawns & ~pieces[side][Board.KING]));
+                n2 = BoardUtils.getBitCount(x & (friends[side] & ~sidePawns & ~pieces[side][Board.KING]));
                 if (n1 > n2)
                     score += (n1 - n2) * getScore("SCORE_KINGDEFENCEDEFICIT");
             }
@@ -697,28 +697,28 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
             score += evaluateControl(board,square,side);
             b = (pieces[Board.WHITE][Board.PAWN] | pieces[Board.BLACK][Board.PAWN]);
             while (b != 0) {
-                square1 = (byte)BitBoard.getLeastSignificantBit(b);
-                b &= BitBoard.squareBitX[square1];
-                if ((BitBoard.squareBit[square1] & pieces[Board.WHITE][Board.PAWN]) != 0)
-                    score -= Board.distance[square][square1 + 8] * 10 - 5;
-                else if ((BitBoard.squareBit[square1] & pieces[Board.BLACK][Board.PAWN]) != 0)
-                    score -= Board.distance[square][square1 - 8] * 10 - 5;
+                square1 = (byte) BoardUtils.getLeastSignificantBit(b);
+                b &= BoardUtils.squareBitX[square1];
+                if ((BoardUtils.squareBit[square1] & pieces[Board.WHITE][Board.PAWN]) != 0)
+                    score -= BoardUtils.distance[square][square1 + 8] * 10 - 5;
+                else if ((BoardUtils.squareBit[square1] & pieces[Board.BLACK][Board.PAWN]) != 0)
+                    score -= BoardUtils.distance[square][square1 - 8] * 10 - 5;
                 else
-                    score -= Board.distance[square][square1] - 5;
+                    score -= BoardUtils.distance[square][square1] - 5;
             }
 
-            if ((Board.moveArray[Board.KING][square] & weakPawns[xside]) != 0)
+            if ((BoardUtils.moveArray[Board.KING][square] & weakPawns[xside]) != 0)
                 score += getScore("SCORE_ATAKWEAKPAWN") * 2;
         }
 
         if (phase >= 4) {
             if (side == Board.WHITE)
                 if (square < Board.A2)
-                    if ((Board.moveArray[Board.KING][square] & (~pieces[side][Board.PAWN] & Board.rankBits[1])) == 0)
+                    if ((BoardUtils.moveArray[Board.KING][square] & (~pieces[side][Board.PAWN] & BoardUtils.rankBits[1])) == 0)
                         score += getScore("SCORE_KINGBACKRANKWEAK");
                     else
                     if (square > Board.H7)
-                        if ((Board.moveArray[Board.KING][square] & (~pieces[side][Board.PAWN] & Board.rankBits[6])) == 0)
+                        if ((BoardUtils.moveArray[Board.KING][square] & (~pieces[side][Board.PAWN] & BoardUtils.rankBits[6])) == 0)
                             score += getScore("SCORE_KINGBACKRANKWEAK");
         }
         return score;
@@ -728,14 +728,14 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
 
         int score = 0;
         long controlled = board.getSquareXAttacks(square, side);
-        score += (4 * BitBoard.getBitCount(controlled & Board.boxes[0]));
-        score += (4 * BitBoard.getBitCount(controlled));
+        score += (4 * BoardUtils.getBitCount(controlled & BoardUtils.boxes[0]));
+        score += (4 * BoardUtils.getBitCount(controlled));
         byte enemyKing = kingSquare[1^side];
         if (enemyKing != Board.INVALIDSQUARE)
-            score += BitBoard.getBitCount(controlled & Board.distMap[enemyKing][2]);
+            score += BoardUtils.getBitCount(controlled & BoardUtils.distMap[enemyKing][2]);
         byte friendlyKing = kingSquare[side];
         if (friendlyKing != Board.INVALIDSQUARE)
-            score += BitBoard.getBitCount(controlled & Board.distMap[friendlyKing][2]);
+            score += BoardUtils.getBitCount(controlled & BoardUtils.distMap[friendlyKing][2]);
         return score;
     }
 
@@ -757,7 +757,7 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
         q |= (squaresAttackedBySide[xside] & pieces[side][Board.QUEEN] & ~squaresAttackedBySide[side]);
         c = n | b | r | q;
         if (c != 0)
-            hunged += BitBoard.getBitCount(c);
+            hunged += BoardUtils.getBitCount(c);
         if ((squaresAttackedBySide[xside] & pieces[side][Board.KING]) != 0)
             hunged++;
         return hunged;
@@ -781,14 +781,14 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
             e |= (p[Board.BISHOP] | p[Board.KNIGHT]) & ~squaresAttackedBySide[xside];
             b = pieces[side][Board.BISHOP];
             while (b != 0) {
-                square = (byte)BitBoard.getLeastSignificantBit(b);
-                b &= BitBoard.squareBitX[square];
-                c = Board.moveArray[Board.BISHOP][square] & e;
+                square = (byte) BoardUtils.getLeastSignificantBit(b);
+                b &= BoardUtils.squareBitX[square];
+                c = BoardUtils.moveArray[Board.BISHOP][square] & e;
                 while (c != 0) {
-                    square2 = (byte)BitBoard.getLeastSignificantBit(c);
-                    c &= BitBoard.squareBitX[square2];
-                    f = t & BitBoard.squareBitX[square] & Board.fromtoRay[square2][square];
-                    if (((friends[xside] & f) != 0) && BitBoard.getBitCount(f) == 1)
+                    square2 = (byte) BoardUtils.getLeastSignificantBit(c);
+                    c &= BoardUtils.squareBitX[square2];
+                    f = t & BoardUtils.squareBitX[square] & BoardUtils.fromtoRay[square2][square];
+                    if (((friends[xside] & f) != 0) && BoardUtils.getBitCount(f) == 1)
                         pin |= f;
                 }
             }
@@ -797,14 +797,14 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
             e |= (p[Board.ROOK] | p[Board.BISHOP] | p[Board.KNIGHT]) & ~squaresAttackedBySide[xside];
             b = pieces[side][Board.ROOK];
             while (b != 0) {
-                square = (byte)BitBoard.getLeastSignificantBit(b);
-                b &= BitBoard.squareBitX[square];
-                c = Board.moveArray[Board.ROOK][square] & e;
+                square = (byte) BoardUtils.getLeastSignificantBit(b);
+                b &= BoardUtils.squareBitX[square];
+                c = BoardUtils.moveArray[Board.ROOK][square] & e;
                 while (c != 0) {
-                    square2 = (byte)BitBoard.getLeastSignificantBit(c);
-                    c &= BitBoard.squareBitX[square2];
-                    f = t & BitBoard.squareBitX[square] & Board.fromtoRay[square2][square];
-                    if (((friends[xside] & f) != 0) && BitBoard.getBitCount(f) == 1)
+                    square2 = (byte) BoardUtils.getLeastSignificantBit(c);
+                    c &= BoardUtils.squareBitX[square2];
+                    f = t & BoardUtils.squareBitX[square] & BoardUtils.fromtoRay[square2][square];
+                    if (((friends[xside] & f) != 0) && BoardUtils.getBitCount(f) == 1)
                         pin |= f;
                 }
             }
@@ -813,14 +813,14 @@ public class DefaultBoardEvaluator implements BoardEvaluator {
             e |= (p[Board.QUEEN] | p[Board.ROOK] | p[Board.BISHOP] | p[Board.KNIGHT]) & ~squaresAttackedBySide[xside];
             b = pieces[side][Board.QUEEN];
             while (b != 0) {
-                square = (byte)BitBoard.getLeastSignificantBit(b);
-                b &= BitBoard.squareBitX[square];
-                c = Board.moveArray[Board.QUEEN][square] & e;
+                square = (byte) BoardUtils.getLeastSignificantBit(b);
+                b &= BoardUtils.squareBitX[square];
+                c = BoardUtils.moveArray[Board.QUEEN][square] & e;
                 while (c != 0) {
-                    square2 = (byte)BitBoard.getLeastSignificantBit(c);
-                    c &= BitBoard.squareBitX[square2];
-                    f = t & BitBoard.squareBitX[square] & Board.fromtoRay[square2][square];
-                    if (((friends[xside] & f) != 0) && BitBoard.getBitCount(f) == 1)
+                    square2 = (byte) BoardUtils.getLeastSignificantBit(c);
+                    c &= BoardUtils.squareBitX[square2];
+                    f = t & BoardUtils.squareBitX[square] & BoardUtils.fromtoRay[square2][square];
+                    if (((friends[xside] & f) != 0) && BoardUtils.getBitCount(f) == 1)
                         pin |= f;
                 }
             }
