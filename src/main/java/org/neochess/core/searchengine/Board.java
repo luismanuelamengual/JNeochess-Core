@@ -529,6 +529,30 @@ public class Board {
         return (byte)(1^side);
     }
 
+    public long[] getFriends () {
+        return friends;
+    }
+
+    public long getBlocker() {
+        return blocker;
+    }
+
+    public byte getSideToMove() {
+        return sideToMove;
+    }
+
+    public long[][] getPieces() {
+        return pieces;
+    }
+
+    public byte getSquareSide (byte square) {
+        return squareSide[square];
+    }
+
+    public byte getSquareFigure (byte square) {
+        return squareFigure[square];
+    }
+
     public long getHash () {
 
         long hashValue = 0L;
