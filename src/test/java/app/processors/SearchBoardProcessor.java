@@ -2,6 +2,7 @@
 package app.processors;
 
 import org.neochess.core.searchengine.Board;
+import org.neochess.core.searchengine.DefaultBoardEvaluator;
 import org.neogroup.sparks.console.Command;
 import org.neogroup.sparks.console.Console;
 import org.neogroup.sparks.console.ConsoleCommand;
@@ -75,6 +76,13 @@ public class SearchBoardProcessor extends ConsoleProcessor {
     @ConsoleCommand("list")
     public void listMoves (Console console, Command command) {
         printLegalMoves(console);
+    }
+
+    @ConsoleCommand("evaluate")
+    public void evaluateBoard (Console console, Command command) {
+        DefaultBoardEvaluator evaluator = new DefaultBoardEvaluator();
+        int evaluation = evaluator.evaluate(board);
+        console.println("Evaluation: " + evaluation);
     }
 
     private String getSquareString (int square) {
