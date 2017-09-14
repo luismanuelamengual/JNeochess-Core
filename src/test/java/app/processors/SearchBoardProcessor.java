@@ -2,7 +2,7 @@
 package app.processors;
 
 import org.neochess.core.searchengine.Board;
-import org.neochess.core.searchengine.DefaultBoardEvaluator;
+import org.neochess.core.searchengine.BoardEvaluator;
 import org.neogroup.sparks.console.Command;
 import org.neogroup.sparks.console.Console;
 import org.neogroup.sparks.console.ConsoleCommand;
@@ -80,8 +80,7 @@ public class SearchBoardProcessor extends ConsoleProcessor {
 
     @ConsoleCommand("evaluate")
     public void evaluateBoard (Console console, Command command) {
-        DefaultBoardEvaluator evaluator = new DefaultBoardEvaluator();
-        int evaluation = evaluator.evaluate(board);
+        int evaluation = BoardEvaluator.getDefault().evaluate(board);
         console.println("Evaluation: " + evaluation);
     }
 
