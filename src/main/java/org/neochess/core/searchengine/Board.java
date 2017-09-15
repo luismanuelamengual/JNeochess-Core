@@ -190,6 +190,36 @@ public class Board {
         HASHSIDE = randomGenerator.nextLong();
     }
 
+    public Board () {}
+
+    public Board (Board copyBoard) {
+        copy(copyBoard);
+    }
+
+    public Board clone () {
+        return new Board(this);
+    }
+
+    public void copy (Board board) {
+        for (byte square = A1; square <= H8; square++) {
+            squareSide[square] = board.squareSide[square];
+            squareFigure[square] = board.squareFigure[square];
+        }
+        for (byte figure = PAWN; figure <= KING; figure++) {
+            pieces[WHITE][figure] = board.pieces[WHITE][figure];
+            pieces[BLACK][figure] = board.pieces[BLACK][figure];
+        }
+        friends[WHITE] = board.friends[WHITE];
+        friends[BLACK] = board.friends[BLACK];
+        blocker = board.blocker;
+        blockerr90 = board.blockerr90;
+        blockerr45 = board.blockerr45;
+        blockerr315 = board.blockerr315;
+        epSquare = board.epSquare;
+        castleState = board.castleState;
+        sideToMove = board.sideToMove;
+    }
+
     public static byte getSquare (int file, int rank) {
         return (byte)((rank * 8) + file);
     }
@@ -216,6 +246,10 @@ public class Board {
 
     public static byte getOppositeSide (byte side) {
         return (byte)(1^side);
+    }
+
+    public byte getEpSquare() {
+        return epSquare;
     }
 
     public long[] getFriends () {
