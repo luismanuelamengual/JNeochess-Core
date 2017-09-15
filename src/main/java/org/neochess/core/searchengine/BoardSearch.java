@@ -54,6 +54,10 @@ public class BoardSearch {
         this.evaluator = evaluator;
     }
 
+    public long getSearchMove() {
+        return searchMove;
+    }
+
     public void start() {
         if (!searching) {
             this.startSearchTimestamp = System.currentTimeMillis();
@@ -255,7 +259,26 @@ public class BoardSearch {
 
     private void sortMoves (long[] moves) {
 
-        //Collections.sort(moves, Collections.reverseOrder());
+        int n = moves.length;
+        long temp = 0;
+        int score1, score2;
+        for(int i=0; i < n; i++) {
+            if (moves[i] == 0) {
+                break;
+            }
+            for(int j=1; j < (n-i); j++) {
+                if (moves[j] == 0) {
+                    break;
+                }
+                score1 = (int)((moves[j-1] & Board.MOVE_SCORE_MASK) >>> Board.MOVE_SCORE_OFFSET);
+                score2 = (int)((moves[j] & Board.MOVE_SCORE_MASK) >>> Board.MOVE_SCORE_OFFSET);
+                if(score1 < score2){
+                    temp = moves[j-1];
+                    moves[j-1] = moves[j];
+                    moves[j] = temp;
+                }
+            }
+        }
     }
 
     private void startSearchIterations () {
