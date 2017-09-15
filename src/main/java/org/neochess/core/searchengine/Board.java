@@ -1226,6 +1226,10 @@ public class Board {
 
     public boolean checkIntegrity() {
 
+        if (epSquare < 0 || epSquare > 64) {
+            return false;
+        }
+
         for (byte square = A1; square <= H8; square++) {
             byte squareSide = this.squareSide[square];
             byte squareFigure = this.squareFigure[square];
