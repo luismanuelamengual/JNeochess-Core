@@ -131,10 +131,10 @@ public class Board {
     private static final long HASHCASTLEBS;
     private static final long HASHCASTLEBL;
 
-    public static final long MOVE_FROM_SQUARE_MASK = 0xFF;
-    public static final long MOVE_TO_SQUARE_MASK = 0xFF00;
-    public static final long MOVE_PROMOTION_PIECE_MASK = 0xFF0000;
-    public static final long MOVE_CAPTURED_PIECE_MASK = 0xFF000000;
+    public static final long MOVE_FROM_SQUARE_MASK = 0xFFL;
+    public static final long MOVE_TO_SQUARE_MASK = 0xFF00L;
+    public static final long MOVE_PROMOTION_PIECE_MASK = 0xFF0000L;
+    public static final long MOVE_CAPTURED_PIECE_MASK = 0xFF000000L;
     public static final long MOVE_CASTLE_STATE_MASK = 0xFF00000000L;
     public static final long MOVE_EP_SQUARE_MASK = 0xFF0000000000L;
     public static final long MOVE_SCORE_MASK = 0xFFFF000000000000L;
@@ -432,10 +432,9 @@ public class Board {
         byte movingFigure = squareFigure[fromSquare];
         byte capturedPiece = getPiece(toSquare);
 
-        long appliedMove = move
-                | (capturedPiece << MOVE_CAPTURED_PIECE_OFFSET)
-                | ((long)castleState << MOVE_CASTLE_STATE_OFFSET)
-                | ((long)epSquare << MOVE_EP_SQUARE_OFFSET);
+        long appliedMove = move;
+        appliedMove &= ~(MOVE_EP_SQUARE_MASK | MOVE_CAPTURED_PIECE_MASK | MOVE_CASTLE_STATE_MASK);
+        appliedMove |= ((long)epSquare << MOVE_EP_SQUARE_OFFSET) | ((long)capturedPiece << MOVE_CAPTURED_PIECE_OFFSET) | ((long)castleState << MOVE_CASTLE_STATE_OFFSET);
 
         if (movingFigure == PAWN) {
             if (sideToMove == WHITE) {
