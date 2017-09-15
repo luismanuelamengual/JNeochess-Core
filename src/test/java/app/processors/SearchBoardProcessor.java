@@ -3,6 +3,7 @@ package app.processors;
 
 import org.neochess.core.searchengine.Board;
 import org.neochess.core.searchengine.BoardEvaluator;
+import org.neochess.core.searchengine.BoardSearch;
 import org.neogroup.sparks.console.Command;
 import org.neogroup.sparks.console.Console;
 import org.neogroup.sparks.console.ConsoleCommand;
@@ -82,6 +83,23 @@ public class SearchBoardProcessor extends ConsoleProcessor {
     public void evaluateBoard (Console console, Command command) {
         int evaluation = BoardEvaluator.getDefault().evaluate(board);
         console.println("Evaluation: " + evaluation);
+    }
+
+    @ConsoleCommand("search")
+    public void searchBoard (Console console, Command command) {
+
+        try {
+            BoardSearch search = new BoardSearch(board, 10000);
+            search.start();
+            long move = search.getSearchMove();
+            byte fromSquare = (byte) ((move & Board.MOVE_FROM_SQUARE_MASK) >>> Board.MOVE_FROM_SQUARE_OFFSET);
+            byte toSquare = (byte) ((move & Board.MOVE_TO_SQUARE_MASK) >>> Board.MOVE_TO_SQUARE_OFFSET);
+            console.print(getSquareString(fromSquare));
+            console.print(getSquareString(toSquare));
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private String getSquareString (int square) {

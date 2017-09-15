@@ -31,6 +31,7 @@ public class BoardSearch {
     public BoardSearch(Board board, long searchMilliseconds) {
         this.board = board.clone();
         this.searchMilliseconds = searchMilliseconds;
+        evaluator = BoardEvaluator.getDefault();
         searchHistory = new int[64][64];
         pv_length = new int[MAX_DEPTH];
         pv = new long[MAX_DEPTH][MAX_DEPTH];
