@@ -1064,7 +1064,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte) BoardUtils.getLeastSignificantBit(moves);
                 moves &= BoardUtils.squareBitX[tsq];
-                movesArray[moveIndex++] = createMove((byte)(tsq-8), tsq);
+                movesArray[moveIndex++] = createMove((byte)(tsq-8), tsq, WHITE_QUEEN);
             }
 
             movers = sidePieces[PAWN] & ~BoardUtils.fileBits[0];
@@ -1072,7 +1072,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte) BoardUtils.getLeastSignificantBit(moves);
                 moves &= BoardUtils.squareBitX[tsq];
-                movesArray[moveIndex++] = createMove((byte)(tsq-7), tsq);
+                movesArray[moveIndex++] = createMove((byte)(tsq-7), tsq, getSquareRank(tsq) == RANK_8? WHITE_QUEEN : EMPTY);
             }
 
             movers = sidePieces[PAWN] & ~BoardUtils.fileBits[7];
@@ -1080,7 +1080,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte) BoardUtils.getLeastSignificantBit(moves);
                 moves &= BoardUtils.squareBitX[tsq];
-                movesArray[moveIndex++] = createMove((byte)(tsq-9), tsq);
+                movesArray[moveIndex++] = createMove((byte)(tsq-9), tsq, getSquareRank(tsq) == RANK_8? WHITE_QUEEN : EMPTY);
             }
         }
         else if (side == BLACK) {
@@ -1089,7 +1089,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte) BoardUtils.getLeastSignificantBit(moves);
                 moves &= BoardUtils.squareBitX[tsq];
-                movesArray[moveIndex++] = createMove((byte)(tsq+8), tsq);
+                movesArray[moveIndex++] = createMove((byte)(tsq+8), tsq, BLACK_QUEEN);
             }
 
             movers = sidePieces[PAWN] & ~BoardUtils.fileBits[7];
@@ -1097,7 +1097,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte) BoardUtils.getLeastSignificantBit(moves);
                 moves &= BoardUtils.squareBitX[tsq];
-                movesArray[moveIndex++] = createMove((byte)(tsq+7), tsq);
+                movesArray[moveIndex++] = createMove((byte)(tsq+7), tsq, getSquareRank(tsq) == RANK_1? BLACK_QUEEN : EMPTY);
             }
 
             movers = sidePieces[PAWN] & ~BoardUtils.fileBits[0];
@@ -1105,7 +1105,7 @@ public class Board {
             while (moves != 0) {
                 tsq = (byte) BoardUtils.getLeastSignificantBit(moves);
                 moves &= BoardUtils.squareBitX[tsq];
-                movesArray[moveIndex++] = createMove((byte)(tsq+9), tsq);
+                movesArray[moveIndex++] = createMove((byte)(tsq+9), tsq, getSquareRank(tsq) == RANK_1? BLACK_QUEEN : EMPTY);
             }
         }
         movesArray[moveIndex++] = 0;
