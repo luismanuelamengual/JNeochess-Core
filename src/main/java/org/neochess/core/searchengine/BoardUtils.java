@@ -1,7 +1,19 @@
 
 package org.neochess.core.searchengine;
 
+import java.io.PrintStream;
+
 public class BoardUtils {
+
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
 
     public static long NULLBITBOARD = 0x0000000000000000L;
     public static long[] squareBit;
@@ -445,5 +457,180 @@ public class BoardUtils {
     public static int getBitCount (long bitboard) {
 
         return bitCount[(int)(bitboard>>>48)] + bitCount[(int)((bitboard>>>32) & 0xffff)] + bitCount[(int)((bitboard>>>16) & 0xffff)] + bitCount[(int)(bitboard & 0xffff)];
+    }
+
+    public static void printBoard (Board board) {
+        printBoard(board, false);
+    }
+
+    public static void printBoard (Board board, boolean flipped) {
+        printBoard(board, System.out, flipped);
+    }
+
+    public static void printBoard (Board board, PrintStream out, boolean flipped) {
+
+        out.print("   ");
+        out.println("╔═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╗");
+        for (int rank = Board.RANK_8; rank >= Board.RANK_1; rank--) {
+            int currentRank = rank;
+            if (flipped) {
+                currentRank = 7 - currentRank;
+            }
+            out.print(" ");
+            out.print(getRankString(currentRank));
+            out.print(" ");
+            out.print("║");
+            for (int file = Board.FILE_A; file <= Board.FILE_H; file++) {
+                int currentFile = file;
+                if (flipped) {
+                    currentFile = 7 - currentFile;
+                }
+                byte square = Board.getSquare(currentFile,currentRank);
+                byte piece = board.getPiece(square);
+                byte pieceSide = Board.getPieceSide(piece);
+                out.print(" ");
+                if (pieceSide == Board.WHITE) {
+                    out.print(ANSI_YELLOW);
+                    out.print(getPieceString(piece));
+                    out.print(ANSI_RESET);
+                }
+                else if (pieceSide == Board.BLACK) {
+                    out.print(ANSI_PURPLE);
+                    out.print(getPieceString(piece));
+                    out.print(ANSI_RESET);
+                }
+                else {
+                    out.print(" ");
+                }
+                out.print(" ║");
+            }
+            out.println();
+
+            if (rank == Board.RANK_1) {
+                out.print("   ");
+                out.println("╚═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╝");
+            }
+            else {
+                out.print("   ");
+                out.println("╠═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╣");
+            }
+        }
+
+        out.print("   ");
+        for (int file = Board.FILE_A; file <= Board.FILE_H; file++) {
+            int currentFile = file;
+            if (flipped) {
+                currentFile = 7 - currentFile;
+            }
+            out.print("  ");
+            out.print(getFileString(currentFile));
+            out.print(" ");
+        }
+        out.println();
+    }
+
+    public static String getSquareString (int square) {
+
+        byte file = Board.getSquareFile(square);
+        byte rank = Board.getSquareRank(square);
+        StringBuilder squareString = new StringBuilder();
+        switch (file) {
+            case Board.FILE_A: squareString.append("a"); break;
+            case Board.FILE_B: squareString.append("b"); break;
+            case Board.FILE_C: squareString.append("c"); break;
+            case Board.FILE_D: squareString.append("d"); break;
+            case Board.FILE_E: squareString.append("e"); break;
+            case Board.FILE_F: squareString.append("f"); break;
+            case Board.FILE_G: squareString.append("g"); break;
+            case Board.FILE_H: squareString.append("h"); break;
+        }
+        switch (rank) {
+            case Board.RANK_1: squareString.append("1"); break;
+            case Board.RANK_2: squareString.append("2"); break;
+            case Board.RANK_3: squareString.append("3"); break;
+            case Board.RANK_4: squareString.append("4"); break;
+            case Board.RANK_5: squareString.append("5"); break;
+            case Board.RANK_6: squareString.append("6"); break;
+            case Board.RANK_7: squareString.append("7"); break;
+            case Board.RANK_8: squareString.append("8"); break;
+        }
+        return squareString.toString();
+    }
+
+    public static byte getSquareFromString (String squareString) {
+
+        char fileChar = squareString.charAt(0);
+        char rankChar = squareString.charAt(1);
+        int file = -1;
+        switch (fileChar) {
+            case 'a': file = Board.FILE_A; break;
+            case 'b': file = Board.FILE_B; break;
+            case 'c': file = Board.FILE_C; break;
+            case 'd': file = Board.FILE_D; break;
+            case 'e': file = Board.FILE_E; break;
+            case 'f': file = Board.FILE_F; break;
+            case 'g': file = Board.FILE_G; break;
+            case 'h': file = Board.FILE_H; break;
+        }
+        int rank = -1;
+        switch (rankChar) {
+            case '1': rank = Board.RANK_1; break;
+            case '2': rank = Board.RANK_2; break;
+            case '3': rank = Board.RANK_3; break;
+            case '4': rank = Board.RANK_4; break;
+            case '5': rank = Board.RANK_5; break;
+            case '6': rank = Board.RANK_6; break;
+            case '7': rank = Board.RANK_7; break;
+            case '8': rank = Board.RANK_8; break;
+        }
+        return Board.getSquare(file, rank);
+    }
+
+    public static String getPieceString (int piece) {
+        switch (piece) {
+            case Board.WHITE_PAWN: return "P";
+            case Board.WHITE_KNIGHT: return "N";
+            case Board.WHITE_BISHOP: return "B";
+            case Board.WHITE_ROOK: return "R";
+            case Board.WHITE_QUEEN: return "Q";
+            case Board.WHITE_KING: return "K";
+            case Board.BLACK_PAWN: return "p";
+            case Board.BLACK_KNIGHT: return "n";
+            case Board.BLACK_BISHOP: return "b";
+            case Board.BLACK_ROOK: return "r";
+            case Board.BLACK_QUEEN: return "q";
+            case Board.BLACK_KING: return "k";
+            default: return " ";
+        }
+    }
+
+    public static String getFileString (int file) {
+        switch (file) {
+            case Board.FILE_A: return "A";
+            case Board.FILE_B: return "B";
+            case Board.FILE_C: return "C";
+            case Board.FILE_D: return "D";
+            case Board.FILE_E: return "E";
+            case Board.FILE_F: return "F";
+            case Board.FILE_G: return "G";
+            case Board.FILE_H: return "H";
+            default: return "";
+        }
+    }
+
+    public static String getRankString (int rank) {
+        return String.valueOf(rank+1);
+    }
+
+    public static String getMoveString (long move) {
+        byte fromSquare = (byte) ((move & Board.MOVE_FROM_SQUARE_MASK) >>> Board.MOVE_FROM_SQUARE_OFFSET);
+        byte toSquare = (byte) ((move & Board.MOVE_TO_SQUARE_MASK) >>> Board.MOVE_TO_SQUARE_OFFSET);
+        return getSquareString(fromSquare) + getSquareString(toSquare);
+    }
+
+    public static long getMoveFromString (Board board, String moveString) {
+        byte fromSquare = getSquareFromString(moveString.substring(0,2));
+        byte toSquare = getSquareFromString(moveString.substring(2));
+        return board.getMove(fromSquare, toSquare);
     }
 }
