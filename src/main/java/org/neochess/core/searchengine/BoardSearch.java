@@ -99,6 +99,9 @@ public class BoardSearch {
     private void ponderMoves (long[] moves) {
 
         for (int i = 0; i < moves.length; i++) {
+            if (moves[i] == 0) {
+                break;
+            }
             int score = 0;
             byte fromSquare = (byte)((moves[i] & Board.MOVE_FROM_SQUARE_MASK) >>> Board.MOVE_FROM_SQUARE_OFFSET);
             byte toSquare = (byte)((moves[i] & Board.MOVE_TO_SQUARE_MASK) >>> Board.MOVE_TO_SQUARE_OFFSET);
@@ -370,6 +373,9 @@ public class BoardSearch {
         for (int i = 0; i < moves[ply].length; i++) {
 
             moves[ply][i] = board.makeMove(moves[ply][i]);
+            if (moves[ply][i] == 0) {
+                break;
+            }
             if (foundPV) {
                 searchResult = -alphaBetaSearch (-alpha - 1, -alpha, depth - 1, ply + 1);
                 if ((searchResult > alpha) && (searchResult < beta))
@@ -452,6 +458,9 @@ public class BoardSearch {
         //Iterar sobre los movimientos posibles
         for (int i = 0; i < moves[ply].length; i++) {
             moves[ply][i] = board.makeMove(moves[ply][i]);
+            if (moves[ply][i] == 0) {
+                break;
+            }
             if (foundPV) {
                 quiescResult = -quiescentSearch (-alpha - 1, -alpha, ply + 1);
                 if ((quiescResult > alpha) && (quiescResult < beta)) {
