@@ -371,11 +371,10 @@ public class BoardSearch {
 
         //Iterar sobre los movimientos posibles
         for (int i = 0; i < moves[ply].length; i++) {
-
-            moves[ply][i] = board.makeMove(moves[ply][i]);
             if (moves[ply][i] == 0) {
                 break;
             }
+            moves[ply][i] = board.makeMove(moves[ply][i]);
             if (foundPV) {
                 searchResult = -alphaBetaSearch (-alpha - 1, -alpha, depth - 1, ply + 1);
                 if ((searchResult > alpha) && (searchResult < beta))
@@ -457,10 +456,10 @@ public class BoardSearch {
 
         //Iterar sobre los movimientos posibles
         for (int i = 0; i < moves[ply].length; i++) {
-            moves[ply][i] = board.makeMove(moves[ply][i]);
             if (moves[ply][i] == 0) {
                 break;
             }
+            moves[ply][i] = board.makeMove(moves[ply][i]);
             if (foundPV) {
                 quiescResult = -quiescentSearch (-alpha - 1, -alpha, ply + 1);
                 if ((quiescResult > alpha) && (quiescResult < beta)) {
