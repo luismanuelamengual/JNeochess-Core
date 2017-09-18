@@ -120,6 +120,9 @@ public class BoardSearch {
     private void ponderCaptureMoves (long[] moves) {
 
         for (int i = 0; i < moves.length; i++) {
+            if (moves[i] == 0) {
+                break;
+            }
             byte fromSquare = (byte)((moves[i] & Board.MOVE_FROM_SQUARE_MASK) >>> Board.MOVE_FROM_SQUARE_OFFSET);
             byte toSquare = (byte)((moves[i] & Board.MOVE_TO_SQUARE_MASK) >>> Board.MOVE_TO_SQUARE_OFFSET);
             byte movingFigure = board.getSquareFigure(fromSquare);
