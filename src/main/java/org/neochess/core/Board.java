@@ -516,6 +516,20 @@ public class Board {
         return moves;
     }
 
+    public boolean isMoveLegal (Move move) {
+        boolean isLegal = false;
+        List<Move> moves = getLegalMoves();
+        for (Move testMove : moves) {
+            if (testMove.getFromSquare().equals(move.getFromSquare()) && testMove.getToSquare().equals(move.getToSquare())) {
+                if (move.getPromotionFigure() == testMove.getPromotionFigure()) {
+                    isLegal = true;
+                    break;
+                }
+            }
+        }
+        return isLegal;
+    }
+
     protected List<Move> createPromotionMoves (Board board, Square fromSquare, Square toSquare) {
         List<Move> promotionMoves = new ArrayList<>();
         promotionMoves.add(new Move(fromSquare, toSquare, QUEEN));
