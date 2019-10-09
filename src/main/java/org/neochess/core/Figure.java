@@ -33,11 +33,11 @@ public enum Figure {
         figureBySan.put("K", KING);
     }
 
-    public String getSan() {
+    public String toSAN() {
         return sanByFigure.get(this);
     }
 
-    public static Figure fromSan (String san) {
+    public static Figure fromSAN(String san) {
         return figureBySan.get(san.toUpperCase());
     }
 }

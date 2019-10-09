@@ -73,7 +73,7 @@ public class Match {
         Move move = null;
         List<Move> moves = board.getLegalMoves();
         for (Move testMove : moves) {
-            String testMoveSan = testMove.toSanString(board);
+            String testMoveSan = testMove.toSAN(board);
             if (sanMove.equals(testMoveSan)) {
                 move = testMove;
                 break;

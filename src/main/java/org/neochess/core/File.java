@@ -22,11 +22,11 @@ public enum File {
         return (offsetOrdinal >= 0 && offsetOrdinal <= 7)? files[offsetOrdinal] : null;
     }
 
-    public String getSan() {
+    public String toSAN() {
         return toString().toLowerCase();
     }
 
-    public static File fromSan (String san) {
+    public static File fromSAN(String san) {
         return File.valueOf(san.toUpperCase());
     }
 }

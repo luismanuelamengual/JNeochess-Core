@@ -69,8 +69,8 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
             Matcher matcher = pattern.matcher(moveString);
             boolean moveMade;
             if (matcher.find()) {
-                Square fromSquare = Square.fromSan(moveString.substring(0, 2));
-                Square toSquare = Square.fromSan(moveString.substring(2));
+                Square fromSquare = Square.fromSAN(moveString.substring(0, 2));
+                Square toSquare = Square.fromSAN(moveString.substring(2));
                 moveMade = match.makeMove(fromSquare, toSquare);
             } else {
                 moveMade = match.makeMove(moveString);
@@ -94,13 +94,13 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
     @ConsoleCommand("setFen")
     public void setFenPosition (Console console, Command command) {
         String fen = command.getParameters().get(0);
-        match.getBoard().setFen(fen);
+        match.getBoard().setFromFEN(fen);
         printBoard(console, match.getBoard());
     }
 
     @ConsoleCommand("getFen")
     public void getFenPosition (Console console, Command command) {
-        String fen = match.getBoard().getFen();
+        String fen = match.getBoard().toFEN();
         console.println(fen);
     }
 
@@ -108,7 +108,7 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
     public void listMoves (Console console, Command command) {
         List<Move> moves = match.getBoard().getLegalMoves();
         for (Move move : moves) {
-            console.print(move.toSanString(match.getBoard()));
+            console.print(move.toSAN(match.getBoard()));
             console.print(" ");
         }
         console.println();
@@ -118,7 +118,7 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
     public void listHistoryMoves (Console console, Command command) {
         List<Move> moves = match.getMoves();
         for (Move move : moves) {
-            console.print(move.toSanString(match.getBoard()));
+            console.print(move.toSAN(match.getBoard()));
             console.print(" ");
         }
         console.println();
@@ -137,7 +137,7 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
             }
             Rank rank = ranks[currentRankIndex];
             console.print(" ");
-            console.print(rank.getSan());
+            console.print(rank.toSAN());
             console.print(" ");
             console.print("║");
             for (int fileIndex = 0; fileIndex <= 7; fileIndex++) {
@@ -153,11 +153,11 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
                     console.print(" ");
                     if (pieceSide == WHITE) {
                         console.print(ANSI_YELLOW);
-                        console.print(piece.getSan());
+                        console.print(piece.toSAN());
                         console.print(ANSI_RESET);
                     } else if (pieceSide == BLACK) {
                         console.print(ANSI_PURPLE);
-                        console.print(piece.getSan());
+                        console.print(piece.toSAN());
                         console.print(ANSI_RESET);
                     }
                 }
@@ -187,7 +187,7 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
             }
             File file = files[currentFileIndex];
             console.print("  ");
-            console.print(file.getSan());
+            console.print(file.toSAN());
             console.print(" ");
         }
         console.println();

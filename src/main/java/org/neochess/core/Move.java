@@ -41,7 +41,7 @@ public class Move {
         return fromSquare.toString() + toSquare.toString();
     }
 
-    public String toSanString(Board board) {
+    public String toSAN(Board board) {
         Board cloneBoard = board.clone();
         boolean producesCheck = false;
         boolean producesCheckmate = false;
@@ -71,17 +71,17 @@ public class Move {
             Figure movingFigure = movingPiece.getFigure();
             if (movingFigure == PAWN) {
                 if (capturedPiece != null || toSquare == enPassantSquare) {
-                    sanBuilder.append(fromSquare.getFile().getSan());
+                    sanBuilder.append(fromSquare.getFile().toSAN());
                     sanBuilder.append('x');
                 }
-                sanBuilder.append(toSquare.getSan());
+                sanBuilder.append(toSquare.toSAN());
                 if (promotionFigure != null) {
                     sanBuilder.append("=");
-                    sanBuilder.append(promotionFigure.getSan());
+                    sanBuilder.append(promotionFigure.toSAN());
                 }
             }
             else {
-                sanBuilder.append(movingFigure.getSan());
+                sanBuilder.append(movingFigure.toSAN());
                 List<Square> figureAttackingSquares = board.getAttackingSquares(toSquare, sideToMove);
                 Iterator<Square> attackingSquaresIterator = figureAttackingSquares.iterator();
                 while(attackingSquaresIterator.hasNext()) {
@@ -91,7 +91,7 @@ public class Move {
                     }
                 }
                 if (figureAttackingSquares.size() > 1) {
-                    sanBuilder.append(fromSquare.getFile().getSan());
+                    sanBuilder.append(fromSquare.getFile().toSAN());
                     int fileAttakingFigures = 0;
                     for (Square square : figureAttackingSquares) {
                         if (square.getFile().equals(fromSquare.getFile())) {
@@ -99,14 +99,14 @@ public class Move {
                         }
                     }
                     if (fileAttakingFigures > 1) {
-                        sanBuilder.append(fromSquare.getRank().getSan());
+                        sanBuilder.append(fromSquare.getRank().toSAN());
                     }
                 }
 
                 if (capturedPiece != null) {
                     sanBuilder.append("x");
                 }
-                sanBuilder.append(toSquare.getSan());
+                sanBuilder.append(toSquare.toSAN());
             }
 
             if (producesCheck) {

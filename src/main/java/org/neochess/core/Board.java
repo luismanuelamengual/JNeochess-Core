@@ -52,9 +52,9 @@ public class Board {
         return new Board(this);
     }
 
-    public static Board fromFen(String fen) {
+    public static Board fromFEN(String fen) {
         Board board = new Board();
-        board.setFen(fen);
+        board.setFromFEN(fen);
         return board;
     }
 
@@ -207,7 +207,7 @@ public class Board {
         setSideToMove(WHITE);
     }
 
-    public void setFen(String fen) {
+    public void setFromFEN(String fen) {
 
         clear();
         String squares = fen.substring(0, fen.indexOf(' '));
@@ -225,7 +225,7 @@ public class Board {
                     fileIndex += Integer.parseInt(fenCharacter + "");
                 } else {
                     Square square = Square.getSquare(files[fileIndex], ranks[rankIndex]);
-                    putPiece(square, Piece.fromSan("" + fenCharacter));
+                    putPiece(square, Piece.fromSAN("" + fenCharacter));
                     fileIndex++;
                 }
             }
@@ -275,7 +275,7 @@ public class Board {
         }
     }
 
-    public String getFen () {
+    public String toFEN() {
 
         Rank[] ranks = { ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT };
         File[] files = { A, B, C, D, E, F, G, H };
@@ -300,7 +300,7 @@ public class Board {
                     fileIndex--;
                 }
                 else {
-                    fen.append(piece.getSan());
+                    fen.append(piece.toSAN());
                 }
             }
             if (rankIndex > 0) {

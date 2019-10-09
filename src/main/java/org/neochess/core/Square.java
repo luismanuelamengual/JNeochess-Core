@@ -127,11 +127,11 @@ public enum Square {
         return (offsetFile != null && offsetRank != null)? getSquare(offsetFile, offsetRank) : null;
     }
 
-    public String getSan() {
+    public String toSAN() {
         return toString().toLowerCase();
     }
 
-    public static Square fromSan (String san) {
+    public static Square fromSAN(String san) {
         return Square.valueOf(san.toUpperCase());
     }
 }
