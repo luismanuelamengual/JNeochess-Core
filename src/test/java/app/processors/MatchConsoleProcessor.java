@@ -47,7 +47,7 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
 
         if (command.getParameters().size() > 0) {
             int ply = Integer.parseInt(command.getParameters().get(0));
-            printBoard(console, match.getHistoryBoard(ply));
+            printBoard(console, match.getBoard(ply));
         }
         else {
             printBoard(console, match.getBoard());
@@ -67,7 +67,7 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
             String moveString = command.getParameters().get(0);
             Pattern pattern = Pattern.compile("[a-h][1-8][a-h][1-8]");
             Matcher matcher = pattern.matcher(moveString);
-            Move moveMade = null;
+            boolean moveMade;
             if (matcher.find()) {
                 Square fromSquare = Square.fromSan(moveString.substring(0, 2));
                 Square toSquare = Square.fromSan(moveString.substring(2));
@@ -75,7 +75,7 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
             } else {
                 moveMade = match.makeMove(moveString);
             }
-            if (moveMade != null) {
+            if (moveMade) {
                 printBoard(console, match.getBoard());
             } else {
                 console.println("Illegal move !!");
@@ -108,7 +108,7 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
     public void listMoves (Console console, Command command) {
         List<Move> moves = match.getBoard().getLegalMoves();
         for (Move move : moves) {
-            console.print(move.getSan());
+            console.print(move.toSanString(match.getBoard()));
             console.print(" ");
         }
         console.println();
@@ -116,9 +116,9 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
 
     @ConsoleCommand("history")
     public void listHistoryMoves (Console console, Command command) {
-        List<Move> moves = match.getHistoryMoves();
+        List<Move> moves = match.getMoves();
         for (Move move : moves) {
-            console.print(move.getSan());
+            console.print(move.toSanString(match.getBoard()));
             console.print(" ");
         }
         console.println();

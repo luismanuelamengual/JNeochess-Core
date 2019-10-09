@@ -10,18 +10,15 @@ import static org.neochess.core.Square.*;
 
 public class Move {
 
-    private final Board board;
     private final Square fromSquare;
     private final Square toSquare;
     private final Figure promotionFigure;
 
-    protected Move(Board board, Square fromSquare, Square toSquare) {
-        this(board, fromSquare, toSquare, null);
+    protected Move(Square fromSquare, Square toSquare) {
+        this(fromSquare, toSquare, null);
     }
 
-    protected Move(Board board, Square fromSquare, Square toSquare, Figure promotionFigure) {
-
-        this.board = board.clone();
+    protected Move(Square fromSquare, Square toSquare, Figure promotionFigure) {
         this.fromSquare = fromSquare;
         this.toSquare = toSquare;
         this.promotionFigure = promotionFigure;
@@ -39,11 +36,16 @@ public class Move {
         return promotionFigure;
     }
 
-    public String getSan() {
+    @Override
+    public String toString() {
+        return fromSquare.toString() + toSquare.toString();
+    }
 
+    public String toSanString(Board board) {
         Board cloneBoard = board.clone();
         boolean producesCheck = false;
         boolean producesCheckmate = false;
+        Board backupCloneBoard = cloneBoard.clone();
         cloneBoard.makeMove(this);
         if (cloneBoard.inCheck()) {
             producesCheck = true;
@@ -51,7 +53,7 @@ public class Move {
                 producesCheckmate = true;
             }
         }
-        cloneBoard.unmakeMove(this);
+        cloneBoard.setFrom(backupCloneBoard);
 
         Piece movingPiece = board.getPiece(fromSquare);
         Piece capturedPiece = board.getPiece(toSquare);
@@ -112,14 +114,5 @@ public class Move {
             }
         }
         return sanBuilder.toString();
-    }
-
-    protected Board getBoard() {
-        return board;
-    }
-
-    @Override
-    public String toString() {
-        return fromSquare.toString() + toSquare.toString();
     }
 }

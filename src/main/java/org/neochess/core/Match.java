@@ -2,53 +2,55 @@
 package org.neochess.core;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Match {
 
     private final Board board;
-    private final List<Move> moves;
+    private final List<MatchHistorySlot> historySlots;
 
     public Match() {
         board = new Board();
         board.setInitialPosition();
-        moves = new ArrayList<>();
+        historySlots = new ArrayList<>();
     }
 
     public Board getBoard() {
         return board;
     }
 
-    public int getPly() {
-        return moves.size();
+    public int getMovesCount() {
+        return historySlots.size();
     }
 
-    public List<Move> getHistoryMoves() {
-        return Collections.unmodifiableList(moves);
+    public List<Move> getMoves() {
+        List<Move> moves = new ArrayList<>();
+        for (MatchHistorySlot historySlot : historySlots) {
+            moves.add(historySlot.getMove());
+        }
+        return moves;
     }
 
-    public Move getHistoryMove (int ply) {
-        return moves.get(ply);
+    public Move getMove (int ply) {
+        return historySlots.get(ply).getMove();
     }
 
-    public Board getHistoryBoard (int ply) {
-
+    public Board getBoard (int ply) {
         Board board;
-        if (ply >= moves.size()) {
+        if (ply >= historySlots.size()) {
             board = this.board;
         }
         else {
-            board = moves.get(ply).getBoard();
+            board = historySlots.get(ply).getBoard();
         }
         return board;
     }
 
-    public Move makeMove(Square fromSquare, Square toSquare) {
+    public boolean makeMove(Square fromSquare, Square toSquare) {
         return makeMove(fromSquare, toSquare, null);
     }
 
-    public Move makeMove(Square fromSquare, Square toSquare, Figure promotionFigure) {
+    public boolean makeMove(Square fromSquare, Square toSquare, Figure promotionFigure) {
         Move move = null;
         List<Move> moves = board.getLegalMoves();
         for (Move testMove : moves) {
@@ -60,17 +62,18 @@ public class Match {
             }
         }
         if (move != null) {
+            Board moveBoard = board.clone();
             board.makeMove(move);
-            this.moves.add(move);
+            this.historySlots.add(new MatchHistorySlot(moveBoard, move));
         }
-        return move;
+        return move != null;
     }
 
-    public Move makeMove(String sanMove) {
+    public boolean makeMove(String sanMove) {
         Move move = null;
         List<Move> moves = board.getLegalMoves();
         for (Move testMove : moves) {
-            String testMoveSan = testMove.getSan();
+            String testMoveSan = testMove.toSanString(board);
             if (sanMove.equals(testMoveSan)) {
                 move = testMove;
                 break;
@@ -84,18 +87,17 @@ public class Match {
             }
         }
         if (move != null) {
+            Board moveBoard = board.clone();
             board.makeMove(move);
-            this.moves.add(move);
+            this.historySlots.add(new MatchHistorySlot(moveBoard, move));
         }
-        return move;
+        return move != null;
     }
 
-    public Move unmakeMove() {
-        Move move = null;
-        if (!moves.isEmpty()) {
-            move = moves.remove(moves.size()-1);
-            board.unmakeMove(move);
+    public void unmakeMove() {
+        if (!historySlots.isEmpty()) {
+            MatchHistorySlot historySlot = historySlots.remove(historySlots.size()-1);
+            board.setFrom(historySlot.getBoard());
         }
-        return move;
     }
 }

@@ -350,7 +350,7 @@ public class Board {
                                     moves.addAll(createPromotionMoves(board, testSquare, leftCaptureSquare));
                                 }
                                 else {
-                                    moves.add(createMove(board, testSquare, leftCaptureSquare));
+                                    moves.add(new Move(testSquare, leftCaptureSquare));
                                 }
                             }
                             Square rightCaptureSquare = testSquare.getOffsetSquare(1, 1);
@@ -359,7 +359,7 @@ public class Board {
                                     moves.addAll(createPromotionMoves(board, testSquare, rightCaptureSquare));
                                 }
                                 else {
-                                    moves.add(createMove(board, testSquare, rightCaptureSquare));
+                                    moves.add(new Move(testSquare, rightCaptureSquare));
                                 }
                             }
                             Square nextSquare = testSquare.getOffsetSquare(0, 1);
@@ -368,11 +368,11 @@ public class Board {
                                     moves.addAll(createPromotionMoves(board, testSquare, nextSquare));
                                 }
                                 else {
-                                    moves.add(createMove (board, testSquare, nextSquare));
+                                    moves.add(new Move (testSquare, nextSquare));
                                     if (testSquare.getRank().equals(TWO)) {
                                         Square nextTwoSquare = testSquare.getOffsetSquare(0, 2);
                                         if (getPiece(nextTwoSquare) == null) {
-                                            moves.add(createMove(board, testSquare, nextTwoSquare));
+                                            moves.add(new Move(testSquare, nextTwoSquare));
                                         }
                                     }
                                 }
@@ -385,7 +385,7 @@ public class Board {
                                     moves.addAll(createPromotionMoves(board, testSquare, leftCaptureSquare));
                                 }
                                 else {
-                                    moves.add(createMove(board, testSquare, leftCaptureSquare));
+                                    moves.add(new Move(testSquare, leftCaptureSquare));
                                 }
                             }
                             Square rightCaptureSquare = testSquare.getOffsetSquare(1, -1);
@@ -394,7 +394,7 @@ public class Board {
                                     moves.addAll(createPromotionMoves(board, testSquare, rightCaptureSquare));
                                 }
                                 else {
-                                    moves.add(createMove(board, testSquare, rightCaptureSquare));
+                                    moves.add(new Move(testSquare, rightCaptureSquare));
                                 }
                             }
                             Square nextSquare = testSquare.getOffsetSquare(0, -1);
@@ -403,11 +403,11 @@ public class Board {
                                     moves.addAll(createPromotionMoves(board, testSquare, nextSquare));
                                 }
                                 else {
-                                    moves.add(createMove(board, testSquare, nextSquare));
+                                    moves.add(new Move(testSquare, nextSquare));
                                     if (testSquare.getRank().equals(SEVEN)) {
                                         Square nextTwoSquare = testSquare.getOffsetSquare(0, -2);
                                         if (getPiece(nextTwoSquare) == null) {
-                                            moves.add(createMove(board, testSquare, nextTwoSquare));
+                                            moves.add(new Move(testSquare, nextTwoSquare));
                                         }
                                     }
                                 }
@@ -426,11 +426,11 @@ public class Board {
                                 Piece pieceAtCurrentSquare = getPiece(currentOffsetSquare);
                                 if (pieceAtCurrentSquare != null) {
                                     if (pieceAtCurrentSquare.getSide().equals(oppositeSide)) {
-                                        moves.add(createMove(board, testSquare, currentOffsetSquare));
+                                        moves.add(new Move(testSquare, currentOffsetSquare));
                                     }
                                     break;
                                 }
-                                moves.add(createMove(board, testSquare, currentOffsetSquare));
+                                moves.add(new Move(testSquare, currentOffsetSquare));
                                 if (pieceFigure.equals(KNIGHT) || pieceFigure.equals(KING)) {
                                     break;
                                 }
@@ -448,12 +448,12 @@ public class Board {
                 if (!isSquareAttacked(E1, BLACK)) {
                     if (sideCastleRights.canCastleKingSide() && getPiece(F1) == null && getPiece(G1) == null) {
                         if (!isSquareAttacked(F1, BLACK) && !isSquareAttacked(G1, BLACK)) {
-                            moves.add(createMove(board, E1, G1));
+                            moves.add(new Move(E1, G1));
                         }
                     }
                     if (sideCastleRights.canCastleQueenSide() && getPiece(D1) == null && getPiece(C1) == null && getPiece(B1) == null) {
                         if (!isSquareAttacked(D1, BLACK) && !isSquareAttacked(C1, BLACK) && !isSquareAttacked(B1, BLACK)) {
-                            moves.add(createMove(board, E1, C1));
+                            moves.add(new Move(E1, C1));
                         }
                     }
                 }
@@ -461,10 +461,10 @@ public class Board {
             if (enPassantSquare != null) {
                 File epSquareFile = enPassantSquare.getFile();
                 if (!epSquareFile.equals(A) && getPiece(enPassantSquare.getOffsetSquare(-1,-1)) == WHITE_PAWN) {
-                    moves.add(createMove(board, enPassantSquare.getOffsetSquare(-1,-1), enPassantSquare));
+                    moves.add(new Move(enPassantSquare.getOffsetSquare(-1,-1), enPassantSquare));
                 }
                 if (!epSquareFile.equals(H) && getPiece(enPassantSquare.getOffsetSquare(1,-1)) == WHITE_PAWN) {
-                    moves.add(createMove(board, enPassantSquare.getOffsetSquare(1,-1), enPassantSquare));
+                    moves.add(new Move(enPassantSquare.getOffsetSquare(1,-1), enPassantSquare));
                 }
             }
         }
@@ -475,12 +475,12 @@ public class Board {
                 if (!isSquareAttacked(E8, WHITE)) {
                     if (sideCastleRights.canCastleKingSide() && getPiece(F8) == null && getPiece(G8) == null) {
                         if (!isSquareAttacked(F8, WHITE) && !isSquareAttacked(G8, WHITE)) {
-                            moves.add(createMove(board, E8, G8));
+                            moves.add(new Move(E8, G8));
                         }
                     }
                     if (sideCastleRights.canCastleQueenSide() && getPiece(D8) == null && getPiece(C8) == null && getPiece(B8) == null) {
                         if (!isSquareAttacked(D8, WHITE) && !isSquareAttacked(C8, WHITE) && !isSquareAttacked(B8, WHITE)) {
-                            moves.add(createMove(board, E8, C8));
+                            moves.add(new Move(E8, C8));
                         }
                     }
                 }
@@ -488,10 +488,10 @@ public class Board {
             if (enPassantSquare != null) {
                 File epSquareFile = enPassantSquare.getFile();
                 if (!epSquareFile.equals(A) && getPiece(enPassantSquare.getOffsetSquare(-1,1)) == BLACK_PAWN) {
-                    moves.add(createMove(board, enPassantSquare.getOffsetSquare(-1,1), enPassantSquare));
+                    moves.add(new Move(enPassantSquare.getOffsetSquare(-1,1), enPassantSquare));
                 }
                 if (!epSquareFile.equals(H) && getPiece(enPassantSquare.getOffsetSquare(1,1)) == BLACK_PAWN) {
-                    moves.add(createMove(board, enPassantSquare.getOffsetSquare(1,1), enPassantSquare));
+                    moves.add(new Move(enPassantSquare.getOffsetSquare(1,1), enPassantSquare));
                 }
             }
         }
@@ -500,30 +500,23 @@ public class Board {
         while (moveIterator.hasNext()) {
             Move move = moveIterator.next();
             Side currentSideToMove = getSideToMove();
+            Board backupBoard = board.clone();
             makeMove(move);
             if (isKingSquareAttacked(currentSideToMove)) {
                 moveIterator.remove();
             }
-            unmakeMove(move);
+            setFrom(backupBoard);
         }
         return moves;
     }
 
     protected List<Move> createPromotionMoves (Board board, Square fromSquare, Square toSquare) {
         List<Move> promotionMoves = new ArrayList<>();
-        promotionMoves.add(createMove(board, fromSquare, toSquare, QUEEN));
-        promotionMoves.add(createMove(board, fromSquare, toSquare, ROOK));
-        promotionMoves.add(createMove(board, fromSquare, toSquare, BISHOP));
-        promotionMoves.add(createMove(board, fromSquare, toSquare, KNIGHT));
+        promotionMoves.add(new Move(fromSquare, toSquare, QUEEN));
+        promotionMoves.add(new Move(fromSquare, toSquare, ROOK));
+        promotionMoves.add(new Move(fromSquare, toSquare, BISHOP));
+        promotionMoves.add(new Move(fromSquare, toSquare, KNIGHT));
         return promotionMoves;
-    }
-
-    protected Move createMove (Board board, Square fromSquare, Square toSquare) {
-        return createMove(board, fromSquare, toSquare, null);
-    }
-
-    protected Move createMove (Board board, Square fromSquare, Square toSquare, Figure promotionFigure) {
-        return new Move(board, fromSquare, toSquare, promotionFigure);
     }
 
     protected void makeMove(Move move) {
@@ -631,10 +624,6 @@ public class Board {
             halfMoveCounter++;
         }
         sideToMove = sideToMove.getOppositeSide();
-    }
-
-    protected void unmakeMove(Move move) {
-        setFrom(move.getBoard());
     }
 
     public Square getKingSquare (Side side) {
