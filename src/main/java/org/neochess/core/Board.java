@@ -52,6 +52,12 @@ public class Board {
         return new Board(this);
     }
 
+    public static Board fromFen(String fen) {
+        Board board = new Board();
+        board.setFen(fen);
+        return board;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object instanceof Board) {
