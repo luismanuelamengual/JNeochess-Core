@@ -137,7 +137,7 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
             }
             Rank rank = ranks[currentRankIndex];
             console.print(" ");
-            console.print(rank.toSAN());
+            console.print(rank.ordinal() + 1);
             console.print(" ");
             console.print("║");
             for (int fileIndex = 0; fileIndex <= 7; fileIndex++) {
@@ -153,11 +153,25 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
                     console.print(" ");
                     if (pieceSide == WHITE) {
                         console.print(ANSI_YELLOW);
-                        console.print(piece.toSAN());
+                        switch (piece.getFigure()) {
+                            case KING: console.print("K"); break;
+                            case QUEEN: console.print("Q"); break;
+                            case ROOK: console.print("R"); break;
+                            case BISHOP: console.print("B"); break;
+                            case KNIGHT: console.print("N"); break;
+                            case PAWN: console.print("P"); break;
+                        }
                         console.print(ANSI_RESET);
                     } else if (pieceSide == BLACK) {
                         console.print(ANSI_PURPLE);
-                        console.print(piece.toSAN());
+                        switch (piece.getFigure()) {
+                            case KING: console.print("k"); break;
+                            case QUEEN: console.print("q"); break;
+                            case ROOK: console.print("r"); break;
+                            case BISHOP: console.print("b"); break;
+                            case KNIGHT: console.print("n"); break;
+                            case PAWN: console.print("p"); break;
+                        }
                         console.print(ANSI_RESET);
                     }
                 }
@@ -187,7 +201,7 @@ public class MatchConsoleProcessor extends ConsoleProcessor {
             }
             File file = files[currentFileIndex];
             console.print("  ");
-            console.print(file.toSAN());
+            console.print(file.toString().toLowerCase());
             console.print(" ");
         }
         console.println();
