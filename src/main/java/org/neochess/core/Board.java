@@ -10,11 +10,6 @@ import static org.neochess.core.Piece.*;
 import static org.neochess.core.Rank.*;
 import static org.neochess.core.File.*;
 
-/**
- * TODO: Cosas a hacer
- * 1. Crear getHash() y método getDrawByRepetition() en clase match
- * 2. Agreagar métodos getPgn y setPgn al Match
- */
 public class Board {
 
     private static EnumMap<Figure, int[][]> figureOffsets;
@@ -225,7 +220,20 @@ public class Board {
                     fileIndex += Integer.parseInt(fenCharacter + "");
                 } else {
                     Square square = Square.getSquare(files[fileIndex], ranks[rankIndex]);
-                    putPiece(square, Piece.fromSAN("" + fenCharacter));
+                    switch (fenCharacter) {
+                        case 'K': putPiece(square, WHITE_KING); break;
+                        case 'Q': putPiece(square, WHITE_QUEEN); break;
+                        case 'R': putPiece(square, WHITE_ROOK); break;
+                        case 'B': putPiece(square, WHITE_BISHOP); break;
+                        case 'N': putPiece(square, WHITE_KNIGHT); break;
+                        case 'P': putPiece(square, WHITE_PAWN); break;
+                        case 'k': putPiece(square, BLACK_KING); break;
+                        case 'q': putPiece(square, BLACK_QUEEN); break;
+                        case 'r': putPiece(square, BLACK_ROOK); break;
+                        case 'b': putPiece(square, BLACK_BISHOP); break;
+                        case 'n': putPiece(square, BLACK_KNIGHT); break;
+                        case 'p': putPiece(square, BLACK_PAWN); break;
+                    }
                     fileIndex++;
                 }
             }
@@ -300,7 +308,20 @@ public class Board {
                     fileIndex--;
                 }
                 else {
-                    fen.append(piece.toSAN());
+                    switch (piece) {
+                        case WHITE_KING: fen.append('K'); break;
+                        case WHITE_QUEEN: fen.append('Q'); break;
+                        case WHITE_ROOK: fen.append('R'); break;
+                        case WHITE_BISHOP: fen.append('B'); break;
+                        case WHITE_KNIGHT: fen.append('N'); break;
+                        case WHITE_PAWN: fen.append('P'); break;
+                        case BLACK_KING: fen.append('k'); break;
+                        case BLACK_QUEEN: fen.append('q'); break;
+                        case BLACK_ROOK: fen.append('r'); break;
+                        case BLACK_BISHOP: fen.append('b'); break;
+                        case BLACK_KNIGHT: fen.append('n'); break;
+                        case BLACK_PAWN: fen.append('p'); break;
+                    }
                 }
             }
             if (rankIndex > 0) {

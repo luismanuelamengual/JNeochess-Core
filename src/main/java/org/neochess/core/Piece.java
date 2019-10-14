@@ -46,18 +46,4 @@ public enum Piece {
     public static Piece getPiece(Side side, Figure figure) {
         return piecesCache[side.ordinal()][figure.ordinal()];
     }
-
-    public String toSAN() {
-        String san = getFigure().toSAN();
-        if (getSide().equals(BLACK)) {
-            san = san.toLowerCase();
-        }
-        return san;
-    }
-
-    public static Piece fromSAN(String san) {
-        Side sanSide = (san == san.toUpperCase())? WHITE : BLACK;
-        Figure sanFigure = Figure.fromSAN(san);
-        return getPiece(sanSide, sanFigure);
-    }
 }

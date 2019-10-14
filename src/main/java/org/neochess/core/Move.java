@@ -71,17 +71,31 @@ public class Move {
             Figure movingFigure = movingPiece.getFigure();
             if (movingFigure == PAWN) {
                 if (capturedPiece != null || toSquare == enPassantSquare) {
-                    sanBuilder.append(fromSquare.getFile().toSAN());
+                    sanBuilder.append(fromSquare.getFile().toString().toLowerCase());
                     sanBuilder.append('x');
                 }
                 sanBuilder.append(toSquare.toSAN());
                 if (promotionFigure != null) {
                     sanBuilder.append("=");
-                    sanBuilder.append(promotionFigure.toSAN());
+                    switch (promotionFigure) {
+                        case KING: sanBuilder.append('K'); break;
+                        case QUEEN: sanBuilder.append('Q'); break;
+                        case ROOK: sanBuilder.append('R'); break;
+                        case BISHOP: sanBuilder.append('B'); break;
+                        case KNIGHT: sanBuilder.append('N'); break;
+                        case PAWN: sanBuilder.append('P'); break;
+                    }
                 }
             }
             else {
-                sanBuilder.append(movingFigure.toSAN());
+                switch (movingFigure) {
+                    case KING: sanBuilder.append('K'); break;
+                    case QUEEN: sanBuilder.append('Q'); break;
+                    case ROOK: sanBuilder.append('R'); break;
+                    case BISHOP: sanBuilder.append('B'); break;
+                    case KNIGHT: sanBuilder.append('N'); break;
+                    case PAWN: sanBuilder.append('P'); break;
+                }
                 List<Square> figureAttackingSquares = board.getAttackingSquares(toSquare, sideToMove);
                 Iterator<Square> attackingSquaresIterator = figureAttackingSquares.iterator();
                 while(attackingSquaresIterator.hasNext()) {
@@ -91,7 +105,7 @@ public class Move {
                     }
                 }
                 if (figureAttackingSquares.size() > 1) {
-                    sanBuilder.append(fromSquare.getFile().toSAN());
+                    sanBuilder.append(fromSquare.getFile().toString().toLowerCase());
                     int fileAttakingFigures = 0;
                     for (Square square : figureAttackingSquares) {
                         if (square.getFile().equals(fromSquare.getFile())) {
@@ -99,7 +113,7 @@ public class Move {
                         }
                     }
                     if (fileAttakingFigures > 1) {
-                        sanBuilder.append(fromSquare.getRank().toSAN());
+                        sanBuilder.append(fromSquare.getRank().ordinal() + 1);
                     }
                 }
 

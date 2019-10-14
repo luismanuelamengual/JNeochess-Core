@@ -21,12 +21,4 @@ public enum Rank {
         int offsetOrdinal = rank.ordinal() + rankOffset;
         return (offsetOrdinal >= 0 && offsetOrdinal <= 7)? ranks[offsetOrdinal] : null;
     }
-
-    public String toSAN() {
-        return String.valueOf(ordinal() + 1);
-    }
-
-    public static Rank fromSAN(String san) {
-        return Rank.values()[Integer.parseInt(san)-1];
-    }
 }
