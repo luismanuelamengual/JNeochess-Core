@@ -15,6 +15,11 @@ public class Match {
         historySlots = new ArrayList<>();
     }
 
+    public Match (Board board) {
+        this.board = board;
+        historySlots = new ArrayList<>();
+    }
+
     public Board getBoard() {
         return board;
     }
